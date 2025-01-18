@@ -1,0 +1,250 @@
+行号,中文和英文简称,英文简称(大写),两字符拉丁字母代码,三字符拉丁字母代码,阿拉伯数字代码,中文和英文全称,中文备注,英文备注,独立与否(独立用“#”标识),2字母语种代码,3字母语种代码,国家和地区当地简称
+0,阿尔巴尼亚 Albania,ALBANIA,AL,ALB,8,阿尔巴尼亚共和国 the Republic of Albania,,,#,sq,sqi,Shqiperia; Shqiperi
+1,阿尔及利亚 Algeria,ALGERIA,DZ,DZA,12,阿尔及利亚民主人民共和国 the People's Democratic Republic of Algeria,,,#,ar,ara,Al Jazā'ir
+2,阿富汗 Afghanistan,AFGHANISTAN,AF,AFG,4,阿富汗伊斯兰共和国 the Islamic Republicof Afghanistan,,,#,fa;ps,fas;pus,Afghānistān Afghānestān
+3,阿根廷 Argentina,ARGENTINA,AR,ARG,32,阿根廷共和国 the Argentine Republic,,,#,es,spa,Argentina(la)
+4,阿联酋 UnitedArab Emirates (the),UNITED ARAB EMIRATES,AE,ARE,784,阿拉伯联合酋长国 the United Arab Emirates,,,#,ar,ara,Al Imārat
+5,阿鲁巴 Aruba,ARUBA,AW,ABW,533,阿鲁巴 Aruba,,,,nl,"nld,pap",Aruba;Aruba
+6,阿曼 Oman,OMAN,OM,OMN,512,阿曼苏丹国 theSultanate of Oman,包括穆桑代姆半岛,Includes part of the Musandam Peninsula,#,ar,ara,'Umān
+7,阿塞拜疆 Azerbaijan,AZERBAIJAN,AZ,AZE,31,阿塞拜疆共和国 theRepublic of Azerbaijan,,,#,az,aze,Azərbaycan
+8,埃及 Egypt,EGYPT,EG,EGY,818,阿拉伯埃及共和国 the Arab Republic of Egypt,,,#,ar,ara,Misr
+9,埃塞俄比亚 Ethiopia,ETHIOPIA,ET,ETH,231,埃塞俄比亚联邦民主共和国 the Federal Democratic Republic of Ethiopia,,,#,am,amh,Ityop'iya
+10,爱尔兰 Ireland,IRELAND,IE,IRL,372,爱尔兰 Ireland,,,#,en;ga,eng;gle,Ireland;Eire
+11,爱沙尼亚 Estonia,ESTONIA,EE,EST,233,爱沙尼亚共和国 the Republic ofEstonia,,,#,et,est,Eesti
+12,安道尔 Andorra,ANDORRA,AD,AND,20,安道尔公国 the Principality of Andorra,,,#,ca,cat,Andorra
+13,安哥拉 Angola,ANGOLA,AO,AGO,24,安哥拉共和国 the Republic of Angola,包括卡宾达,Includes Cabinda,#,pt,por,Angola
+14,安圭拉岛(英) Anguilla,ANGUILLA,AI,AIA,660,安圭拉岛(英) Anguilla,,,,en,eng,Angulla
+15,安提瓜和巴布达 Antigua and Barbuda,ANTIGUA AND BARBUDA,AG,ATG,28,,包括雷东达岛,Includes Redonda Island,#,en,eng,Antigua and Barbuda
+16,奥地利 Austria,AUSTRIA,AT,AUT,40,奥地利共和国 the Republic of Austria,,,#,de,deu,Osterreich
+17,奥兰群岛(芬兰自治省) Aland Islands,ALAND ISLANDS,AX,ALA,248,,,,,SV,swe,Aland
+18,澳大利亚 Australia,AUSTRALIA,AU,AUS,36,,通常被称作澳大利亚联 邦。包括豪勋爵岛、麦 夸里岛，也包括阿什莫 尔和卡捷群岛，以及澳 大利亚外部领地珊瑚海 群岛,"Often referred to as the Commonwealth of Australia. Includes Lord Howe Island, Macquarie Island; and also Ashmore and Cartier Islands,and Coral Sea Islands which are Australian external territories",#,en,eng,Australia
+19,澳门(中国特别行政区) Macao (Special Administrative Regionof China),MACAO,MO,MAC,446,中国澳门特别行政区 Macao Special Administrative Region ofChina,,,,pt;zh,por;zho,Macau;Aomen
+20,巴巴多斯 Barbados,BARBADOS,BB,BRB,52,,,,#,en,eng,Barbados
+21,巴布亚新几内亚 Papua New Guinea,PAPUA NEW GUINEA,PG,PNG,598,巴布亚新几内亚独立国 the Independent State of Papua New Guinea,包括俾斯表群岛、北所 罗 门 群 岛(主要岛屿： 布干维尔岛),"Includes Bismarck Archipelago, Northern Solomon Islands (Principal island: Bougainville)",#,en;ho;-,eng;hmo; tpi,Papua New Guinea; Papuaniugini; Papuaniugini
+22,巴哈马 Bahamas (the),BAHAMAS,BS,BHS,44,巴哈马国 the Commonwealth of the Bahamas,,,#,en,eng,Bahamas(The)
+23,巴基斯坦 Pakistan,PAKISTAN,PK,PAK,586,巴基斯坦伊斯兰共和国 the Islamic Republic of Pakistan,,,#,en;ur,eng;urd,Pakistan; Pakistān
+24,巴拉圭 Paraguay,PARAGUAY,PY,PRY,600,巴拉圭共和国 the Republic of Paraguay,,,#,es;gn,spa;grn,Paraguay (el); Paraguay
+25,"巴勒斯坦国 Palestine, State of","PALESTINE, STATE OF",PS,PSE,275,巴勒斯坦国 The State of Palestine,,,,ar,ara,Dawlat Filastīn
+26,巴林 Bahrain,BAHRAIN,BH,BHR,48,巴林王国 the Kingdom of Bahrain,,,#,ar,ara,Al Bahrayn
+27,巴拿马 Panama,PANAMA,PA,PAN,591,巴拿马共和国 theRepublic of Panama,,,#,es,spa,Panamá
+28,巴西 Brazil,BRAZJI,BR,BRA,76,巴西联邦共和国 the Federative Republic of Brazil,包括费尔南多 - 迪 诺 罗 尼亚岛、马丁瓦斯群岛、特 林达迪岛,"Includes Femando de Noronha Island, Martim Vaz Islands,Trindade Island",#,pt,por,Brasil (o)
+29,白俄罗斯 Belarus,BELARUS,BY,BLR,112,白俄罗斯共和国 the Republic of Belarus,,,#,be;ru,bel;rus,Bielarus'; Belarus
+30,百慕大 Bermuda,BERMUDA,BM,BMU,60,,,,,en,eng,Bermuda
+31,保加利亚 Bulgaria,BULGARIA,BG,BGR,100,保加利亚共和国 the Republic of Bulgaria,,,#,bg,bul,Bulgaria
+32,北马里亚纳群岛 Northern Mariana Islands (the),NORTHERN MARIANA ISLANDS,MP,MNP,580,北马里亚纳自由联邦 the Commonwealth of theNorthern Mariana Islands,由马里亚纳群 岛 ( 除 关 岛，单独条目列出)组成。 (主要岛屿：塞班岛),Comprises Mariana Islands (except GUAM. see separate entry).(Principal island:Saipan),,en,eng,Northern Mariana Islands(the)
+33,北马其顿 North Macedonia,NORTH MACEDONIA,MK,MKD,807,北马其顿共和国 the Republic of North Macedonia,,,#,mk,mkd,Severna Makedonija
+34,贝宁 Benin,BENIN,BJ,BEN,204,贝宁共和国 the Republic ofBenin,,,#,fr,fra,Bénin (le)
+35,比利时 Belgium,BELGIUM,BE,BEL,56,比利时王国 the Kingdom of Belgium,,,#,de;fr;nl,deu;fra; nld,Belgien; Belgique (la); Belgie
+36,冰岛 Iceland,ICELAND,IS,ISL,352,冰岛共和国 the Republic of Iceland,,,#,is,isl,Island
+37,波多黎各 Puerto Rico,PUERTO RICO,PR,PRI,630,,,,,en;es,eng;spa,Puerto Rico; Puerto Rico
+38,波斯尼亚和黑塞哥维那 Bosnia and Herzegovina,BOSNIA AND HERZEGOVINA,BA,BIH,70,,,,#,bs;hr;sr,bos;hry; srp,Bosnai Hercegovina; Bosnai Hercegovina; Bosnai Hercegovina
+39,波兰 Poland,POLAND,PL,POL,616,波兰共和国 the Republic of Poland,,,#,pl,pol,Polska
+40,玻利维亚 Bolivia (Plurinational State of),BOLIVIA (PLURINATIONAL STATEOF),BO,BOL,68,多民族玻利维亚国 the Plurinational State of Bolivia,,,#,es,spa,"Bolivia,Estado Plurinacional de"
+41,伯利兹 Belize,BELJZE,BZ,BLZ,84,,,,#,en,eng,Belize
+42,"博奈尔岛、圣尤斯特歇斯岛 和萨巴岛 Bonaire,Sint Eustatius and Saba","BONAIRE,SINT EUSTATIUS AND SABA",BQ,BES,535,,通常指荷兰加勒比区,Often referred to as Caribbean Netherlands,,en;nl;-,eng;nld: pap,"Bonaire,Sint Eustatius and Saba:Bonaire Sint Eustatius en Saba;Boneiru Sint Eustatius y Saba"
+43,博茨瓦纳 Botswana,BOTSWANA,BW,BWA,72,博茨瓦纳共和国 the Republic of Botswana,,,#,en,eng,Botswana
+44,不丹 Bhutan,BHUTAN,BT,BTN,64,不丹王国 the Kingdom of Bhutan,,,#,dz,dzo,Druk-Yul
+45,布基纳法索 Burkina Faso,BURKINA FASO,BF,BFA,854,,,,井,fr,fra,Burkina(le)
+46,布隆迪 Burundi,BURUNDI,BI,BDI,108,布隆迪共和国 the Republic of Burundi,,,#,"fr,rn",fra;run,Burundi(le); Burundi
+47,布韦岛 Bouvet Island,BOUVET ISLAND,BV,BVT,74,,,,,nb;nn,nbo;nno,Bouvetoya; Bouvetoya
+48,朝鲜 Korea(the Democratic People's Republic of),"KOREA, DEMOCRATIC PEOPLE'S REPUBLIC OF",KP,PRK,408,朝鲜民主主义人民共和国 the Democratic People's Republic of Korea,,,#,ko,kor,Chosǒn
+49,赤道几内亚 Equatorial Guinea,EOUATORIAL GUINEA,GQ,GNQ,226,赤道几内亚共和国 the Republic of Equatorial Guinea,由安诺本岛、比奥科岛等 五个岛和大陆领土木尼 河区组成,"Comprises Annobón Island, Bioko Island, the Continental Region(Rio Muni)",#,"es;fr,pt",esp;fra; por,Guinea Ecuatorial; Guinée équatoriale(la); Guinée équatoriale(a)
+50,丹麦 Denmark,DENMARK,DK,DNK,208,丹麦王国 the Kingdom of Denmark,,,#,da,dan,Danmark
+51,德国 Germany,GERMANY,DE,DEU,276,德意志联邦共和国 the Federal Republic of Germany,,,#,de,deu,Deutschland
+52,东帝汶 Timor-Leste,TIMOR-LESTE,TL,TLS,626,东帝汶民主共和国 the Democratic Republic of Timor-Leste,原 外 文 名称 ： E A S T TIMOR。包括欧库西飞 地,Former entry: EASTTIMOR Includes the exclave of Oecussi,#,pt,por:tet,Timor-Leste; Timor Lorosa'e
+53,多哥 Togo,TOGO,TG,TG0,768,多哥共和国 the Republic of Togo,,,#,fr,fra,Togo (le)
+54,多米尼加 Dominican Republic(the),DOMINICAN REPUBLIC,DO,DOM,214,多米尼加共和国 the Dominican Republic,,,#,es,spa,República Dominicana (la)
+55,多米尼克 Dominica,DOMINICA,DM,DMA,212,多米尼克国 the Commonwealth of Dominica,,,#,en,eng,Dominica
+56,俄罗斯 Russian Federation (the),RUSSIAN FEDERATION,RU,RUS,643,俄罗斯联邦 the Russian Federation,包括加里宁格勒州,Includes the Kaliningrad Region,#,ru,rus,Rossijskaja Federacija
+57,厄瓜多尔 Ecuador,ECUADOR,EC,ECU,218,厄瓜多尔共和国 the Republic of Ecuador,包 括 加 拉 帕戈斯群岛,Includes Galápagos Islands,#,es,spa,Ecuador(el)
+58,厄立特里亚 Eritrea,ERITREA,ER,ERI,232,厄立特里亚国 the State of Eritrea,,,#,ar;en;ti,ara;eng; tir,Iritrīyā;Eritrea; lertra
+59,法国 France,FRANCE,FR,FRA,250,法兰西共和国 the French Republic,由法国本土，法属圭亚那、 瓜德罗普岛、马提尼克群 岛、留尼汪岛、马约特 岛、圣巴泰勒米、圣马丁、 圣皮埃尔和密克隆岛、法 属波利尼西亚、法属南部 领地、新喀里多尼亚、瓦利 斯和富图纳群 岛 组 成 。 包括克利珀顿岛,"Comprises Metropolitan France,French Guiana, Guadcloupe, Martinique,La Réunion,Mayotte, SaintBarthelemy, Saint Martin, Saint Pierre and Miquelon, French Polynesia, French Southerm Teritories, New Caledonia, Wallis and Futuna.Includes Clipperton Island",#,fr,fra,France (la)
+60,法罗群岛 Faroe Islands (the),FAROE ISLANDS,FO,FRO,234,,,,,da;fo,dan;fao,Færoerne; Foroyar
+61,法属波利尼西亚 French Polynesia,FRENCH POLYNESIA,PF,PYF,258,,由南方群岛、甘比尔群岛、 马克萨斯群岛、社会群岛 (主要岛屿：塔希提岛)土阿莫土群岛组成,"Comprises: Austral Islands, Gambier Islands, Marquesas Islands,Society Archipelago (Principal island: Tahiti),Tuamotu Islands",,fr,fra,Polynésie française (la)
+62,法属圭亚那 French Guiana,FRENCH GUIANA,GF,GUF,254,,,,,fr,fra,Guyane française (la)
+63,法属南部领地 French Southem Territories(the),FRENCH SOUTHERN TERRITORIES,TF,ATF,260,,由阿姆斯特丹岛、克洛泽群岛、凯尔盖朗群岛、圣保罗岛和法属印度洋群岛 欧罗巴岛、格洛里奥索群 岛、新胡安群岛、特罗姆兰 岛等法国分散在印度洋 的群岛组成,"Comprises: Amsterdam Island,Crozet Archipelago, Kerguelen Islands, Saint-Paul Island and French scattered Indian Ocean Islands formed by Bassas da India,Europa Island.Glorioso Islands,Juan de Nova Island and Tromelin Island",,fr,fra,Terres australes françaises (les)
+64,梵蒂冈 Holy See(the) [Vatican City State],HOLY SEE (VATICAN CITY STATE),VA,VAT,336,,原名：梵蒂冈 城 国 ( 教 廷),Previous entry: VATICAN CITY STATE (HOLY SEE),#,it;la,ita;lat,Sancta Sede (la);Sancta Sedes
+65,菲律宾 Philippines (the),PHILIPPINES,PH,PHL,608,菲律宾共和国 the Republic of the Philippines,,,#,en;tl,eng;tgl,Philippines (the);Pilipinas
+66,斐济 Fiji,FIJI,FJ,FJI,242,斐济共和国 the Republic of theFiji,主 要 岛 屿瓦努阿岛、维 提岛，包括罗图马岛,"Principal islands: Vanua Levu,Viti Levu;includes Rotuma Island",#,en;f,eng;fj,Fiji;Viti
+67,芬兰 Finland,FINLAND,FI,FIN,246,芬兰共和国 theRepublic of Finland,包括奥兰群岛,Includes Aland Islands,#,fi;sv,fin;swe,Suomi;Finland
+68,佛得角 Cape Verde,CAPE VERDE,CV,CPV,132,佛得角共和国 the Republic of Cape Verde,主 要 岛 屿 ：圣地亚哥岛、 圣维森岛,"Principal islands: São Tiago,Sāo Vicente",#,pt,por,Cabo Verde
+69,福克兰群岛(又称马 尔维纳斯群岛)Falkland Islands (the) [Malvinas],FALKLAND ISLANDS (MALVINAS),FK,FLK,238,,,,,en,eng,Falkland Islands (the) [Malvinas]
+70,冈比亚 Gambia(The),GAMBIA,GM,GMB,270,冈比亚共和国 the Republic of The Gambia,,,#,en,eng,Gambia(The)
+71,刚果(布) Congo,CONG0,CG,COG,178,刚果共和国 the Republic of the Congo,,,#,fr,fra,Congo (le)
+72,刚果(金) Congo (the Democratic Republic of the),"CONGO, DEMOCRATIC REPUBLIC OF THE",CD,COD,180,刚果民主共和国 the Democratic Republic of the Congo,曾用名：扎伊尔,Previous entry: ZAIRE,#,fr,fra,Congo (la République démocratique du)
+73,哥伦比亚 Colombia,COLOMBIA,CO,COL,170,哥伦比亚共和国 the Republic of Colombia,包括马尔佩洛岛、圣安 德烈斯一普罗维登西亚 群岛,"Includes Malpelo Island, San Andrés y Providencia Islands",#,es,spa,Colombia
+74,哥斯达黎加 Costa Rica,COSTA RICA,CR,CRI,188,哥斯达黎加共和国 the Republic of Costa Rica,包括科科群岛,Includes Coco Island,#,es,spa,Costa Rica
+75,格林纳达 Grenada,GRENADA,GD,GRD,308,,包括南格林纳丁斯群岛 (主要岛屿：卡里亚库岛),Includes Southern Grenadine Islands (Principal island: Carriacou),#,en,eng,Grenada
+76,格陵兰 Greenland,GREENLAND,GL,GRL,304,,,,,da;kl,dan;kal,Gronland; Kalaallit Nunaat
+77,格鲁吉亚 Georgia,GEORGIA,GE,GEO,268,,,,#,ka,kat,Sakartvelo
+78,根西岛 Guernsey,GUERNSEY,GG,GGY,831,,根西岛的范围还包括奥 尔德尼岛、布雷科岛、巴劳 岛、赫姆岛、热图岛、利乌 岛、小萨克岛和萨克岛,"The Bailiwick of Guermsey also includes the islands of Aldermey. Brecqhou,Burhou, Herm,Jethou Lihou,Little Sark, and Sark",,en;fr,eng;fra,Guernsey; Guernesey
+79,古巴 Cuba,CUBA,CU,CUB,192,古巴共和国 the Republic of Cuba,,,#,es,spa,Cuba
+80,瓜德罗普 Guadeloupe,GUADELOUPE,GP,GLP,312,,包括代西德拉岛、玛丽一 加朗特、桑特群岛,"Includes la Désirade,Marie- Galante,les Saintes",,fr,fra,Guadeloupe (la)
+81,关岛 Guam,GUAM,GU,GUM,316,,,,,en,eng,Guam
+82,圭亚那 Guyana,GUYANA,GY,GUY,328,圭亚那合作共和国 the Cooperative Republic of Guyana,,,#,en,eng,Guyana
+83,哈萨克斯坦 Kazakhstan,KAZAKHSTAN,KZ,KAZ,398,哈萨克斯坦共和国 the Republic of Kazakhstan,,,#,kk:ru,kaz;rus,Qazaqstan; Kazahstan
+84,海地 Haiti,HAITI,HT,HTI,332,海地共和国 theRepublic of Haiti,,,#,fr;ht,fra;hat,Haiti;Ayiti
+85,韩国 Korea (the Republic of),"KOREA, REPUBLIC OF",KR,KOR,410,大韩民国 the Republic of Korea,,,#,ko,kor,Hanguk
+86,荷兰 Netherlands (the),NETHERLANDS,NL,NLD,528,荷兰王国 the Kingdom of the Netherlands,包括博奈尔岛、圣尤斯 特歇斯岛和萨巴岛,"Includes:the islands Bonaire, Sint Eustatius and Saba",#,nl,nld,Nederland
+87,赫德岛和麦克唐纳群岛 Heard Island and McDonald Islands,HEARD ISLAND AND MCDONALD ISLANDS,HM,HMD,334,,,,,en,eng,HeardIsland and McDonald Islands
+88,黑山 Montenegro,MONTENEGRO,ME,MNE,499,,原名：南斯拉夫，塞尔 维亚和黑山,"Previous entries: YUGOSLAVIA, SERBIA AND MONTENEGRO",#,,,Cma Gora
+89,洪都拉斯 Honduras,HONDURAS,HN,HND,340,洪都拉斯共和国 the Republicof Honduras,包括天鹅群岛,Includes Swan Islands,#,es,spa,Honduras
+90,基里巴斯 Kiribati,KIRIBATI,KI,KIR,296,基里巴斯共和国 the Republic ofKiribati,"由吉尔伯特群岛(主要珊 瑚礁岛：塔拉瓦，含巴纳 巴岛),莱恩群岛的一部 分(包括圣诞岛) 菲 尼 克 斯群岛(包括阿巴里灵阿 岛、恩德伯里岛)组成","Comprises Gilbert Islands (Principal atoll: Tarawa,including Banaba),part of Line Islands (including Kiritimati), Phoenix Islands (including Abariringa, Enderbury Island)",#,en,eng;gil,Kiribati; Kiribati
+91,吉布提 Djibouti,DJIBOUTI,DJ,DJI,262,吉布提共和国 the Republic of Djibouti,,,#,ar:fr,ara;fra,Jibūti;Djibouti
+92,吉尔吉斯斯坦 Kyrgyzstan,KYRGYZSTAN,KG,KGZ,417,吉尔吉斯共和国 the KyrgyzRepublic,,,#,ky;ru,kir;rus,Kyrgyzstan; Kyrgyzstan
+93,几内亚 Guinea,GUINEA,GN,GIN,324,几内亚共和国 the Republic of Guinea,,,#,fr,fra,Guinée(la)
+94,几内亚比绍 Guinea-Bissau,GUINEA- BISSAU,GW,GNB,624,几内亚比绍共和国 the Republic of Guinea- Bissau,,,#,pt,por,Guiné- Bissau(a)
+95,加拿大 Canada,CANADA,CA,CAN,124,加拿大 Canada,,,#,en;fr,eng;fra,Canada; Canada(le)
+96,加纳 Ghana,GHANA,GH,GHA,288,加纳共和国 the Republic ofGhana,,,#,en,eng,Ghana
+97,加蓬 Gabon,GABON,GA,GAB,266,加蓬共和国 the Gabonese Republic,,,#,fr,fra,Gabon (le)
+98,柬埔寨 Cambodia,CAMBODIA,KH,KHM,116,柬埔寨王国 the Kingdom of Cambodia,,,#,km,khm,Kâmpǔchéa
+99,捷克 Czechia,CZECHIA,CZ,CZE,203,捷克共和国 the Czech Republic,,,#,Cs,ces,Cesko
+100,津巴布韦 Zimbabwe,ZIMBABWE,ZW,ZWE,716,津巴布韦共和国 the Republic of Zimbabwe,,,#,en,eng,Zimbabwe
+101,喀麦隆 Cameroon,CAMERO0N,CM,CMR,120,喀麦隆共和国 the Republic of Cameroon,,,#,en:fr,eng:fra,Cameroon; Cameroun (le)
+102,卡塔尔 Qatar,QATAR,QA,QAT,634,卡塔尔国 the State of Qatar,,,#,ar,ara,Qatar
+103,开曼群岛 Cayman Islands (the),CAYMAN ISLANDS,KY,CYM,136,,主要岛屿：大开曼岛,Principal island Grand Cayman,,en,eng,Cayman Islands (the)
+104,科科斯(基灵)群岛 Cocos (Keeling) Islands,COCOS (KEELING) ISLANDS,CC,CCK,166,,,,,en,eng,Cocos Islands/ Keeling Islands (the)
+105,科摩罗 Comoros,COMOROS,KM,COM,174,科摩罗联盟 the Union of the Comoros,由大科摩罗、昂儒昂、莫埃 利、马约特四岛组成(我国 认为马约特岛是科摩罗 的一部分，但法国认为该 岛是法国的海外领地),"Comprises Grande Comore, Anjouan,Mohéli, mayotte",#,ar;fr,ara:fra,Al Qamar; Comores (les); Komori
+106,科特迪瓦 Côte d'Ivoire,COTE DIVOIRE,CI,CIV,384,科特迪瓦共和国 the Republic of Cote d'Ivoire,中 文 曾 译 ：象牙海岸,,井,fr,fra,Côte d'Ivoire (la)
+107,科威特 Kuwait,KUWAIT,KW,KWT,414,科威特国 the State of Kuwait,,,#,ar,ara,Al Kuwayt
+108,克罗地亚 Croatia,CROATIA,HR,HRV,191,克罗地亚共和国 the Republic of Croatia,,,#,hr,hrv,Hrvatska
+109,肯尼亚 Kenya,KENYA,KE,KEN,404,肯尼亚共和国 the Republic of Kenya,,,#,en;sW,eng;sWa,Kenya;Kenya
+110,库克群岛 Cook Islands (the),COOK ISLANDS,CK,COK,184,,主 要 岛 屿 ：拉罗汤加岛,Principal island: Rarotonga,,en,eng,Cook Islands
+111,库拉索 Curacao,CURACAO,CW,CUW,531,,,,,en;nl,eng;nld; pap,Curacao; Curaçao; Kòrsou
+112,拉脱维亚 Latvia,LATVIA,LV,LVA,428,拉脱维亚共和国 the Republic of Latvia,,,#,lv,lav,Latvija
+113,莱索托 Lesotho,LESOTHO,LS,LSO,426,莱索托王国 the Kingdom of Lesotho,,,#,en;st,eng;sot,Lesotho; Lesotho
+114,老挝 Lao People's Democratic Republic (the),LAO PEOPLE'S DEMOCRATIC REPUBLIC,LA,LAO,418,老挝人民民主共和国 the Lao People's Democratic Republic (the),Lao也书写作Laos,Also referred to as Laos,#,lo,lao,Sathalanala Paxathipatai Paxaxōn Lao
+115,黎巴嫩 Lebanon,LEBANON,LB,LBN,422,黎巴嫩共和国 the Lebanese Republic,,,#,ar,ara,Lubnān
+116,立陶宛 Lithuania,LITHUANIA,LT,LTU,440,立陶宛共和国 the Republic of Lithuania,,,#,It,lit,Lietuva
+117,利比里亚 Liberia,LIBERIA,LR,LBR,430,利比里亚共和国 the Republic of Liberia,,,#,en,eng,Liberia
+118,利比亚 Libya,LIBYA,LY,LBY,434,利比亚国 the State of Libya,,,#,ar,ara,Libyā
+119,列支敦士登 Liechtenstein,LIECHTENSTEIN,LI,LIE,438,列支敦士登公国 the Principality of Liechtenstein,,,#,de,deu,Liechtenstein
+120,留尼汪 Réunion,REUNION,RE,REU,638,留尼汪 Réunion,,,,fr,fra,La Réunion
+121,卢森堡 Luxembourg,LUXEMBOURG,LU,LUX,442,卢森堡大公国 the Grand Duchy of Luxembourg,,,#,de;fr;Ib,deu;fra; ltz,Luxemburg; Luxembourg(e); Letzebuerg
+122,卢旺达 Rwanda,RWANDA,RW,RWA,646,卢旺达共和国 theRepublic of Rwanda,,,#,en;fr;rw,eng;fra; kin,Rwanda; Rwanda(le); Rwanda
+123,罗马尼亚 Romania,ROMANIA,RO,ROU,642,,,,#,ro,ron,România
+124,马达加斯加 Madagascar,MADAGASCAR,MG,MDG,450,马达加斯加共和国 the Republic of Madagascar,中 文 曾 译 ：马尔加什,,#,en;fr;mg,eng;fra: mlg,Madagascar; Madagasikara; Madagasikara
+125,马恩岛 Isle of Man,ISLE OF MAN,IM,IMN,833,,,,,en,eng,Isle of Man
+126,马尔代夫 Maldives,MALDIVES,MV,MDV,462,马尔代夫共和国 the Republic of Maldives,,,#,dv,div,Dhivehi Raajje
+127,马耳他 Malta,MALTA,MT,MLT,470,马耳他共和国 the Republic of Malta,,,#,en;mt,eng;mlt,Malta;Malta
+128,马拉维 Malawi,MALAWI,MW,MWI,454,马拉维共和国 the Republic of Malawi,,,#,en;ny,eng;nya,Malawi;Malawi
+129,马来西亚 Malaysia,MALAYSIA,MY,MYS,458,,由半岛马来西亚、沙巴、 沙捞越组成,"Comprises Peninsular Malay, Sabah,Sarawak",#,ms,msa,Malaysia
+130,马里 Mali,MALI,ML,MLI,466,马里共和国 the Republic of Mali,,,#,fr,fra,Mali(le)
+131,马绍尔群岛 Marshall Islands (the),MARSHALL ISLANDS,MH,MHL,584,马绍尔群岛共和国 the Republic of the Marshall Islands,主 要 环 礁 ：贾卢伊特、夸 贾林、马朱罗,"Principal atolls: Jaluit,Kwajalein, Majuro",#,en;mh,eng;mah,Marshall Islands (the); Aelōn in Majel
+132,马提尼克 Martinique,MARTINIOUE,MQ,MTQ,474,,,,,fr,fra,Martinique (la)
+133,马约特 Mayotte,MAYOTTE,YT,MYT,175,,,,,fr,fra,Mayotte
+134,毛里求斯 Mauritius,MAURITIUS,MU,MUS,480,毛里求斯共和国 the Republic of Mauritius,包括罗德里格岛、阿加菜 加群岛、圣布兰登群岛等 群岛,"Includes Rodrigues Island, Agalega Islands, St Brandon Islands",#,en fr,eng fra,Mauritius; Maurice
+135,毛里塔尼亚 Mauritania,MAURITANIA,MR,MRT,478,毛里塔尼亚伊斯兰共和国 the Islamic Republic of Mauritania,,,#,ar,ara,Mūritaāniyā
+136,美国 United States of America (the),UNITED STATES OF AMERICA,US,USA,840,美利坚合众国 the United States of America,,,#,en,eng,United States (the)
+137,美国本土外小岛屿 United States Minor Outlying Islands(the),UNITED STATES MINOR OUTLYING ISLANDS,UM,UMI,581,,由太平洋的贝克岛、豪兰 岛、贾维斯岛、约翰斯顿 岛、金曼礁、中途岛、巴尔 米拉环礁、威克岛，加勒比 海的纳瓦萨岛组成,"Comprises:In the Pacific Ocean: Baker Island, Howland Island, Jarvis Island, Johnston Atoll, Kingman Reef, Midway Islands, Palmyra Atoll, Wake Island.In the Caribbean Sea:Navassa Island",,en,eng,United States Minor Outlying Islands (the)
+138,美属萨摩亚 American Samoa,AMERICAN SAMOA,AS,ASM,16,,主 要 岛 屿 ：图图伊拉岛 包括斯温斯岛,Principal island: Tutuila;Includes Swain's Island,,en,eng,American Samoa
+139,美属维尔京群岛 Virgin Islands (U.S.),"VIRGIN ISLANDS,U.S.",VI,VIR,850,美属维尔京群岛 the Virgin Islands of the United States,主 要 岛 屿 ：圣克罗伊岛 圣约翰岛、圣托马斯岛,"Principal islands: Saint Croix, Saint John,Saint Thomas",,en,eng,Virgin Islands (the)
+140,蒙古国 Mongolia,MONGOLIA,MN,MNG,496,,,,#,mn,mon,Mongol
+141,蒙特塞拉特 Montserrat,MONTSERRAT,MS,MSR,500,,,,,en,eng,Montserrat
+142,孟加拉国 Bangladesh,BANGLADESH,BD,BGD,50,孟加拉人民共和国 the People's Republic of Bangladesh,,,#,bn,ben,Ban ladesh
+143,秘鲁 Peru,PERU,PE,PER,604,秘鲁共和国 the Republic of Peru,,,#,ay;es;qu,aym;spa; que,Perú;Perú(el); Perú
+144,密克罗尼西亚 Micronesia (the Federated States of),"MICRONESIA, FEDERATED STATES OF",FM,FSM,583,密克罗尼西亚联邦 the Federated States of Micronesia,由加罗林群岛组成(除帕 劳，为单独条目)。主要岛 屿：丘克群岛、科斯雷、 波恩佩、雅浦,"Comprises Caroline Islands (except PALAU. see separate entry).Principal islands:Chuuk, Kosrae,Pohnpei, Yap",#,en,eng,Federated States of Micronesia (the)
+145,缅甸 Myanmar,MYANMAR,MM,MMR,104,缅甸联邦 the Republic of the Union of Myanmar,,,#,my,mya,Myanma
+146,摩尔多瓦 Moldova(the Republic of),MOLDOVA. REPUBLIC OF,MD,MDA,498,摩尔多瓦共和国 the Republic of Moldova,,,#,m0,mol,Republica Moldova
+147,摩洛哥 Morocco,MOROCCO,MA,MAR,504,摩洛哥王国 theKingdom of Morocco,,,#,ar,ara,Al Maghrib
+148,摩纳哥 Monaco,MONACO,MC,MCO,492,摩纳哥公国 thePrincipality of Monaco,,,#,fr,fra,Monaco
+149,莫桑比克 Mozambique,MOZAMBIQUE,MZ,MOZ,508,莫桑比克共和国 the Republic of Mozambique,中 文 曾 译 ：莫三鼻给,,#,pt,por,Moçambique
+150,墨西哥 Mexico,MEXICO,MX,MEX,484,墨西哥合众国 the United Mexican States,,,#,es,spa,México
+151,纳米比亚 Namibia,NAMIBIA,,NAM,516,纳米比亚共和国 the Republic of Namibia,,,#,en,eng,Namibia
+152,南非 South Africa,SOUTH AFRICA,ZA,ZAF,710,南非共和国 the Republic of South Africa,包括马里恩岛、爱德华 王子岛,"Includes Marion Island,Prince Edward Island",#,af:en;nr; st;ss;ts; tn;ve;xh; zu,afr:eng; nbl;nso; sot;ssW; tso;tsn; ven;xho; zul,Suid-Afrika; South Africa; Sewula Afrika; Afrika-Borwa; Afrika-Borwa; Ningizimu Afrika;Afrika- Dzonga;Afrika- Borwa;Afrika Tshipembe; MzantsiAfrika; Ningizimu Afrika
+153,南极洲 Antarctica,ANTARCTICA,AQ,ATA,10,,南纬60°以南区域,Territories south of 60°south latitude,,,,
+154,南乔治亚岛和南桑威奇群岛 South Georgia and the South Sandwich Islands,SOUTH GEORGIA AND THE SOUTH SANDWICH ISLANDS,GS,SGS,239,,,,,en,eng,South Georgia and the South Sandwich Islands
+155,南苏丹 South Sudan,SOUTH SUDAN,SS,SSD,728,南苏丹共和国 the Republic ofSouth Sudan,"原苏丹已分为两个国家： 苏 丹 ( 原 苏丹的北部), 南 苏 丹 ( 原苏丹的南部)",Split of Sudan into Sudan (north part)and South Sudan (south part),#,en,eng,South Sudan
+156,瑙鲁 Nauru,NAURU,NR,NRU,520,瑙鲁共和国 the Republic of Nauru,,,#,en;na,eng;nau,Nauru;Naoero
+157,尼泊尔 Nepal,NEPAL,NP,NPL,524,,,,#,ne,nep,Nepal
+158,尼加拉瓜 Nicaragua,NICARAGUA,NI,NIC,558,尼加拉瓜共和国 the Republic of Nicaragua,,,#,es,spa,Nicaragua
+159,尼日尔 Niger(the),NIGER,NE,NER,562,尼日尔共和国 the Republic of Niger,,,#,fr,fra,Niger(le)
+160,尼日利亚 Nigeria,NIGERIA,NG,NGA,566,尼日利亚联邦共和国 the Federal Republic of Nigeria,,,#,en,eng,Nigeria
+161,纽埃 Niue,NIUE,NU,NIU,570,,,,,En;-,eng;niu,Niue;Niue
+162,挪威 Norway,NORWAY,NO,NOR,578,挪威王国 theKingdom of Norway,,,#,nb;nn,nob;nno,Norge;Noreg
+163,诺福克岛 Norfolk Island,NORFOLK ISLAND,NF,NFK,574,,,,,en,eng,Norfolk Island
+164,帕劳 Palau,PALAU,PW,PLW,585,帕劳共和国 the Republic of Palau,由西加罗林群岛组成(主 要岛屿：巴伯尔图阿普 岛),Comprises:the west part of the Caroline Islands (Principal island: Babelthuap),#,en;-,eng;pau,Palau;Belau
+165,皮特凯恩岛 Pitcairn,PITCAIRN,PN,PCN,612,,包括迪西岛亨德森岛、奥 埃诺岛,"IncludesDucie Island,Henderson Island,Oeno Island",,en,eng,Pitcairn
+166,葡萄牙 Portugal,PORTUGAL,PT,PRT,620,葡萄牙共和国 the PortugueseRepublic,,,#,pt,por,Portugal
+167,日本 Japan,JAPAN,JP,JPN,392,,,,#,ja,jpn,Nihon/Nippon
+168,瑞典 Sweden,SWEDEN,SE,SWE,752,瑞典 the kingdomof Sweden,,,#,SV,swe,Sverige
+169,瑞士 Switzerland,SWITZERLAND,CH,CHE,756,瑞士联邦 the Swiss Confederation,,,#,de;fr;it; rm,deu;fra; ita;roh,Schweiz(die); Suisse (la); Svizra (la); Svizra(la)
+170,萨尔瓦多 EI Salvador,EL SALVADOR,SV,SLV,222,萨尔瓦多共和国 the Republic of EI Salvador,,,#,es,spa,EI Salvador
+171,萨摩亚 Samoa,SAMOA,WS,WSM,882,萨摩亚独立国 the Independent State of Samoa,主 要 群 岛 ：萨瓦伊岛、乌 波卢岛,"Principal islands: Savaii,Upolu",#,en;sm,eng;smo,Samoa;Samoa
+172,塞尔维亚 Serbia,SERBIA,RS,SRB,688,塞尔维亚共和国 the Republic ofSerbia,原名：南斯拉夫，塞尔维 亚和黑山,"Previous entries: YUGOSLAVIA, SERBIA AND MONTENEGRO",#,Sr,srp,Srbija
+173,塞拉利昂 Sierra Leone,SIERRA LEONE,SL,SLE,694,塞拉利昂共和国 the Republic ofSierra Leone,,,#,en,eng,Sierra Leone
+174,塞内加尔 Senegal,SENEGAL,SN,SEN,686,塞内加尔共和国 the Republic of Senegal,,,#,fr,fra,Sénégal(le)
+175,塞浦路斯 Cyprus,CYPRUS,CY,CYP,196,塞浦路斯共和国 the Republic of Cyprus,,,#,el;tr,ell;tur,Kýpros;Kibris
+176,塞舌尔 Seychelles,SEYCHELLES,SC,SYC,690,塞舌尔共和国 the Republic of Seychelles,主 要 岛 屿 ：马埃岛，普拉 兰岛，拉迪格岛,"Principalisland Mahé;Praslin,La Digue",#,en;fr,eng;crs; fra,Seychelles; Sesel; Seychelles (les)
+177,沙特阿拉伯 Saudi Arabia,SAUDI ARABIA,SA,SAU,682,沙特阿拉伯王国 the Kingdom of Saudi Arabia,,,#,ar,ara,As Su'ūdīyah
+178,圣巴泰勒米 Saint Barthélemy,SAINT BARTHELEMY,BL,BLM,652,,,,,fr,fra,Saint- Barthélemy
+179,圣诞岛 Christmas Island,CHRISTMAS ISLAND,CX,CXR,162,,,,,en,eng,Christmas Island
+180,圣多美和普林西比 Sao Tome and Principe,SAO TOME AND PRINCIPE,ST,STP,678,圣多美和普林西比民主共和国 the Democratic Republic of Sao Tomeand Principe,,,#,pt,por,São Tomé e Príncipe
+181,"圣赫勒拿-阿森松一特里斯 坦一达库尼亚 Saint Helena, Ascension and Tristan da Cunha","SAINT HELENA, ASCENSION AND TRISTAN DA CUNHA",SH,SHN,654,,包括圣赫勒拿岛、阿森松 岛、特里斯坦达库尼亚(戈 夫岛、伊纳克塞瑟布尔岛、 夜莺岛和斯托尔滕霍夫 岛),"Comprises:Saint Helena Island, Ascension Island Tristan da Cunha (Gough Island, Inaccessible Island, Nightingale Island and Stoltenhoff Island)",,en,eng,Saint Helena Ascension and Tristan da Cunha
+182,圣基茨和尼维斯 Saint Kitts and Nevis,SAINT KITTS AND NEVIS,KN,KNA,659,,圣基茨和尼维斯联邦,the Federation of Saint Kitts and Nevis,#,en,eng,Saint Kitts and Nevis
+183,圣卢西亚 Saint Lucia,SAINT LUCIA,LC,LCA,662,,,,#,en,eng,Saint Lucia
+184,圣马丁(法属) Saint Martin (French Part),SAINT MARTIN (FRENCH PART),MF,MAF,663,,圣马丁分为法属北方部 分和荷属南方部分,The island of Saint Martin is divided into a northern French partand a southern Dutch part,,fr,fra,Saint-Martin
+185,圣马丁(荷兰属) Saint Martin (Dutch Part),SAINT MARTIN (DUTCH PART),SX,SXM,534,,圣马丁分为法属北方部 分和荷属南方部分,The island of Saint Martin is divided into a northern French part and a southern Dutch part,en;nl,eng;nld,,Sint Maarten; Sint Maarten
+186,圣马力诺 San Marino,SAN MARINO,SM,SMR,674,圣马力诺共和国 the Republic of San Marino,,,it,ita,,San Marino
+187,圣皮埃尔和密克隆 Saint Pierre and Miquelon,SAINT PIERREAND MIQUELON,PM,SPM,666,,,,fr,fra,,Saint-Pierre-et- Miquelon
+188,圣文森特和格林纳丁斯 Saint Vincent and the Grenadines,SAINT VINCENT AND THE GRENADINES,VC,VCT,670,,由北格林纳丁斯群岛(主 要岛屿：贝基 亚 岛) 圣 文森特岛组成,"Comprises Northern Grenadine Islands (Principal island: Bequia),Saint Vincent Island",en,eng,,Saint Vincent and the Grenadines
+189,斯里兰卡 Sri Lanka,SRI LANKA,LK,LKA,144,斯里兰卡民主社会主义共和国 the Democratic Socialist Republic of Sri Lanka,,,en;si;ta,eng;sin; tam,,SriLanka;Shrī Lamkā;Ilankai
+190,斯洛伐克 Slovakia,SLOVAKIA,SK,SVK,703,斯洛伐克共和国 the Slovak Republic,,,sk,slk,,Slovensko
+191,斯洛文尼亚 Slovenia,SLOVENIA,SI,SVN,705,斯洛文尼亚共和国 the Republic ofSlovenia,,,sl,slv,,Slovenija
+192,斯瓦尔巴和扬马延 Svalbard and Jan Mayen,SVALBARD AND JAN MAYEN,SJ,SJM,744,,包括熊岛,Includes Bear Island,,nb;nn,nob;nno,Syalbardog Jan Mayen; Svalbardog Jan Mayen
+193,斯威士兰 Eswatini,ESWATINI,SZ,SWZ,748,斯威士兰王国 the Kingdom of Eswatini,,,#,"en,Ss",eng;ssw,Eswatini; eSwatini
+194,苏丹 Sudan(the),SUDAN,SD,SDN,729,苏丹共和国 the Republic of Sudan,"原苏丹已分为两个国家： 苏丹(原苏丹的北部),南 苏丹(原苏丹的南部)",Split of Sudan into Sudan(north part)and South Sudan(south part),#,ar,ara,As Sudan
+195,苏里南 Suriname,SURINAME,SR,SUR,740,苏里南共和国 the Republic of Suriname,,,#,nl,nld,Suriname
+196,所罗门群岛 Solomon Islands,SOLOMON ISLANDS,SB,SLB,90,,由圣克鲁斯群岛、南所罗 门 群 岛 ( 主要岛屿：瓜 达尔卡纳尔)组成,"Comprises: Santa Cruz Islands,Southern Solomon Islands (Principal island Guadalcanal)",#,en,eng,Solomon Islands
+197,索马里 Somalia,SOMALIA,SO,SOM,706,索马里联邦共和国 the Federal Republic of Somalia,,,#,ar;so,ara;som,As Sūmal; Soomaaliya
+198,塔吉克斯坦 Tajikistan,TAJIKISTAN,TJ,TJK,762,塔吉克斯坦共和国 the Republic of Tajikistan,,,#,tg,tgk,Tojikiston
+199,台湾(中国的省) Taiwan (Province of China),"TAIWAN, PROVINCE OF CHINA",TW,TWN,158,,包 括 澎 湖(澎湖列岛) 群岛,Includes Penghu (Pescadores) Islands,,zh,zho,Taiwan
+200,泰国 Thailand,THAILAND,TH,THA,764,泰王国 the Kingdom of Thailand,,,#,th,tha,Prathet Thai
+201,"坦桑尼亚 Tanzania, the United Republic of","TANZANIA, UNITED REPUBLIC OF",TZ,TZA,834,坦桑尼亚联合共和国 the United Republic of Tanzania,,,#,en;sW,"eng,swa",United Republic of Tanzania; Jamhuri ya Muungano wa Tanzania
+202,汤加 Tonga,TONGA,TO,TON,776,汤加王国 the Kingdom of Tonga,主 要 岛 屿 ：汤加塔布,Principal island: Tongatapu,#,en;to,eng;ton,Tonga;Tonga
+203,特克斯和凯科斯群岛 Turks and Caicos Islands (the),TURKS AND CAICOs ISLANDS,TC,TCA,796,,,,,en,eng,Turks and Caicos Islands(the)
+204,特立尼达和多巴哥 Trinidad and Tobago,TRINIDAD AND TOBAGO,TT,TTO,780,特立尼达和多巴哥共和国 the Republic of Trinidad and Tobago,,,#,en,eng,Trinidad and Tobago
+205,突尼斯 Tunisia,TUNISIA,TN,TUN,788,突尼斯共和国 the Republic of Tunisia,,,#,ar,ara,Tunis
+206,图瓦卢 Tuvalu,TUVALU,TV,TUV,798,,主要环礁岛：富纳富提,Principal atoll: Funafuti,#,en,eng:tyl,Tuvalu;Tuvalu
+207,土耳其 Turkey,TURKEY,TR,TUR,792,土耳其共和国 the Republic of Turkey,,,#,tr,tur,Türkiye
+208,土库曼斯坦 Turkmenistan,IURKMENISTAN,TM,TKM,795,,,,#,tk,tuk,Türkmenistan
+209,托克劳 Tokelau,TOKELAU,TK,TKL,772,,,,,en,eng,Tokelau
+210,瓦利斯和富图纳 Wallis and Futuna,WALLIS AND FUTUNA,WF,WLF,876,瓦利斯和富图纳群岛 Wallis and Futuna Islands,"包括霍恩群岛(主要岛屿：富图纳岛),瓦利斯群岛(主要岛屿：乌韦阿岛)","Comprises Hoorn Islands (Principal island:Futuna), Wallis Islands (Principal island: Uvea)",,fr,fra,Wallis-et- Futuna
+211,瓦努阿图 Vanuatu,VANUATU,VU,VUT,548,瓦努阿图共和国 the Republic of Vanuatu,主要岛屿 ：埃法特岛、桑 托岛,"Principal islands: Efate,Santo",#,bi;en;fr,bis;eng; fra,Vanuatu; Vanuatu; Vanuatu(le)
+212,危地马拉 Guatemala,GUATEMALA,GT,GTM,320,危地马拉共和国 the Republic of Guatemala,,,#,es,spa,Guatemala
+213,委内瑞拉玻利瓦尔共和国 Venezuela (Bolivarian Republic of),VENEZUELA (BOLIVARIAN REPUBLIC OF),VE,VEN,862,委内瑞拉玻利瓦尔共和国 the Bolivarian Republic of Venezuela,包括伯德岛,Includes Bird Island,#,es,spa,Venezuela
+214,文莱 Brunei Darussalam,BRUNEI DARUSSALAM,BN,BRN,96,,文莱达鲁萨兰国名称的 另一表示,Variant:Negara Brunei Darussalam,#,en;ms,eng;msa,Brunei Darussalam: Negara Brunei Darussalam
+215,乌干达 Uganda,UGANDA,UG,UGA,800,乌干达共和国 the Republic of Uganda,,,#,en,eng,Uganda
+216,乌克兰 Ukraine,UKRAINE,UA,UKR,804,,,,#,uk,ukr,Ukraina
+217,乌拉圭 Uruguay,URUGUAY,UY,URY,858,乌拉圭东岸共和国 the Eastern Republic of Uruguay,,,#,es,spa,Uruguay (el)
+218,乌兹别克斯坦 Uzbekistan,UZBEKISTAN,UZ,UZB,860,乌兹别克斯坦共和国 theRepublic of Uzbekistan,,,#,uz,uzb,O‘zbekiston
+219,西班牙 Spain,SPAIN,ES,ESP,724,西班牙王国 the KingdomofSpain,,,#,es,spa,Espana
+220,西撒哈拉 Western Sahara,WESTERN SAHARA,EH,ESH,732,,临时名称,Provisional name,,ar,ara,As Sabra'al Gharbīyah
+221,希腊 Greece,GREECE,GR,GRC,300,希腊共和国 the Hellenic Republic,包括圣山自治区,Includes Mount Athos autonomous area,#,el,ell,Ellás/Elláda
+222,香港(中国特别行政区) Hong Kong (Special Administrative Region of China),HONG KONG,HK,HKG,344,中国香港特别行政区 the Hong Kong Special Administrative Region of China,,,,en;zh,eng;zho,Hong Kong; Xianggang
+223,新加坡 Singapore,SINGAPORE,SG,SGP,702,新加坡共和国 the Republic of Singapore,,,#,en;ms; ta;zh,"eng,eng; msa;tam; zho",Singapore; Singapura; Chinkappūr; Xinjiāpō
+224,新喀里多尼亚 New Caledonia,NEW CALEDONIA,NC,NCL,540,新喀里多尼亚 New Caledonia,包括洛亚蒂群岛,Includes Loyalty Islands,,fr,fra,Nouvelle- Calédonie (la)
+225,新西兰 New Zealand,NEW ZEALAND,NZ,NZL,554,,包括安蒂波迪斯群岛、奥 克兰群岛、坎贝尔岛、查塔 姆群岛、克马德克群岛,"Includes: Antipodes Islands, Auckland Islands Campbell Island, Chatham Islands, Kermadec Islands",#,en;mi,eng;mri,New Zealand; Aotearoa
+226,匈牙利 Hungary,HUNGARY,HU,HUN,348,,,,#,hu,hun,Magyarország
+227,叙利亚 Syrian Arab Republic (the),SYRIANARAB REPUBLIC,SY,SYR,760,阿拉伯叙利亚共和国 the Syrian Arab Republic,通常被称为叙利亚,Often referred to as Syria,#,ar,ara,AI Jumhūrīyah al'Arabīyah as Sūriyah
+228,牙买加 Jamaica,JAMAICA,JM,JAM,388,,,,#,en,eng,Jamaica
+229,亚美尼亚 Armenia,ARMENIA,AM,ARM,51,亚美尼亚共和国 the Republic of Armenia,,,#,hy,hye,Hayastan
+230,也门 Yemen,YEMEN,YE,YEM,887,也门共和国 the Republic of Yemen,包括索科特拉岛,Includes Socotra Island,#,ar,ara,Al Yaman
+231,伊拉克 Iraq,IRAQ,IQ,IRQ,368,伊拉克共和国 the Republic of Iraq,,,#,ar;ku,ara;kur,Al'Iraq;'Êraq
+232,伊朗 Iran(Islamic Republic of),IRAN(ISLAMIC REPUBLIC OF),IR,IRN,364,伊朗伊斯兰共和国 the Islamic Republic of Iran,也称为伊朗,Also referred to as Iran,#,fa,fas,Jomhūri-ye Eslamī-ye Irān
+233,以色列 Israel,ISRAEL,IL,ISR,376,以色列国 the State of Israel,,,#,ar:he,ara;heb,Israil;Yisra'el
+234,意大利 Italy,ITALY,IT,ITA,380,意大利共和国 the Republic of Italy,,,#,it,ita,Italia (I)
+235,印度 India,INDIA,IN,IND,356,印度共和国 the Republic of India,包括阿明迪维群岛、安达 曼群岛、拉克代夫群岛、米 尼科伊岛、尼科巴群岛,"Includes Amindivi Islands,Andaman Islands,Laccadive Islands,Minicoy Island,Nicobar Islands",#,en;hi,eng;hin,India;Bhārat
+236,印度尼西亚 Indonesia,INDONESIA,ID,IDN,360,印度尼西亚共和国 the Republicof Indonesia,,,#,id,ind,Indonesia
+237,英国 United Kingdom of Great Britain and Northern Ireland (the),UNITED KINGDOM OF GREAT BRITAINAND NORTHERN IRELAND,GB,GBR,826,大不列颠及北爱尔兰联合王国 the United Kingdom ofGreat Britain and Northern Ireland,,,#,en,eng,United Kingdom (the)
+238,英属维尔京群岛 Virgin Islands (British),VIRGIN ISLANDS (BRITISH),VG,VGB,92,英属维尔京群岛 British Virgin Islands,主 要岛屿：阿内加达、约斯特范代克、托尔托拉、维尔京戈尔达,"Principal islands: Anegada,Jost Van Dyke,Tortola, Virgin Gorda",,en,eng,Virgin Islands (British)
+239,英属印度洋领地 British Indian Ocean Territory(the),BRITISH INDIAN OCEAN TERRITORY,I0,IOT,86,,由查戈斯群岛组成(主要 岛屿：迪戈加西亚),Comprises Chagos Archipelago (Principal island: Diego Garcia),,en,eng,British Indian Ocean Territory (the)
+240,约旦 Jordan,JORDAN,JO,JOR,400,约旦哈希姆王国 the Hashemite Kingdom of Jordan,,,#,ar,ara,Al Urdun
+241,越南 Viet Nam,VIET NAM,VN,VNM,704,越南社会主义共和国 the Socialist Republic of Viet Nam,,,#,vi,vie,Việt Nam
+242,赞比亚 Zambia,ZAMBIA,ZM,ZMB,894,赞比亚共和国 the Republic of Zambia,,,#,en,eng,Zambia
+243,泽西岛 Jersey,JERSEY,JE,JEY,832,,,,,en;fr,eng;fra,Jersey;Jersey
+244,乍得 Chad,CHAD,TD,TCD,148,乍得共和国 the Republic of Chad,,,#,ar;fr,ara;fra,Tshād;Tchad (le)
+245,直布罗陀 Gibraltar,GIBRALTAR,GI,GIB,292,,,,,en,eng,Gibraltar
+246,智利 Chile,CHILE,CL,CHL,152,智利共和国 the Republic of Chile,包括复活节岛、胡安费尔南德斯群岛、萨拉-戈麦斯岛、圣安布罗西奥岛、圣费利克斯岛,"Includes Easter Island,Juan Fernández Islands, Sala y Gómez Island,San Ambrosio Island, San Félix Island",#,es,spa,Chile
+247,中非共和国 Central African Republic(the),CENTRAL AFRICAN REPUBLIC,CF,CAF,140,中非共和国 the Central African Republic,,,#,fr:sg,fra;sag,République centrafricaine (la);Kodörösese tī Beafrika
+248,中国 China,CHINA,CN,CHN,156,中华人民共和国 the People's Republic of China,含中国台湾省,"See also TAIWAN, PROVINCE OF CHINA",#,zh,zho,Zhongguo
