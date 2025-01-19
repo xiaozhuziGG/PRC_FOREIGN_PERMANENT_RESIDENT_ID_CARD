@@ -19,42 +19,6 @@ nationality_dict_by_code_2 = {}
 nationality_dict_by_code_3 = {}
 # 省市代码
 administrative_division = {}
-CODE_PROVINCE_DATA = {
-    "11": "北京",
-    "12": "天津",
-    "13": "河北",
-    "14": "山西",
-    "15": "内蒙古",
-    "21": "辽宁",
-    "22": "吉林",
-    "23": "黑龙江",
-    "31": "上海",
-    "32": "江苏",
-    "33": "浙江",
-    "34": "安徽",
-    "35": "福建",
-    "36": "江西",
-    "37": "山东",
-    "41": "河南",
-    "42": "湖北",
-    "43": "湖南",
-    "44": "广东",
-    "45": "广西",
-    "46": "海南",
-    "50": "重庆",
-    "51": "四川",
-    "52": "贵州",
-    "53": "云南",
-    "54": "西藏",
-    "61": "陕西",
-    "62": "甘肃",
-    "63": "青海",
-    "64": "宁夏",
-    "65": "新疆",
-    "71": "台湾",
-    "81": "香港",
-    "82": "澳门"
-}
 # 永久居留证国编代码和国籍缩写,可能没用了先留着吧
 CODE_NATIONALITY_DATA = {
     "008": "ALB",
@@ -376,7 +340,7 @@ class NationalityInfo:
 
 # 文件中读取信息
 def get_nationality_info() -> None:
-    #print("开始解析国籍信息...")
+    # print("开始解析国籍信息...")
 
     # 此处写从文件读取国籍信息的代码
     path_csv = r"./resource/GBT2659.1-2022.CSV"
@@ -386,7 +350,7 @@ def get_nationality_info() -> None:
         nationality_read = pd.read_excel(path_xlsx, engine='openpyxl', header=0, index_col=None,
                                          sheet_name=0)
         nationality_read_new = nationality_read.applymap(replace_newline)
-        nationality_read_new.to_csv( path_csv, index=True, encoding="utf-8")
+        nationality_read_new.to_csv(path_csv, index=True, encoding="utf-8")
     else:
         nationality_read_new = pd.read_csv(path_csv, encoding="utf-8", dtype={'阿拉伯数字代码': str})
     # 逐行解析
@@ -420,7 +384,7 @@ def get_nationality_info() -> None:
 
 # 获取省市代码
 def get_province_code() -> None:
-    #print("开始解析行政区划信息...")
+    # print("开始解析行政区划信息...")
     try:
         admin_division = r"./resource/administrative_division.csv"
         region_info = pd.read_csv(admin_division, encoding="utf-8", dtype={'行政区代码': str})

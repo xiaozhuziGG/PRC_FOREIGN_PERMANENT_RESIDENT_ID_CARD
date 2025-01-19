@@ -16,18 +16,26 @@ from os import path, makedirs
 
 class IDType(Enum):
     """证件类型枚举"""
-    ID_CARD = "居民身份证"
+    ID_CARD = "居民身份证0"
+    BUSINESS_LICENSE = "营业执照0"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
     GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
-    HKG_PERMANENT_RESIDENT = "香港居民居住证"
-    MAC_PERMANENT_RESIDENT = "澳门台居民居住证"
-    CTN_PERMANENT_RESIDENT = "台湾居民居住证"
-    BUSINESS_LICENSE = "营业执照"
     CTN_PERMIT = "台湾居民来往内地通行证"
+    HKG_MAC_PERMIT = "港澳居民来往内地通行证"
+
+
+class GATPermanentResident(Enum):
+    """港澳台居民居住证"""
+    HKG_PERMANENT_RESIDENT = "香港居民居住证"
+    MAC_PERMANENT_RESIDENT = "澳门居民居住证"
+    CTN_PERMANENT_RESIDENT = "台湾居民居住证"
+
+
+class HkgMacPermit(Enum):
+    """港澳居民来往内地通行证"""
     HKG_PERMIT = "香港居民来往内地通行证"
     MAC_PERMIT = "澳门居民来往内地通行证"
-    HKG_MAC_PERMIT = "港澳居民来往内地通行证"
 
 
 def get_sex(num: str) -> str:
@@ -532,13 +540,13 @@ class TypeGATJZZ(IDNOGenerator):
         super().__init__()
         self.__kind = IDType.GAT_PERMANENT_RESIDENT.value
         self.__type = id_type.value
-        if id_type == IDType.HKG_PERMANENT_RESIDENT:
+        if id_type == GATPermanentResident.HKG_PERMANENT_RESIDENT:
             self.region_code = '810000'
             self.province_name = '香港'
-        elif id_type == IDType.MAC_PERMANENT_RESIDENT:
+        elif id_type == GATPermanentResident.MAC_PERMANENT_RESIDENT:
             self.region_code = '820000'
             self.province_name = '澳门'
-        elif id_type == IDType.CTN_PERMANENT_RESIDENT:
+        elif id_type == GATPermanentResident.CTN_PERMANENT_RESIDENT:
             self.region_code = '830000'
             self.province_name = '台湾'
         else:
@@ -555,9 +563,9 @@ class TypeGATXZ(IDNOGenerator):
         super().__init__()
         self.__kind = id_type.HKG_MAC_PERMIT.value
         self.type = id_type.value
-        if id_type == IDType.HKG_PERMIT:
+        if id_type == HkgMacPermit.HKG_PERMIT:
             self.PREFIX_CODE = 'H'
-        elif id_type == IDType.MAC_PERMIT:
+        elif id_type == HkgMacPermit.MAC_PERMIT:
             self.PREFIX_CODE = 'M'
         else:
             raise ValueError("输入证件类型错误,输入证件类型不为香港或者澳门通行证")
@@ -601,7 +609,7 @@ class TypeTWTXZ(IDNOGenerator):
 if __name__ == '__main__':
     # wgr = TypeYJZ(gender='男')
     wgr = TypeYJZ()
-    wgr.generate_image()
+    # wgr.generate_image()
     print(wgr)
     HKG_card = TypeGATJZZ(IDType.HKG_PERMANENT_RESIDENT)
     print(HKG_card)
@@ -617,8 +625,8 @@ if __name__ == '__main__':
     # print(wgr1)
     # abc = get_province_city_code()
     # c = generate_sequence_code(0, 999)
-    # d = TypeYJZ2017()
-    # print(d)
+    d = TypeYJZ2017()
+    print(d)
     # name = generate_chinese_name()
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
