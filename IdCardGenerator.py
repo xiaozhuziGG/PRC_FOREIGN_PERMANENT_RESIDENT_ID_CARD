@@ -204,7 +204,7 @@ class IDNOGenerator(object):
                 # 生日时间转换为生日日期
                 self.birthday = birthday_time.date().strftime("%Y%m%d")
             except ValueError:
-                print("输入的生日格式不正确")
+                raise "输入的生日格式不正确"
         # 顺序码
         if sequence_code is None:
             self.sequence_code = generate_sequence_code(0, 999)
@@ -376,7 +376,7 @@ class TypeYJZ(IDNOGenerator):
         path_src = r"./resource"
         path_result = r"./result/"
         if image_src is None:
-            image_src = path.join(path_src, "YJJ_IdInfo.jpg")
+            image_src = path.join(path_src, "YJJ_IDInfo.jpg")
         if image_dest is None:
             image_dest = path_result
         try:
