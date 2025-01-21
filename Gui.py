@@ -141,8 +141,8 @@ class AppYjj(tk.Frame):
         self.btn_generate_image.bind("<Button-1>", self.generate_image)
         self.btn_generate_image.grid(row=11, column=3)
 
-        self.button_cheack = tk.Button(self, text="校验", command=lambda: print("校验"))
-        self.button_cheack.grid(row=11, column=4)
+        self.button_check = tk.Button(self, text="校验", command=lambda: print("校验"))
+        self.button_check.grid(row=11, column=4)
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
         self.button_quit.grid(row=11, column=5)
 
@@ -165,36 +165,37 @@ class AppYjj(tk.Frame):
         # 依据自定义输入,需要同步修改其他文件的内容
         return
         YJZ = IDGener.TypeYJZ()
-        # 为所有标签绑定的变量实现赋值
-        self.ID_No.set(YJZ.No)
-        self.name_EN.set(YJZ.name_EN)
-        self.name_CH.set(YJZ.name_CH)
-        self.birthday.set(YJZ.birthday)
-        self.gender.set(YJZ.gender)
-        self.province_code.set(YJZ.province_code)
-        self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(YJZ.province_code), '未知'))
-        self.nationality_number.set(YJZ.nationality_number)
-        self.nationality_code.set(YJZ.nationality_code)
-        self.nationality_name_cn.set(YJZ.nationality_name_cn)
+        self.show_info(YJZ)
 
     def generate_default(self, event=None):  # event就是点击事件
-        YJZ = IDGener.TypeYJZ()
+        IDInfo = IDGener.TypeYJZ()
         # messagebox.showinfo("提示", "校验方法")
-        # print("类中合成图像")
+        self.show_info(IDInfo)
+
+    def show_info(self, card_info: IDGener.TypeYJZ):
+        """
+        显示卡片信息。
+
+        为所有标签绑定的变量实现赋值，以在界面上展示证件持有者的相关信息。
+
+        参数:
+        card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
+        """
+
         # 为所有标签绑定的变量实现赋值
-        self.ID_No.set(YJZ.No)
-        self.name_EN.set(YJZ.name_EN)
-        self.name_CH.set(YJZ.name_CH)
-        self.birthday.set(YJZ.birthday)
-        self.gender.set(YJZ.gender)
-        self.province_code.set(YJZ.province_code)
-        self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(YJZ.province_code), '未知'))
-        self.nationality_number.set(YJZ.nationality_number)
-        self.nationality_code.set(YJZ.nationality_code)
-        self.nationality_name_cn.set(YJZ.nationality_name_cn)
+        self.ID_No.set(card_info.No)
+        self.name_EN.set(card_info.name_EN)
+        self.name_CH.set(card_info.name_CH)
+        self.birthday.set(card_info.birthday)
+        self.gender.set(card_info.gender)
+        self.province_code.set(card_info.province_code)
+        self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(card_info.province_code), '未知'))
+        self.nationality_number.set(card_info.nationality_number)
+        self.nationality_code.set(card_info.nationality_code)
+        self.nationality_name_cn.set(card_info.nationality_name_cn)
 
     def generate_image(self, event=None):
-        print(type(self),event)
+        print(type(self), event)
         messagebox.showinfo("提示", "生成证件图片在根目录下")
 
 
