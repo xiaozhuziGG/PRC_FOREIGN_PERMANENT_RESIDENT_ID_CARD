@@ -536,17 +536,17 @@ class TypeGATJZZ(IDNOGenerator):
             f"地区码：{self.region_code}, 地区：{self.province_name}\n"
         )
 
-    def __init__(self, id_type: IDType):
+    def __init__(self, id_type: str):
         super().__init__()
         self.__kind = IDType.GAT_PERMANENT_RESIDENT.value
-        self.__type = id_type.value
-        if id_type == GATPermanentResident.HKG_PERMANENT_RESIDENT:
+        self.__type = id_type
+        if id_type == GATPermanentResident.HKG_PERMANENT_RESIDENT.value:
             self.region_code = '810000'
             self.province_name = '香港'
-        elif id_type == GATPermanentResident.MAC_PERMANENT_RESIDENT:
+        elif id_type == GATPermanentResident.MAC_PERMANENT_RESIDENT.value:
             self.region_code = '820000'
             self.province_name = '澳门'
-        elif id_type == GATPermanentResident.CTN_PERMANENT_RESIDENT:
+        elif id_type == GATPermanentResident.CTN_PERMANENT_RESIDENT.value:
             self.region_code = '830000'
             self.province_name = '台湾'
         else:
