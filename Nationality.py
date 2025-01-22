@@ -347,10 +347,11 @@ def get_nationality_info() -> None:
     path_xlsx = r"./resource/GBT2659.1-2022.xlsx"
 
     if not os.path.exists(path_csv):
-        nationality_read = pd.read_excel(path_xlsx, engine='openpyxl', header=0, index_col=None,
-                                         sheet_name=0)
-        nationality_read_new = nationality_read.applymap(replace_newline)
-        nationality_read_new.to_csv(path_csv, index=True, encoding="utf-8")
+        # nationality_read = pd.read_excel(path_xlsx, engine='openpyxl', header=0, index_col=None,
+        #                                  sheet_name=0)
+        # nationality_read_new = nationality_read.applymap(replace_newline)
+        # nationality_read_new.to_csv(path_csv, index=True, encoding="utf-8")
+        raise FileNotFoundError("找不到文件：" + path_csv)
     else:
         nationality_read_new = pd.read_csv(path_csv, encoding="utf-8", dtype={'阿拉伯数字代码': str})
     # 逐行解析

@@ -301,19 +301,22 @@ class MainApplication(tk.Tk):
         self.id_kind.set(IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value)
         self.show_frame(self.yjj_frame)
 
-    def show_frame(self, frame):
+    def show_frame(self, frame=None):
         # 隐藏所有 Frame
         for widget in self.winfo_children():
             if isinstance(widget, tk.Frame):
                 widget.grid_forget()
         # 显示指定的 Frame
-        frame.grid(row=1, column=0, columnspan=4, padx=20, pady=20)
+        if frame:
+            frame.grid(row=1, column=0, columnspan=4, padx=20, pady=20)
 
     def create_frame(self, event):
         if IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
             self.show_frame(self.yjj_frame)
-        else:
+        elif IDGener.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
             self.show_frame(self.gat_frame)
+        else:
+            self.show_frame()
 
 
 if __name__ == '__main__':
