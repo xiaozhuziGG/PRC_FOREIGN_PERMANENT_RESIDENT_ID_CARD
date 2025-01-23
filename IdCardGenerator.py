@@ -611,7 +611,7 @@ if __name__ == '__main__':
     wgr = TypeYJZ()
     # wgr.generate_image()
     print(wgr)
-    HKG_card = TypeGATJZZ(IDType.HKG_PERMANENT_RESIDENT)
+    HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT)
     print(HKG_card)
     # MAC_card = TypeGATJZZ(IDType.MAC_PERMANENT_RESIDENT)
     # print(MAC_card)

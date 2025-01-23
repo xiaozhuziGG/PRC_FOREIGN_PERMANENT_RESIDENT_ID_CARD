@@ -281,6 +281,48 @@ class GATJzz(tk.Frame):
         self.province_name.set(card_info.province_name)
 
 
+class GAtxz(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+
+        # 创建港澳台页面的组件
+        self.id_type = tk.StringVar()
+        self.label_id_type = tk.Label(self, text="证件类别:")
+        self.label_id_type.grid(row=1, column=0, sticky='e')
+        ga_id_type = tuple(member.value for member in IDGener.HkgMacPermit)
+        self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=ga_id_type)
+        self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
+        self.combobox_id_type.grid(row=1, column=1, sticky='w')
+
+        self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
+        self.label_ID_No.grid(row=2, column=0, sticky='e')
+        self.ID_No = tk.StringVar()
+        self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
+        self.entry_ID_No.grid(row=2, column=1)
+        self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
+        self.btn_copy_ID_No.grid(row=2, column=2)
+
+        # 默认显示香港通行证
+        self.id_type.set(IDGener.HkgMacPermit.HKG_PERMIT.value)
+    def generate_default(self, event=None):
+        pass
+
+
+class TWtxz(tk.Frame):
+    """台湾通行证"""
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
+        self.label_ID_No.grid(row=1, column=0, sticky='e')
+        self.ID_No = tk.StringVar()
+        self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
+        self.entry_ID_No.grid(row=1, column=1)
+        self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
+        self.btn_copy_ID_No.grid(row=1, column=2)
+
+
 class MainApplication(tk.Tk):
     def __init__(self, id_kinds, ):
         super().__init__()
@@ -315,6 +357,10 @@ class MainApplication(tk.Tk):
             self.show_frame(self.yjj_frame)
         elif IDGener.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
             self.show_frame(self.gat_frame)
+        elif IDGener.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
+            self.show_frame(GAtxz(self))
+        elif IDGener.IDType.CTN_PERMIT.value == str(self.id_kind.get()):
+            self.show_frame(TWtxz(self))
         else:
             self.show_frame()
 
