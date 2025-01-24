@@ -15,7 +15,7 @@ import Nationality
 import pyperclip
 
 
-class AppYjj(tk.Frame):
+class Yjj2023(tk.Frame):
     """永居证的页面"""
 
     def __init__(self, master=None):
@@ -100,7 +100,7 @@ class AppYjj(tk.Frame):
         self.btn_copy_nationality_number.grid(row=8, column=2)
 
         # 创建国籍标签和输入框
-        self.label_nationality_code = tk.Label(self, text="国籍:")
+        self.label_nationality_code = tk.Label(self, text="国籍简写:")
         self.label_nationality_code.grid(row=9, column=0, sticky='e')
         self.nationality_code = tk.StringVar()
         self.entry_nationality_code = tk.Entry(self, textvariable=self.nationality_code)
@@ -128,22 +128,18 @@ class AppYjj(tk.Frame):
         # 合成图像按钮
         self.btn_generate_image = tk.Button(self, text="合成图像")
         self.btn_generate_image.bind("<Button-1>", self.generate_image)
-        self.btn_generate_image.grid(row=11, column=3)
+        self.btn_generate_image.grid(row=11, column=2)
 
         self.button_check = tk.Button(self, text="合法性校验", command=lambda: print("校验"))
-        self.button_check.grid(row=11, column=4)
+        self.button_check.grid(row=12, column=0)
 
         self.button_check_gat = tk.Button(self, text="校验位补全", command=self.generate_image)
-        self.button_check_gat.grid(row=11, column=5)
+        self.button_check_gat.grid(row=12, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit.grid(row=12, column=6)
+        self.button_quit.grid(row=12, column=2)
 
         self.generate_default()
-        self.createWidget()
-
-    def createWidget(self):
-        pass
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
@@ -180,6 +176,12 @@ class AppYjj(tk.Frame):
         messagebox.showinfo("提示", "生成证件图片在根目录下")
 
 
+class Yjj2017(Yjj2023):
+    """永居证的页面"""
+
+    def __init__(self, master=None):
+        super().__init__(master)
+
 class GATJzz(tk.Frame):
     """港澳台居住证的页面"""
 
@@ -195,6 +197,15 @@ class GATJzz(tk.Frame):
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=gat_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=1, column=1, sticky='w')
+
+        self.label_name_CH = tk.Label(self, text="中文名:")
+        self.label_name_CH.grid(row=2, column=0, sticky='e')
+        self.name_CH = tk.StringVar()
+        self.entry_name_CH = tk.Entry(self, textvariable=self.name_CH)
+        self.entry_name_CH.grid(row=2, column=1)
+        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
+        self.btn_copy_name_CH.grid(row=2, column=2)
+
 
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
         self.label_ID_No.grid(row=3, column=0, sticky='e')
@@ -251,13 +262,13 @@ class GATJzz(tk.Frame):
         self.btn_refresh_gat.grid(row=11, column=1)
 
         self.button_check_gat = tk.Button(self, text="合法性校验")
-        self.button_check_gat.grid(row=11, column=4)
+        self.button_check_gat.grid(row=11, column=2)
 
         self.button_check_gat = tk.Button(self, text="校验位补全")
-        self.button_check_gat.grid(row=11, column=5)
+        self.button_check_gat.grid(row=11, column=3)
 
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit_gat.grid(row=11, column=6)
+        self.button_quit_gat.grid(row=11, column=4)
 
         # 默认显示香港居住证
         self.id_type.set(IDGener.GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
@@ -275,6 +286,7 @@ class GATJzz(tk.Frame):
 
     def show_info(self, card_info: IDGener.TypeGATJZZ):
         self.ID_No.set(card_info.No)
+        self.name_CH.set(card_info.name_CH)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
         self.province_code.set(card_info.region_code)
@@ -299,15 +311,32 @@ class GAtxz(tk.Frame):
         self.label_ID_No.grid(row=2, column=0, sticky='e')
         self.ID_No = tk.StringVar()
         self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        self.entry_ID_No.grid(row=2, column=1)
+        self.entry_ID_No.grid(row=2, column=1, sticky='w')
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         self.btn_copy_ID_No.grid(row=2, column=2)
 
+        self.label_name_CH = tk.Label(self, text="中文名:")
+        self.label_name_CH.grid(row=3, column=0, sticky='e')
+        self.name_CH = tk.StringVar()
+        self.entry_name_CH = tk.Entry(self, textvariable=self.name_CH)
+        self.entry_name_CH.grid(row=3, column=1)
+        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
+        self.btn_copy_name_CH.grid(row=3, column=2)
+
+        self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
+        self.btn_refresh_gat.grid(row=4, column=0)
+
+        self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
+        self.btn_refresh_gat.grid(row=4, column=1)
+
+
         # 默认显示香港通行证
         self.id_type.set(IDGener.HkgMacPermit.HKG_PERMIT.value)
+        self.generate_default()
     def generate_default(self, event=None):
-        pass
-
+        id_info =  IDGener.TypeGATXZ(self.id_type.get())
+        self.ID_No.set(id_info.No)
+        self.name_CH.set(id_info.name_CH)
 
 class TWtxz(tk.Frame):
     """台湾通行证"""
@@ -322,6 +351,26 @@ class TWtxz(tk.Frame):
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         self.btn_copy_ID_No.grid(row=1, column=2)
 
+        self.label_name_CH = tk.Label(self, text="中文名:")
+        self.label_name_CH.grid(row=2, column=0, sticky='e')
+        self.name_CH = tk.StringVar()
+        self.entry_name_CH = tk.Entry(self, textvariable=self.name_CH)
+        self.entry_name_CH.grid(row=2, column=1)
+        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
+        self.btn_copy_name_CH.grid(row=2, column=2)
+
+        self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
+        self.btn_refresh_gat.grid(row=3, column=0)
+
+        self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
+        self.btn_refresh_gat.grid(row=3, column=1)
+
+        self.generate_default()
+    def generate_default(self, event=None):
+        id_info =  IDGener.TypeTWTXZ()
+        self.ID_No.set(id_info.No)
+        self.name_CH.set(id_info.name_CH)
+
 
 class MainApplication(tk.Tk):
     def __init__(self, id_kinds, ):
@@ -333,11 +382,10 @@ class MainApplication(tk.Tk):
         self.combobox_id_kind = ttk.Combobox(self, textvariable=self.id_kind, values=id_kinds)
         self.combobox_id_kind.bind("<<ComboboxSelected>>", self.create_frame)
         self.combobox_id_kind.grid(row=0, column=1, sticky='w')
-        self.geometry("700x700+300+200")
+        self.geometry("300x500+300+200")
 
         # 创建不同的 Frame
-        self.yjj_frame = AppYjj(self)
-        self.gat_frame = GATJzz(self)
+        self.yjj_frame = Yjj2023(self)
 
         # 默认显示永居证页面
         self.id_kind.set(IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value)
@@ -350,17 +398,19 @@ class MainApplication(tk.Tk):
                 widget.grid_forget()
         # 显示指定的 Frame
         if frame:
-            frame.grid(row=1, column=0, columnspan=4, padx=20, pady=20)
+            frame.grid(row=1, column=0, columnspan=4, padx=0, pady=20)
 
     def create_frame(self, event):
         if IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
             self.show_frame(self.yjj_frame)
         elif IDGener.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
-            self.show_frame(self.gat_frame)
+            self.show_frame(GATJzz(self))
         elif IDGener.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
             self.show_frame(GAtxz(self))
         elif IDGener.IDType.CTN_PERMIT.value == str(self.id_kind.get()):
             self.show_frame(TWtxz(self))
+        elif IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == str(self.id_kind.get()):
+            self.show_frame(Yjj2017(self))
         else:
             self.show_frame()
 
@@ -379,4 +429,5 @@ if __name__ == '__main__':
     # root.geometry("700x700+300+200")
     # root.mainloop()
     a = MainApplication(id_kinds_all)
+
     a.mainloop()

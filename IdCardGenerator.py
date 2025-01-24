@@ -477,7 +477,7 @@ class TypeYJZ2017(IDNOGenerator):
         gender :性别,输入性别时,随机生成顺序码
         sequence_code :顺序码,同时输入性别和顺序码,以顺序码为准
         """
-        super().__init__(birthday, gender, sequence_code=sequence_code)
+        super().__init__(birthday, gender, sequence_code=sequence_code,name_length=4)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2017.value
         self.sequence_code = str(int(self.sequence_code) % 10)
         if national_abbreviation is None:
@@ -516,6 +516,8 @@ class TypeYJZ2017(IDNOGenerator):
         return (
             f"证件类别：{self.type}\n"
             f"证件号码：{self.NO}\n"
+            f"中文名：{self.name_CH}\n"
+            f"英文名：{self.name_EN}\n"
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
             f"办理地区：{self.city_code},对应地区名称：{self.city_name},\
@@ -559,13 +561,13 @@ class TypeGATJZZ(IDNOGenerator):
 
 # 港澳通行证
 class TypeGATXZ(IDNOGenerator):
-    def __init__(self, id_type: IDType):
+    def __init__(self, id_type: str):
         super().__init__()
-        self.__kind = id_type.HKG_MAC_PERMIT.value
-        self.type = id_type.value
-        if id_type == HkgMacPermit.HKG_PERMIT:
+        self.__kind = IDType.HKG_MAC_PERMIT.value
+        self.type = id_type
+        if id_type == HkgMacPermit.HKG_PERMIT.value:
             self.PREFIX_CODE = 'H'
-        elif id_type == HkgMacPermit.MAC_PERMIT:
+        elif id_type == HkgMacPermit.MAC_PERMIT.value:
             self.PREFIX_CODE = 'M'
         else:
             raise ValueError("输入证件类型错误,输入证件类型不为香港或者澳门通行证")
