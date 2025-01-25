@@ -139,7 +139,12 @@ class Yjj2023(tk.Frame):
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
         self.button_quit.grid(row=12, column=2)
 
-        self.generate_default()
+        '''
+        只有本类型的页面需要调用生成号码的逻辑,否则子类在使用super调用的时候会报错,因为子类会调用子类自己的generate_default()方法
+        generate_default()中在show_info()时,此时子类并未完成初始化,会报错提示子类无某个属性
+        '''
+        if type(self) is Yjj2023:
+            self.generate_default()
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
@@ -162,14 +167,14 @@ class Yjj2023(tk.Frame):
         """
         self.ID_No.set(card_info.No)
         self.name_EN.set(card_info.name_EN)
-        self.name_CH.set(card_info.name_CH)
+        self.name_CH.set(card_info.name_ch)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
         self.province_code.set(card_info.province_code)
         self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(card_info.province_code), '未知'))
         self.nationality_number.set(card_info.nationality_number)
         self.nationality_code.set(card_info.nationality_code)
-        self.nationality_name_cn.set(card_info.nationality_name_cn)
+        self.nationality_name_cn.set(card_info.nationality_name_ch)
 
     def generate_image(self, event=None):
         print(type(self), event)
@@ -181,6 +186,70 @@ class Yjj2017(Yjj2023):
 
     def __init__(self, master=None):
         super().__init__(master)
+
+        # 取消显示办理地区码
+        self.label_province_code.grid_forget()
+        self.entry_province_code.grid_forget()
+        self.btn_copy_province_code.grid_forget()
+        self.label_province_name.grid_forget()
+        self.entry_province_name.grid_forget()
+        self.btn_copy_province_name.grid_forget()
+
+        # 创建办理地区码标签和输入框
+        self.label_city_code = tk.Label(self, text="办理省市码:")
+        self.label_city_code.grid(row=6, column=0, sticky='e')
+        self.city_code = tk.StringVar()
+        self.entry_city_code = tk.Entry(self, textvariable=self.city_code)
+        self.entry_city_code.grid(row=6, column=1)
+        self.btn_copy_city_code = tk.Button(self, text="复制",
+                                            command=lambda: pyperclip.copy(self.city_code.get()))
+        self.btn_copy_city_code.grid(row=6, column=2)
+
+        # 创建办理省份标签和输入框
+        self.label_city_name = tk.Label(self, text="办理省市:")
+        self.label_city_name.grid(row=7, column=0, sticky='e')
+        self.city_name = tk.StringVar()
+        self.entry_city_name = tk.Entry(self, textvariable=self.city_name)
+        self.entry_city_name.grid(row=7, column=1)
+        self.btn_copy_city_name = tk.Button(self, text="复制",
+                                            command=lambda: pyperclip.copy(self.city_name.get()))
+        self.btn_copy_city_name.grid(row=7, column=2)
+
+        self.generate_default()
+
+    def generate_default(self, event=None):  # event就是点击事件
+        id_info = IDGener.TypeYJZ2017()
+        # messagebox.showinfo("提示", "校验方法")
+        self.show_info(id_info)
+
+    def generate_by_input(self, event=None):
+        # 依据自定义输入,需要同步修改其他文件的内容
+        id_info = IDGener.TypeYJZ2017()
+        self.show_info(id_info)
+
+    def show_info(self, card_info: IDGener.TypeYJZ2017):
+        """
+        显示卡片信息。
+
+        为所有标签绑定的变量实现赋值，以在界面上展示证件持有者的相关信息。
+
+        参数:
+        card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
+        """
+
+        self.ID_No.set(card_info.No)
+        self.name_EN.set(card_info.name_EN)
+        self.name_CH.set(card_info.name_ch)
+        self.birthday.set(card_info.birthday)
+        self.gender.set(card_info.gender)
+        self.city_code.set(card_info.city_code)
+        province_code = card_info.city_code[0:2] + '0000'
+        province_name = Nationality.administrative_division.get(province_code)
+        self.city_name.set(province_name + card_info.city_name)
+        self.nationality_number.set(card_info.nationality_number)
+        self.nationality_code.set(card_info.nationality_code)
+        self.nationality_name_cn.set(card_info.nationality_name_ch)
+
 
 class GATJzz(tk.Frame):
     """港澳台居住证的页面"""
@@ -205,7 +274,6 @@ class GATJzz(tk.Frame):
         self.entry_name_CH.grid(row=2, column=1)
         self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
         self.btn_copy_name_CH.grid(row=2, column=2)
-
 
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
         self.label_ID_No.grid(row=3, column=0, sticky='e')
@@ -286,7 +354,7 @@ class GATJzz(tk.Frame):
 
     def show_info(self, card_info: IDGener.TypeGATJZZ):
         self.ID_No.set(card_info.No)
-        self.name_CH.set(card_info.name_CH)
+        self.name_CH.set(card_info.name_ch)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
         self.province_code.set(card_info.region_code)
@@ -329,17 +397,19 @@ class GAtxz(tk.Frame):
         self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
         self.btn_refresh_gat.grid(row=4, column=1)
 
-
         # 默认显示香港通行证
         self.id_type.set(IDGener.HkgMacPermit.HKG_PERMIT.value)
         self.generate_default()
+
     def generate_default(self, event=None):
-        id_info =  IDGener.TypeGATXZ(self.id_type.get())
+        id_info = IDGener.TypeGATXZ(self.id_type.get())
         self.ID_No.set(id_info.No)
-        self.name_CH.set(id_info.name_CH)
+        self.name_CH.set(id_info.name_ch)
+
 
 class TWtxz(tk.Frame):
     """台湾通行证"""
+
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -366,10 +436,11 @@ class TWtxz(tk.Frame):
         self.btn_refresh_gat.grid(row=3, column=1)
 
         self.generate_default()
+
     def generate_default(self, event=None):
-        id_info =  IDGener.TypeTWTXZ()
+        id_info = IDGener.TypeTWTXZ()
         self.ID_No.set(id_info.No)
-        self.name_CH.set(id_info.name_CH)
+        self.name_CH.set(id_info.name_ch)
 
 
 class MainApplication(tk.Tk):

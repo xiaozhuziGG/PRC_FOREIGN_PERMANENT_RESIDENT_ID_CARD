@@ -92,11 +92,14 @@ def get_province_city_code() -> tuple:
     while True:
         selected_item = random.sample(items, 1)[0]
         name = selected_item[1]
-        if '省' not in name or '台湾省' == name:
+        name = '台湾省'
+        if ('台湾省' == name
+                or '省' not in name
+                or '自治区' not in name):
             # 行政区划格式为 330108,滨江区
             city_code = selected_item[0][0:4]
             break
-    city_name = Nationality.administrative_division[city_code + '00']
+    city_name = Nationality.administrative_division.get(city_code + '00', name)
     return city_code, city_name
 
 
@@ -193,7 +196,8 @@ class IDNOGenerator(object):
         # 证件类别
         self.__type = ' '
         # 姓名
-        self.name_CH = generate_chinese_name(name_length)
+        self.name_ch = generate_chinese_name(name_length)
+        self.name_en = IDNOGenerator.get_english_name(self.name_ch)
         # 生日
         if birthday is None:
             self.birthday = generate_date()
@@ -286,6 +290,16 @@ class IDNOGenerator(object):
             last_num = str(check_num)
         return str_number + last_num
 
+    @classmethod
+    # 中文名转换成英文名
+    def get_english_name(cls, name_ch):
+        pinyin_list = word_to_pinyin(name_ch)
+        if len(pinyin_list) > 2:
+            pinyin_str = "".join(pinyin_list[0:-2]) + ", " + "".join(pinyin_list[-2:])
+        else:
+            pinyin_str = "".join(pinyin_list)
+        return pinyin_str.upper()
+
 
 # 居民身份证
 class TypeSFZ(IDNOGenerator):
@@ -323,7 +337,7 @@ class TypeYJZ(IDNOGenerator):
         super().__init__(birthday, gender, name_length)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2023.value
         # 英文名
-        self.name_EN = TypeYJZ.get_english_name(self.name_CH)
+        self.name_EN = IDNOGenerator.get_english_name(self.name_ch)
         # 地区码
         if province_name is None:
             self.province_code = IDNOGenerator.get_province_code()
@@ -350,22 +364,22 @@ class TypeYJZ(IDNOGenerator):
         # 拉丁字母国籍码
         self.nationality_code = Nationality.nationality_dict_by_number.get(self.nationality_number).code_3
         # 中文简称
-        self.nationality_name_cn = Nationality.nationality_dict_by_number.get(self.nationality_number).name_cn
+        self.nationality_name_ch = Nationality.nationality_dict_by_number.get(self.nationality_number).name_cn
         # 拼接成没校验位的
         self.No = f"{str(TypeYJZ.PREFIX_NUM)}{self.province_code}{self.nationality_number}{self.birthday}\
 {self.sequence_code}"
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
-        # 既往版本外国人永久居留证件号码关联项，前两位为市代，后一位为顺序号
+        # 既往版本外国人永久居留证件号码关联项，前两位为市代码，后一位为顺序号
         self.related_item = None
-        self.NO_2017 = None
+        self.No_2017 = None
 
     # 依据新版永居证计算旧版永居证信息
     def get_old_foreign_permanent_resident_info(self):
         # 2017版的永居证
         yjz_old = TypeYJZ2017()
-        self.NO_2017 = yjz_old.NO
+        self.No_2017 = yjz_old.No
 
     # 根据证件信息生成证件图像
     def generate_image(self, image_src: str = None, image_dest: str = None):
@@ -401,7 +415,7 @@ class TypeYJZ(IDNOGenerator):
         # 英文名 横向：35:428 竖向19:90 9P黑体
         draw.text((166, 230), self.name_EN, font=font, fill=color)
         # 中文名 9P黑体
-        draw.text((166, 345), self.name_CH, font=font, fill=color)
+        draw.text((166, 345), self.name_ch, font=font, fill=color)
         # 性别 横向：35:428 竖向23.9：54 8P黑体
         font = ImageFont.truetype(type_face, 68)
         if self.gender == '男':
@@ -416,7 +430,7 @@ class TypeYJZ(IDNOGenerator):
         draw.text((614, 560), f'{self.birthday[:4]}.{self.birthday[4:6]}.{self.birthday[6:8]}', font=font, fill=color)
         # 国籍 横线：35:428  竖向31.7：54  8P黑体
         font = ImageFont.truetype(type_face, 68)
-        draw.text((166, 745), f'{self.nationality_name_cn}/{self.nationality_code}', font=font, fill=color)
+        draw.text((166, 745), f'{self.nationality_name_ch}/{self.nationality_code}', font=font, fill=color)
         # 有效期 横线：35:428  竖向39.8：54  8P黑体
         font = ImageFont.truetype(type_face, 68)
         draw.text((166, 943), '2021.01.01 - 2031.01.01', font=font, fill=color)
@@ -438,31 +452,21 @@ class TypeYJZ(IDNOGenerator):
         # 压缩保存
         if not path.exists(image_dest):
             makedirs(image_dest)
-        resized_image.save(path.join(image_dest, '{}-{}.jpg'.format(self.name_CH, self.No)), format='JPEG',
+        resized_image.save(path.join(image_dest, '{}-{}.jpg'.format(self.name_ch, self.No)), format='JPEG',
                            optimize=True, quality=20)
-
-    @classmethod
-    # 中文名转换成英文名
-    def get_english_name(cls, name_ch):
-        pinyin_list = word_to_pinyin(name_ch)
-        if len(pinyin_list) > 2:
-            pinyin_str = "".join(pinyin_list[0:-2]) + ", " + "".join(pinyin_list[-2:])
-        else:
-            pinyin_str = "".join(pinyin_list)
-        return pinyin_str.upper()
 
     def __str__(self):
         return (
             f"证件类型：{self.type}\n"
             f"证件号码：{self.No}\n"
-            f"中文名：{self.name_CH}\n"
+            f"中文名：{self.name_ch}\n"
             f"英文名：{self.name_EN}\n"
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
             f"办理地区：{self.province_code}, 对应的省份：\
 {Nationality.CODE_PROVINCE_DATA.get(int(self.province_code), '未知')}\n"
             f"国籍代码：{self.nationality_number}, 国籍：\
-{self.nationality_code}, 国家简称:{self.nationality_name_cn}\n"
+{self.nationality_code}, 国家简称:{self.nationality_name_ch}\n"
         )
 
 
@@ -477,7 +481,8 @@ class TypeYJZ2017(IDNOGenerator):
         gender :性别,输入性别时,随机生成顺序码
         sequence_code :顺序码,同时输入性别和顺序码,以顺序码为准
         """
-        super().__init__(birthday, gender, sequence_code=sequence_code,name_length=4)
+        super().__init__(birthday, gender, sequence_code=sequence_code, name_length=4)
+        self.name_EN = IDNOGenerator.get_english_name(self.name_ch)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2017.value
         self.sequence_code = str(int(self.sequence_code) % 10)
         if national_abbreviation is None:
@@ -487,7 +492,7 @@ class TypeYJZ2017(IDNOGenerator):
             # 国籍数字编号
             self.nationality_number = Nationality.nationality_dict_by_code_3[self.nationality_code].number
             # 中文简称
-            self.name_cn = Nationality.nationality_dict_by_code_3[self.nationality_code].name_cn
+            self.nationality_name_ch = Nationality.nationality_dict_by_code_3[self.nationality_code].name_cn
         else:
             try:
                 dict_ret = Nationality.nationality_dict_by_code_3[national_abbreviation]
@@ -495,7 +500,7 @@ class TypeYJZ2017(IDNOGenerator):
                 # 国籍数字编号
                 self.nationality_number = dict_ret.number
                 # 中文简称
-                self.name_cn = dict_ret.nationality_name_cn
+                self.nationality_name_ch = dict_ret.nationality_name_ch
             except KeyError:
                 print("输入的国家简称无对应代码,请确认")
         if province_city_code is None:
@@ -508,21 +513,21 @@ class TypeYJZ2017(IDNOGenerator):
                 self.city_code = province_city_code
             except KeyError:
                 print("输入的省市代码无对应省份,请确认")
-        self.NO = self.nationality_code + self.city_code + self.birthday[2:] + self.sequence_code
-        self.last_num = calculate_check_num_731(self.NO)
-        self.NO = self.NO + self.last_num
+        self.No = self.nationality_code + self.city_code + self.birthday[2:] + self.sequence_code
+        self.last_num = calculate_check_num_731(self.No)
+        self.No = self.No + self.last_num
 
     def __str__(self):
         return (
             f"证件类别：{self.type}\n"
-            f"证件号码：{self.NO}\n"
-            f"中文名：{self.name_CH}\n"
+            f"证件号码：{self.No}\n"
+            f"中文名：{self.name_ch}\n"
             f"英文名：{self.name_EN}\n"
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
             f"办理地区：{self.city_code},对应地区名称：{self.city_name},\
 对应省份={Nationality.administrative_division[self.city_code[0:2] + '0000']}\n"
-            f"国籍：{self.nationality_code},国籍代码：{self.nationality_number},国家简称：{self.name_cn}\n"
+            f"国籍：{self.nationality_code},国籍代码：{self.nationality_number},国家简称：{self.nationality_name_ch}\n"
         )
 
 
@@ -613,7 +618,7 @@ if __name__ == '__main__':
     wgr = TypeYJZ()
     # wgr.generate_image()
     print(wgr)
-    HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT)
+    HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
     print(HKG_card)
     # MAC_card = TypeGATJZZ(IDType.MAC_PERMANENT_RESIDENT)
     # print(MAC_card)
