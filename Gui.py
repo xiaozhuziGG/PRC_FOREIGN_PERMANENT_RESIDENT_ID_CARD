@@ -22,6 +22,8 @@ class Yjj2023(tk.Frame):
         super().__init__(master)
         self.master = master
 
+        # 证件信息
+        self.id_info = None
         # 创建证件号码标签和输入框
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
         self.label_ID_No.grid(row=1, column=0, sticky='e')
@@ -126,14 +128,13 @@ class Yjj2023(tk.Frame):
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh.grid(row=11, column=1)
         # 合成图像按钮
-        self.btn_generate_image = tk.Button(self, text="合成图像")
-        self.btn_generate_image.bind("<Button-1>", self.generate_image)
+        self.btn_generate_image = tk.Button(self, text="合成图像", command=self.generate_image)
         self.btn_generate_image.grid(row=11, column=2)
 
-        self.button_check = tk.Button(self, text="合法性校验", command=lambda: print("校验"))
+        self.button_check = tk.Button(self, text="合法性校验", command=self.prompt)
         self.button_check.grid(row=12, column=0)
 
-        self.button_check_gat = tk.Button(self, text="校验位补全", command=self.generate_image)
+        self.button_check_gat = tk.Button(self, text="校验位补全",command=self.prompt)
         self.button_check_gat.grid(row=12, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
@@ -148,13 +149,13 @@ class Yjj2023(tk.Frame):
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
-        id_info = IDGener.TypeYJZ()
-        self.show_info(id_info)
+        self.id_info = IDGener.TypeYJZ()
+        self.show_info(self.id_info)
 
     def generate_default(self, event=None):  # event就是点击事件
-        id_info = IDGener.TypeYJZ()
+        self.id_info = IDGener.TypeYJZ()
         # messagebox.showinfo("提示", "校验方法")
-        self.show_info(id_info)
+        self.show_info(self.id_info)
 
     def show_info(self, card_info: IDGener.TypeYJZ):
         """
@@ -177,8 +178,13 @@ class Yjj2023(tk.Frame):
         self.nationality_name_cn.set(card_info.nationality_name_ch)
 
     def generate_image(self, event=None):
+        file_path = self.id_info.generate_image()
+        pyperclip.copy(file_path)
+        messagebox.showinfo("提示", f"生成证件图片并复制路径到剪切板:{file_path}")
+
+    def prompt(self, event=None):
         print(type(self), event)
-        messagebox.showinfo("提示", "生成证件图片在根目录下")
+        messagebox.showinfo("提示", f"该功能暂未实现")
 
 
 class Yjj2017(Yjj2023):
@@ -500,5 +506,4 @@ if __name__ == '__main__':
     # root.geometry("700x700+300+200")
     # root.mainloop()
     a = MainApplication(id_kinds_all)
-
     a.mainloop()

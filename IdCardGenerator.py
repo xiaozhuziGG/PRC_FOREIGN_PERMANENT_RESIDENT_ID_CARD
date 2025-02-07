@@ -452,8 +452,9 @@ class TypeYJZ(IDNOGenerator):
         # 压缩保存
         if not path.exists(image_dest):
             makedirs(image_dest)
-        resized_image.save(path.join(image_dest, '{}-{}.jpg'.format(self.name_ch, self.No)), format='JPEG',
-                           optimize=True, quality=20)
+        file_path = path.join(image_dest, '{}-{}.jpg'.format(self.name_ch, self.No))
+        resized_image.save(file_path, format='JPEG',optimize=True, quality=20)
+        return path.abspath(file_path)
 
     def __str__(self):
         return (
