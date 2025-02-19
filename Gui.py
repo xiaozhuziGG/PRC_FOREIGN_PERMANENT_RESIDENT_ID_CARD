@@ -65,7 +65,7 @@ class Yjj2023(tk.Frame):
         self.label_gender = tk.Label(self, text="性别:")
         self.label_gender.grid(row=5, column=0, sticky='e')
         self.gender = tk.StringVar()
-        self.gender.set('')
+        self.gender.set("")
         self.entry_gender_M = tk.Radiobutton(self, text='男', value='男', variable=self.gender)
         self.entry_gender_F = tk.Radiobutton(self, text='女', value='女', variable=self.gender)
         self.entry_gender_M.grid(row=5, column=1)
@@ -121,21 +121,26 @@ class Yjj2023(tk.Frame):
                                                       command=lambda: pyperclip.copy(self.nationality_name_cn.get()))
         self.btn_copy_nationality_name_cn.grid(row=10, column=2)
 
-        # 生成按钮
-        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
-        self.btn_generate.grid(row=11, column=0)
         # 刷新按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh.grid(row=11, column=1)
+
         # 合成图像按钮
         self.btn_generate_image = tk.Button(self, text="合成图像", command=self.generate_image)
         self.btn_generate_image.grid(row=11, column=2)
 
-        self.button_check = tk.Button(self, text="合法性校验", command=self.prompt)
-        self.button_check.grid(row=12, column=0)
+        self.button_check = tk.Button(self, text="清除信息", command=self.clear_all_fields)
+        self.button_check.grid(row=11, column=0)
 
-        self.button_check_gat = tk.Button(self, text="校验位补全",command=self.prompt)
-        self.button_check_gat.grid(row=12, column=1)
+        # 自定义生成按钮
+        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
+        create_tooltip(self.btn_generate, text="依据label中的输入进行生成")
+        self.btn_generate.grid(row=12, column=0)
+
+        # 校验码计算
+        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.prompt)
+        create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
+        self.button_check_num_calculate.grid(row=12, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
         self.button_quit.grid(row=12, column=2)
@@ -182,6 +187,21 @@ class Yjj2023(tk.Frame):
         pyperclip.copy(file_path)
         messagebox.showinfo("提示", f"生成证件图片并复制路径到剪切板:{file_path}")
 
+    def clear_all_fields(self):
+        """
+        清除所有标签组件的值
+        """
+        self.ID_No.set("")
+        self.name_CH.set("")
+        self.name_EN.set("")
+        self.birthday.set("")
+        self.gender.set("")
+        self.province_code.set("")
+        self.province_name.set("")
+        self.nationality_number.set("")
+        self.nationality_code.set("")
+        self.nationality_name_cn.set("")
+
     def prompt(self, event=None):
         print(type(self), event)
         messagebox.showinfo("提示", f"该功能暂未实现")
@@ -221,6 +241,9 @@ class Yjj2017(Yjj2023):
                                             command=lambda: pyperclip.copy(self.city_name.get()))
         self.btn_copy_city_name.grid(row=7, column=2)
 
+        # 不显示合成图像按钮
+        self.btn_generate_image.grid_forget()
+
         self.generate_default()
 
     def generate_default(self, event=None):  # event就是点击事件
@@ -256,9 +279,14 @@ class Yjj2017(Yjj2023):
         self.nationality_code.set(card_info.nationality_code)
         self.nationality_name_cn.set(card_info.nationality_name_ch)
 
+    def clear_all_fields(self):
+        super().clear_all_fields()
+        self.city_code.set("")
+        self.city_name.set("")
+
 
 class GATJzz(tk.Frame):
-    """港澳台居住证的页面"""
+    """港澳台居民居住证的页面"""
 
     def __init__(self, master=None):
         super().__init__(master)
@@ -335,14 +363,11 @@ class GATJzz(tk.Frame):
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=11, column=1)
 
-        self.button_check_gat = tk.Button(self, text="合法性校验")
+        self.button_check_gat = tk.Button(self, text="校验位补全")
         self.button_check_gat.grid(row=11, column=2)
 
-        self.button_check_gat = tk.Button(self, text="校验位补全")
-        self.button_check_gat.grid(row=11, column=3)
-
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit_gat.grid(row=11, column=4)
+        self.button_quit_gat.grid(row=12, column=2)
 
         # 默认显示香港居住证
         self.id_type.set(IDGener.GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
@@ -350,6 +375,12 @@ class GATJzz(tk.Frame):
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
+        # 需要做一个清空按钮
+        # 中文名
+        # 生日(做日期校验,在证件类中就要做)
+        # 性别
+        # 地区码或者省名,做模糊匹配
+        # 国家简写或者简称,做模糊匹配后取第一个
         id_info = IDGener.TypeGATJZZ(self.id_type.get())
         self.show_info(id_info)
 
@@ -401,7 +432,7 @@ class GAtxz(tk.Frame):
         self.btn_refresh_gat.grid(row=4, column=0)
 
         self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_refresh_gat.grid(row=4, column=1)
+        self.btn_refresh_gat.grid(row=4, column=2)
 
         # 默认显示香港通行证
         self.id_type.set(IDGener.HkgMacPermit.HKG_PERMIT.value)
@@ -439,7 +470,7 @@ class TWtxz(tk.Frame):
         self.btn_refresh_gat.grid(row=3, column=0)
 
         self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_refresh_gat.grid(row=3, column=1)
+        self.btn_refresh_gat.grid(row=3, column=2)
 
         self.generate_default()
 
@@ -479,7 +510,7 @@ class MainApplication(tk.Tk):
 
     def create_frame(self, event):
         if IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
-            self.show_frame(self.yjj_frame)
+            self.show_frame(Yjj2023(self))
         elif IDGener.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
             self.show_frame(GATJzz(self))
         elif IDGener.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
@@ -490,6 +521,50 @@ class MainApplication(tk.Tk):
             self.show_frame(Yjj2017(self))
         else:
             self.show_frame()
+
+
+class ToolTip:
+    def __init__(self, widget, text='widget info'):
+        self.widget = widget
+        self.text = text
+        self.tipwindow = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self):
+        "Display text in tooltip window"
+        if self.tipwindow or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 25
+        y = y + cy + self.widget.winfo_rooty() + 25
+        self.tipwindow = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                         background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+                         font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        "Hide the tooltip window"
+        tw = self.tipwindow
+        self.tipwindow = None
+        if tw:
+            tw.destroy()
+
+
+def create_tooltip(widget, text):
+    tooltip = ToolTip(widget, text)
+
+    def enter(event):
+        tooltip.showtip()
+
+    def leave(event):
+        tooltip.hidetip()
+
+    widget.bind('<Enter>', enter)
+    widget.bind('<Leave>', leave)
 
 
 if __name__ == '__main__':
