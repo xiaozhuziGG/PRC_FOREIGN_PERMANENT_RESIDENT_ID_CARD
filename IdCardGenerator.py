@@ -188,16 +188,27 @@ class IDNOGenerator(object):
     # 权重参数
     WEIGHT = (7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2)
 
-    def __init__(self, birthday: str = None, gender: str = None, name_length: int = 3, sequence_code: str = None):
+    def __init__(self, name_ch: str = None, name_en: str = None,
+                 birthday: str = None, gender: str = None, name_length: int = 3, sequence_code: str = None):
         """
-        birthday :生日
-        gender :性别，男或者女
+        - name_ch :中文名
+        - name_en :英文名
+        - birthday :生日
+        - gender :性别，男或者女
+        - name_length :中文名长度,未输入中文名时自动生成用
+        - sequence_code: 序列号,同时输入性别和序列号,以序列号为准
         """
         # 证件类别
         self.__type = ' '
         # 姓名
-        self.name_ch = generate_chinese_name(name_length)
-        self.name_en = IDNOGenerator.get_english_name(self.name_ch)
+        if name_ch is None:
+            self.name_ch = generate_chinese_name(name_length)
+        else:
+            self.name_ch = name_ch
+        if name_en is None:
+            self.name_en = IDNOGenerator.get_english_name(self.name_ch)
+        else:
+            self.name_en = name_en
         # 生日
         if birthday is None:
             self.birthday = generate_date()
@@ -320,24 +331,24 @@ class TypeYJZ(IDNOGenerator):
     # 外国人永居证都是9为开头
     PREFIX_NUM = '9'
 
-    def __init__(self, province_name: str = None, national_code_3: str = None, birthday: str = None,
-                 gender: str = None, name_length: int = 4):
+    def __init__(self,  name_ch: str = None, name_en: str = None, province_name: str = None,
+                 national_code_3: str = None, birthday: str = None, gender: str = None, name_length: int = 4):
         """
-        初始化外国人信息类。
+        初始化外国人信息类,此构造函数用于初始化外国人永久居留身份证信息对象。。
 
         参数:
-        - province_name (str): 省份名称。默认为None。
-        - national_abbreviation (str): 三位拉丁文国家缩写。默认为None。
-        - birthday (str): 出生日期。默认为None。
-        - gender (str): 性别，支持输入男或女。默认为None。
-        - name_length (int): 名字长度。默认为4个汉字。
+        - name_ch (str): 中文姓名，默认为None。
+        - name_en (str): 英文姓名，默认为None。
+        - province_name (str): 所属省份名称，默认为None。
+        - national_code_3 (str): 三位国家代码，默认为None。
+        - birthday (str): 出生日期，默认为None。
+        - gender (str): 性别，默认为None。
+        - name_length (int): 名称长度，默认为4。
 
-        该构造函数允许创建时指定个人信息的各个属性，如省份、国家缩写、出生日期和性别等。
+        参数类型通过类型注解明确指定，为字符串或整数。参数默认值为None，除了name_length默认值为4。
         """
-        super().__init__(birthday, gender, name_length)
+        super().__init__(name_ch, name_en, birthday, gender, name_length)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2023.value
-        # 英文名
-        self.name_EN = IDNOGenerator.get_english_name(self.name_ch)
         # 地区码
         if province_name is None:
             self.province_code = IDNOGenerator.get_province_code()
@@ -357,8 +368,9 @@ class TypeYJZ(IDNOGenerator):
             try:
                 self.nationality_number = Nationality.nationality_dict_by_code_3[national_code_3]
                 self.nationality_code = national_code_3
-            except KeyError:
+            except KeyError as e:
                 print("输入的国家简称无对应代码,请确认")
+                raise e
         else:
             raise TypeError("输入的国家简称不是字符串")
         # 拉丁字母国籍码
@@ -413,7 +425,7 @@ class TypeYJZ(IDNOGenerator):
         # 证件号 横线：26:85.6  竖向44.6：54
         draw = ImageDraw.Draw(image)
         # 英文名 横向：35:428 竖向19:90 9P黑体
-        draw.text((166, 230), self.name_EN, font=font, fill=color)
+        draw.text((166, 230), self.name_en, font=font, fill=color)
         # 中文名 9P黑体
         draw.text((166, 345), self.name_ch, font=font, fill=color)
         # 性别 横向：35:428 竖向23.9：54 8P黑体
@@ -461,7 +473,7 @@ class TypeYJZ(IDNOGenerator):
             f"证件类型：{self.type}\n"
             f"证件号码：{self.No}\n"
             f"中文名：{self.name_ch}\n"
-            f"英文名：{self.name_EN}\n"
+            f"英文名：{self.name_en}\n"
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
             f"办理地区：{self.province_code}, 对应的省份：\
@@ -483,7 +495,7 @@ class TypeYJZ2017(IDNOGenerator):
         sequence_code :顺序码,同时输入性别和顺序码,以顺序码为准
         """
         super().__init__(birthday, gender, sequence_code=sequence_code, name_length=4)
-        self.name_EN = IDNOGenerator.get_english_name(self.name_ch)
+        self.name_en = IDNOGenerator.get_english_name(self.name_ch)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2017.value
         self.sequence_code = str(int(self.sequence_code) % 10)
         if national_abbreviation is None:
@@ -523,7 +535,7 @@ class TypeYJZ2017(IDNOGenerator):
             f"证件类别：{self.type}\n"
             f"证件号码：{self.No}\n"
             f"中文名：{self.name_ch}\n"
-            f"英文名：{self.name_EN}\n"
+            f"英文名：{self.name_en}\n"
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
             f"办理地区：{self.city_code},对应地区名称：{self.city_name},\

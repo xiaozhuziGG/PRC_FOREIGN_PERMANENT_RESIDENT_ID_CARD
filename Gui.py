@@ -35,22 +35,22 @@ class Yjj2023(tk.Frame):
         self.btn_copy_ID_No.grid(row=1, column=2)
 
         # 创建中文名标签和输入框
-        self.label_name_CH = tk.Label(self, text="中文名:")
-        self.label_name_CH.grid(row=2, column=0, sticky='e')
-        self.name_CH = tk.StringVar()
-        self.entry_name_CH = tk.Entry(self, textvariable=self.name_CH)
-        self.entry_name_CH.grid(row=2, column=1)
-        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
+        self.label_name_ch = tk.Label(self, text="中文名:")
+        self.label_name_ch.grid(row=2, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=2, column=1)
+        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
         self.btn_copy_name_CH.grid(row=2, column=2)
 
         # 创建英文名标签和输入框
-        self.label_name_EN = tk.Label(self, text="英文名:")
-        self.label_name_EN.grid(row=3, column=0, sticky='e')
+        self.label_name_en = tk.Label(self, text="英文名:")
+        self.label_name_en.grid(row=3, column=0, sticky='e')
         self.name_EN = tk.StringVar()
-        self.entry_name_EN = tk.Entry(self, textvariable=self.name_EN)
-        self.entry_name_EN.grid(row=3, column=1)
-        self.btn_copy_name_EN = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_EN.get()))
-        self.btn_copy_name_EN.grid(row=3, column=2)
+        self.entry_name_en = tk.Entry(self, textvariable=self.name_EN)
+        self.entry_name_en.grid(row=3, column=1)
+        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_EN.get()))
+        self.btn_copy_name_en.grid(row=3, column=2)
 
         # 创建生日标签和输入框
         self.label_birthday = tk.Label(self, text="生日:", anchor="e")
@@ -154,8 +154,29 @@ class Yjj2023(tk.Frame):
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
-        self.id_info = IDGener.TypeYJZ()
-        self.show_info(self.id_info)
+        # 依据自定义输入,需要同步修改其他文件的内容
+        name_ch = self.entry_name_ch.get() or None
+        name_en = self.entry_name_en.get() or None
+        birthday = self.entry_birthday.get() or None
+        gender = self.gender.get() or None
+        province_code = self.entry_province_code.get() or None
+        province_name = self.entry_province_name.get() or None
+        if not province_name:
+            # 名称优先级高,同时输入了代码和名称时,根据名称查不到代码才使用代码信息,下方的国籍也是一样的
+            pass
+        nationality_code = self.entry_nationality_code.get() or None
+        nationality_name_cn = self.entry_nationality_name_cn.get() or None
+        if not nationality_name_cn:
+            pass
+        pass
+        # self.id_info = IDGener.TypeYJZ(
+        #     name_ch=self.entry_name_ch.get(),
+        #     name_en=self.entry_name_en.get(),
+        #     birthday=self.entry_birthday.get(),
+        #     gender=self.gender.get()
+        # )
+        # self.id_info = IDGener.TypeYJZ()
+        # self.show_info(self.id_info)
 
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IDGener.TypeYJZ()
@@ -172,8 +193,8 @@ class Yjj2023(tk.Frame):
         card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
         """
         self.ID_No.set(card_info.No)
-        self.name_EN.set(card_info.name_EN)
-        self.name_CH.set(card_info.name_ch)
+        self.name_EN.set(card_info.name_en)
+        self.name_ch.set(card_info.name_ch)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
         self.province_code.set(card_info.province_code)
@@ -192,7 +213,7 @@ class Yjj2023(tk.Frame):
         清除所有标签组件的值
         """
         self.ID_No.set("")
-        self.name_CH.set("")
+        self.name_ch.set("")
         self.name_EN.set("")
         self.birthday.set("")
         self.gender.set("")
@@ -267,8 +288,8 @@ class Yjj2017(Yjj2023):
         """
 
         self.ID_No.set(card_info.No)
-        self.name_EN.set(card_info.name_EN)
-        self.name_CH.set(card_info.name_ch)
+        self.name_EN.set(card_info.name_en)
+        self.name_ch.set(card_info.name_ch)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
         self.city_code.set(card_info.city_code)
@@ -527,18 +548,18 @@ class ToolTip:
     def __init__(self, widget, text='widget info'):
         self.widget = widget
         self.text = text
-        self.tipwindow = None
+        self.tip_window = None
         self.id = None
         self.x = self.y = 0
 
     def showtip(self):
         "Display text in tooltip window"
-        if self.tipwindow or not self.text:
+        if self.tip_window or not self.text:
             return
         x, y, cx, cy = self.widget.bbox("insert")
         x = x + self.widget.winfo_rootx() + 25
         y = y + cy + self.widget.winfo_rooty() + 25
-        self.tipwindow = tw = tk.Toplevel(self.widget)
+        self.tip_window = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(True)
         tw.wm_geometry("+%d+%d" % (x, y))
         label = tk.Label(tw, text=self.text, justify=tk.LEFT,
@@ -548,8 +569,8 @@ class ToolTip:
 
     def hidetip(self):
         "Hide the tooltip window"
-        tw = self.tipwindow
-        self.tipwindow = None
+        tw = self.tip_window
+        self.tip_window = None
         if tw:
             tw.destroy()
 
