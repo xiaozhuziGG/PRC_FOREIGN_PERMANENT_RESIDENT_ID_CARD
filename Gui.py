@@ -139,7 +139,7 @@ class Yjj2023(tk.Frame):
 
         # 校验码计算
         self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.prompt)
-        create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
+        create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全,针对身份证,2023版永居证,港澳台居住证")
         self.button_check_num_calculate.grid(row=12, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
