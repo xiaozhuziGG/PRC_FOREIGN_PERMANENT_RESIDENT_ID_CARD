@@ -636,11 +636,11 @@ class TypeTWTXZ(IDNOGenerator):
 
 if __name__ == '__main__':
     # wgr = TypeYJZ(gender='男')
-    wgr = TypeYJZ()
+    #wgr = TypeYJZ()
     # wgr.generate_image()
-    print(wgr)
-    HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
-    print(HKG_card)
+    #print(wgr)
+    #HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
+    #print(HKG_card)
     # MAC_card = TypeGATJZZ(IDType.MAC_PERMANENT_RESIDENT)
     # print(MAC_card)
     # HKG_pass_card = TypeGATXZ(IDType.HKG_PERMIT)
@@ -653,8 +653,10 @@ if __name__ == '__main__':
     # print(wgr1)
     # abc = get_province_city_code()
     # c = generate_sequence_code(0, 999)
-    d = TypeYJZ2017()
-    print(d)
+    #d = TypeYJZ2017()
+    #print(d)
     # name = generate_chinese_name()
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
+    print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
+
