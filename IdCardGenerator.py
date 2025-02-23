@@ -501,9 +501,8 @@ class TypeYJZ2017(IDNOGenerator):
         - sequence_code :顺序码,同时输入性别和顺序码,以顺序码为准
         """
         super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, name_length=4)
-        self.name_en = IDNOGenerator.get_english_name(self.name_ch)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2017.value
-        if not sequence_code:
+        if sequence_code:
             self.sequence_code = str(int(sequence_code) % 10)
         else:
             self.sequence_code = str(int(self.sequence_code) % 10)

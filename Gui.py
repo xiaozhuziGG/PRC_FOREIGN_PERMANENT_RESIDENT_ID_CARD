@@ -163,7 +163,7 @@ class Yjj2023(tk.Frame):
         if province_name is None and province_code:
             # 名称优先级高,同时输入了代码和名称时,根据名称查不到代码才使用代码信息,下方的国籍也是一样的
             try:
-                province_name = IDGener.administrative_division[province_code]
+                province_name = Nationality.administrative_division[province_code]
             except KeyError as e:
                 raise e
         nationality_code = self.entry_nationality_code.get() or None
@@ -229,6 +229,7 @@ class Yjj2023(tk.Frame):
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
         ID_No_src = ID_No_src[0:17]
+        ID_No = ''
         try:
             ID_No = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
         except ValueError as e:
@@ -332,6 +333,7 @@ class Yjj2017(Yjj2023):
 
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
+        ID_No = ''
         try:
             ID_No_src = ID_No_src[0:14]
             ID_No = IDGener.calculate_check_num_731(ID_No_src)
@@ -587,7 +589,7 @@ class ToolTip:
         self.x = self.y = 0
 
     def showtip(self):
-        "Display text in tooltip window"
+        """Display text in tooltip window"""
         if self.tip_window or not self.text:
             return
         x, y, cx, cy = self.widget.bbox("insert")
@@ -602,7 +604,7 @@ class ToolTip:
         label.pack(ipadx=1)
 
     def hidetip(self):
-        "Hide the tooltip window"
+        """Hide the tooltip window"""
         tw = self.tip_window
         self.tip_window = None
         if tw:
