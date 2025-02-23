@@ -16,8 +16,8 @@ from os import path, makedirs
 
 class IDType(Enum):
     """证件类型枚举"""
-    ID_CARD = "居民身份证0"
-    BUSINESS_LICENSE = "营业执照0"
+    ID_CARD = "居民身份证"
+    BUSINESS_LICENSE = "营业执照"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
     GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
@@ -92,7 +92,6 @@ def get_province_city_code() -> tuple:
     while True:
         selected_item = random.sample(items, 1)[0]
         name = selected_item[1]
-        name = '台湾省'
         if ('台湾省' == name
                 or '省' not in name
                 or '自治区' not in name):
@@ -119,7 +118,7 @@ def calculate_check_num_731(id_no: str) -> str:
         elif (id_no[i]).isdigit():
             the_sum += int(id_no[i]) * next(gen)
         else:
-            return "输入证件号码有误，只能以数字和字母组合"
+            raise ValueError("输入证件号码有误,只能以数字和字母组合")
     return str(the_sum % 10)
 
 
@@ -285,13 +284,19 @@ class IDNOGenerator(object):
 
     @classmethod
     def calculate_check_num_cls(cls, str_number: str) -> str:
-        """计算最后一位校验位,返回有校验位的证件号码"""
+        """
+            计算最后一位校验位,返回有校验位的证件号码
+            适用证件类型,身份证和新版永居证
+        """
         if 17 != len(str_number):
             raise ValueError("输入代码不是17位")
         sum_all = 0
         for i in range(0, 17):
             # 加权运算的和
-            sum_all = int(str_number[i]) * cls.WEIGHT[i] + sum_all
+            try:
+                sum_all = int(str_number[i]) * cls.WEIGHT[i] + sum_all
+            except Exception as e:
+                raise ValueError(f"{e},输入的证件号码可能不是纯数字")
         # 加权运算的和对11取余，12-余数的差再对11取余
         check_num = (12 - sum_all % 11) % 11
         # 校验位是10，则换成X
@@ -356,8 +361,8 @@ class TypeYJZ(IDNOGenerator):
             try:
                 reverse_index_province = {v: k for k, v in Nationality.CODE_PROVINCE_DATA.items()}
                 self.province_code = str(reverse_index_province[province_name])
-            except KeyError:
-                print("输入的省名无对应代码 请确认")
+            except KeyError as e:
+                raise KeyError(f"输入的省名无对应代码,请确认.错误信息:{e}")
         else:
             raise TypeError("输入省份名称不是字符串")
         # 国籍码
@@ -366,11 +371,10 @@ class TypeYJZ(IDNOGenerator):
             self.nationality_number = random.choice(list_nationality)
         elif isinstance(national_code_3, str):
             try:
-                self.nationality_number = Nationality.nationality_dict_by_code_3[national_code_3]
+                self.nationality_number = Nationality.nationality_dict_by_code_3[national_code_3].number
                 self.nationality_code = national_code_3
-            except KeyError as e:
-                print("输入的国家简称无对应代码,请确认")
-                raise e
+            except KeyError:
+                raise KeyError(f"输入的国家简称{national_code_3}无对应代码,请确认")
         else:
             raise TypeError("输入的国家简称不是字符串")
         # 拉丁字母国籍码
@@ -465,7 +469,7 @@ class TypeYJZ(IDNOGenerator):
         if not path.exists(image_dest):
             makedirs(image_dest)
         file_path = path.join(image_dest, '{}-{}.jpg'.format(self.name_ch, self.No))
-        resized_image.save(file_path, format='JPEG',optimize=True, quality=20)
+        resized_image.save(file_path, format='JPEG', optimize=True, quality=20)
         return path.abspath(file_path)
 
     def __str__(self):
@@ -485,19 +489,24 @@ class TypeYJZ(IDNOGenerator):
 
 # 17旧版外国人永久居留证
 class TypeYJZ2017(IDNOGenerator):
-    def __init__(self, national_abbreviation: str = None, province_city_code: str = None,
-                 birthday: str = None, gender: str = None, sequence_code: str = None):
+    def __init__(self, name_ch: str = None, name_en: str = None, national_abbreviation: str = None,
+                 province_city_code: str = None, birthday: str = None, gender: str = None, sequence_code: str = None):
         """
-        national_abbreviation :三位拉丁国籍代码
-        province_city_code :省市代码
-        birthday :生日
-        gender :性别,输入性别时,随机生成顺序码
-        sequence_code :顺序码,同时输入性别和顺序码,以顺序码为准
+        - name_ch (str): 中文姓名，默认为None。
+        - name_en (str): 英文姓名，默认为None。
+        - national_abbreviation :国家简写，三位拉丁国籍代码，默认为None。
+        - province_city_code :省市代码
+        - birthday :生日
+        - gender :性别,输入性别时,随机生成顺序码
+        - sequence_code :顺序码,同时输入性别和顺序码,以顺序码为准
         """
-        super().__init__(birthday, gender, sequence_code=sequence_code, name_length=4)
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, name_length=4)
         self.name_en = IDNOGenerator.get_english_name(self.name_ch)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2017.value
-        self.sequence_code = str(int(self.sequence_code) % 10)
+        if not sequence_code:
+            self.sequence_code = str(int(sequence_code) % 10)
+        else:
+            self.sequence_code = str(int(self.sequence_code) % 10)
         if national_abbreviation is None:
             list_nationality = [str(nationality) for nationality in Nationality.nationality_dict_by_code_3.keys()]
             # 三位拉丁国籍代码
@@ -508,14 +517,14 @@ class TypeYJZ2017(IDNOGenerator):
             self.nationality_name_ch = Nationality.nationality_dict_by_code_3[self.nationality_code].name_cn
         else:
             try:
-                dict_ret = Nationality.nationality_dict_by_code_3[national_abbreviation]
+                dict_ret: Nationality.NationalityInfo = Nationality.nationality_dict_by_code_3[national_abbreviation]
                 self.nationality_code = national_abbreviation
                 # 国籍数字编号
                 self.nationality_number = dict_ret.number
                 # 中文简称
-                self.nationality_name_ch = dict_ret.nationality_name_ch
+                self.nationality_name_ch = dict_ret.name_cn
             except KeyError:
-                print("输入的国家简称无对应代码,请确认")
+                raise KeyError("输入的国家简称无对应代码,请确认")
         if province_city_code is None:
             city_info = get_province_city_code()
             self.city_code = city_info[0]
@@ -525,7 +534,7 @@ class TypeYJZ2017(IDNOGenerator):
                 self.city_name = Nationality.administrative_division[province_city_code + '00']
                 self.city_code = province_city_code
             except KeyError:
-                print("输入的省市代码无对应省份,请确认")
+                raise KeyError("输入的省市代码无对应省份,请确认")
         self.No = self.nationality_code + self.city_code + self.birthday[2:] + self.sequence_code
         self.last_num = calculate_check_num_731(self.No)
         self.No = self.No + self.last_num

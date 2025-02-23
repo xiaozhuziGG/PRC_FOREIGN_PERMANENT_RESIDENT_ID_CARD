@@ -11,11 +11,11 @@ import pandas as pd
 import re
 import os
 
-# 依据国籍编号的国籍信息字典
+# 依据国籍编号的国籍信息字典，键为国籍编号（整数类型），值为国籍信息（字符串类型）
 nationality_dict_by_number = {}
-# 依据两位国籍代码的国籍信息字典
+# 依据两位国籍代码的国籍信息字典，键为两位国籍代码（字符串类型），值为国籍信息（字符串类型）
 nationality_dict_by_code_2 = {}
-# 依据三位国籍代码的国籍信息字典
+# 依据三位国籍代码的国籍信息字典，键为三位国籍代码（字符串类型），值为国籍信息（字符串类型）
 nationality_dict_by_code_3 = {}
 # 省市代码
 administrative_division = {}
@@ -344,7 +344,7 @@ def get_nationality_info() -> None:
 
     # 此处写从文件读取国籍信息的代码
     path_csv = r"./resource/GBT2659.1-2022.CSV"
-    path_xlsx = r"./resource/GBT2659.1-2022.xlsx"
+    # path_xlsx = r"./resource/GBT2659.1-2022.xlsx"
 
     if not os.path.exists(path_csv):
         # nationality_read = pd.read_excel(path_xlsx, engine='openpyxl', header=0, index_col=None,
@@ -359,7 +359,7 @@ def get_nationality_info() -> None:
         name = row['中文和英文简称']
         name_cn = name.split(" ")[0]
         # 英文简称
-        name_en = name.split(" ")[1]
+        name_en = name.split(" ")[1:]
         # 国籍编号
         number = row['阿拉伯数字代码']
         number = number.zfill(3)
@@ -386,8 +386,8 @@ def get_nationality_info() -> None:
 # 获取省市代码
 def get_province_code() -> None:
     # print("开始解析行政区划信息...")
+    admin_division = r"./resource/administrative_division.csv"
     try:
-        admin_division = r"./resource/administrative_division.csv"
         region_info = pd.read_csv(admin_division, encoding="utf-8", dtype={'行政区代码': str})
         for index, row in region_info.iterrows():
             administrative_division[row['行政区代码']] = row['行政区名称']

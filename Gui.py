@@ -134,11 +134,11 @@ class Yjj2023(tk.Frame):
 
         # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
-        create_tooltip(self.btn_generate, text="依据label中的输入进行生成")
+        create_tooltip(self.btn_generate, text="依据部分字段输入进行生成")
         self.btn_generate.grid(row=12, column=0)
 
         # 校验码计算
-        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.prompt)
+        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
         self.button_check_num_calculate.grid(row=12, column=1)
 
@@ -154,29 +154,32 @@ class Yjj2023(tk.Frame):
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
-        # 依据自定义输入,需要同步修改其他文件的内容
         name_ch = self.entry_name_ch.get() or None
         name_en = self.entry_name_en.get() or None
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
         province_code = self.entry_province_code.get() or None
         province_name = self.entry_province_name.get() or None
-        if not province_name:
+        if province_name is None and province_code:
             # 名称优先级高,同时输入了代码和名称时,根据名称查不到代码才使用代码信息,下方的国籍也是一样的
-            pass
+            try:
+                province_name = IDGener.administrative_division[province_code]
+            except KeyError as e:
+                raise e
         nationality_code = self.entry_nationality_code.get() or None
-        nationality_name_cn = self.entry_nationality_name_cn.get() or None
-        if not nationality_name_cn:
-            pass
-        pass
-        # self.id_info = IDGener.TypeYJZ(
-        #     name_ch=self.entry_name_ch.get(),
-        #     name_en=self.entry_name_en.get(),
-        #     birthday=self.entry_birthday.get(),
-        #     gender=self.gender.get()
-        # )
-        # self.id_info = IDGener.TypeYJZ()
-        # self.show_info(self.id_info)
+        # nationality_name_cn = self.entry_nationality_name_cn.get() or None
+        try:
+            self.id_info = IDGener.TypeYJZ(
+                name_ch=name_ch,
+                name_en=name_en,
+                province_name=province_name,
+                birthday=birthday,
+                gender=gender,
+                national_code_3=nationality_code
+            )
+        except Exception as e:
+            messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
+        self.show_info(self.id_info)
 
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IDGener.TypeYJZ()
@@ -223,9 +226,15 @@ class Yjj2023(tk.Frame):
         self.nationality_code.set("")
         self.nationality_name_cn.set("")
 
-    def prompt(self, event=None):
-        print(type(self), event)
-        messagebox.showinfo("提示", f"该功能暂未实现")
+    def check_number_complete(self, event=None):
+        ID_No_src = self.ID_No.get()
+        ID_No_src = ID_No_src[0:17]
+        try:
+            ID_No = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+        except ValueError as e:
+            messagebox.showinfo("提示", f"输入有误,{e}")
+        self.ID_No.set(ID_No)
+        # print(type(self), event)
 
 
 class Yjj2017(Yjj2023):
@@ -274,8 +283,24 @@ class Yjj2017(Yjj2023):
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
-        id_info = IDGener.TypeYJZ2017()
-        self.show_info(id_info)
+        # 依据自定义输入,需要同步修改其他文件的内容
+        name_ch = self.entry_name_ch.get() or None
+        name_en = self.entry_name_en.get() or None
+        birthday = self.entry_birthday.get() or None
+        gender = self.gender.get() or None
+        nationality_code = self.entry_nationality_code.get() or None
+        # nationality_name_cn = self.entry_nationality_name_cn.get() or None
+        try:
+            self.id_info = IDGener.TypeYJZ2017(
+                name_ch=name_ch,
+                name_en=name_en,
+                national_abbreviation=nationality_code,
+                birthday=birthday,
+                gender=gender,
+            )
+        except Exception as e:
+            messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
+        self.show_info(self.id_info)
 
     def show_info(self, card_info: IDGener.TypeYJZ2017):
         """
@@ -304,6 +329,15 @@ class Yjj2017(Yjj2023):
         super().clear_all_fields()
         self.city_code.set("")
         self.city_name.set("")
+
+    def check_number_complete(self, event=None):
+        ID_No_src = self.ID_No.get()
+        try:
+            ID_No_src = ID_No_src[0:14]
+            ID_No = IDGener.calculate_check_num_731(ID_No_src)
+        except Exception as e:
+            messagebox.showinfo("提示", f"输入有误,错误信息:{e}")
+        self.ID_No.set(ID_No_src + ID_No)
 
 
 class GATJzz(tk.Frame):
