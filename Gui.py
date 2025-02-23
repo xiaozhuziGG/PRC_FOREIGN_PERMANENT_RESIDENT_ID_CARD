@@ -40,16 +40,16 @@ class Yjj2023(tk.Frame):
         self.name_ch = tk.StringVar()
         self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
         self.entry_name_ch.grid(row=2, column=1)
-        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        self.btn_copy_name_CH.grid(row=2, column=2)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=2, column=2)
 
         # 创建英文名标签和输入框
         self.label_name_en = tk.Label(self, text="英文名:")
         self.label_name_en.grid(row=3, column=0, sticky='e')
-        self.name_EN = tk.StringVar()
-        self.entry_name_en = tk.Entry(self, textvariable=self.name_EN)
+        self.name_en = tk.StringVar()
+        self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
         self.entry_name_en.grid(row=3, column=1)
-        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_EN.get()))
+        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
         self.btn_copy_name_en.grid(row=3, column=2)
 
         # 创建生日标签和输入框
@@ -196,7 +196,7 @@ class Yjj2023(tk.Frame):
         card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
         """
         self.ID_No.set(card_info.No)
-        self.name_EN.set(card_info.name_en)
+        self.name_en.set(card_info.name_en)
         self.name_ch.set(card_info.name_ch)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
@@ -217,7 +217,7 @@ class Yjj2023(tk.Frame):
         """
         self.ID_No.set("")
         self.name_ch.set("")
-        self.name_EN.set("")
+        self.name_en.set("")
         self.birthday.set("")
         self.gender.set("")
         self.province_code.set("")
@@ -314,7 +314,7 @@ class Yjj2017(Yjj2023):
         """
 
         self.ID_No.set(card_info.No)
-        self.name_EN.set(card_info.name_en)
+        self.name_en.set(card_info.name_en)
         self.name_ch.set(card_info.name_ch)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
@@ -358,13 +358,13 @@ class GATJzz(tk.Frame):
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=1, column=1, sticky='w')
 
-        self.label_name_CH = tk.Label(self, text="中文名:")
-        self.label_name_CH.grid(row=2, column=0, sticky='e')
-        self.name_CH = tk.StringVar()
-        self.entry_name_CH = tk.Entry(self, textvariable=self.name_CH)
-        self.entry_name_CH.grid(row=2, column=1)
-        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
-        self.btn_copy_name_CH.grid(row=2, column=2)
+        self.label_name_ch = tk.Label(self, text="中文名:")
+        self.label_name_ch.grid(row=2, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=2, column=1)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=2, column=2)
 
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
         self.label_ID_No.grid(row=3, column=0, sticky='e')
@@ -448,7 +448,7 @@ class GATJzz(tk.Frame):
 
     def show_info(self, card_info: IDGener.TypeGATJZZ):
         self.ID_No.set(card_info.No)
-        self.name_CH.set(card_info.name_ch)
+        self.name_ch.set(card_info.name_ch)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
         self.province_code.set(card_info.region_code)
@@ -477,13 +477,13 @@ class GAtxz(tk.Frame):
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         self.btn_copy_ID_No.grid(row=2, column=2)
 
-        self.label_name_CH = tk.Label(self, text="中文名:")
-        self.label_name_CH.grid(row=3, column=0, sticky='e')
-        self.name_CH = tk.StringVar()
-        self.entry_name_CH = tk.Entry(self, textvariable=self.name_CH)
-        self.entry_name_CH.grid(row=3, column=1)
-        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
-        self.btn_copy_name_CH.grid(row=3, column=2)
+        self.label_name_ch = tk.Label(self, text="中文名:")
+        self.label_name_ch.grid(row=3, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=3, column=1)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=3, column=2)
 
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=4, column=0)
@@ -498,7 +498,7 @@ class GAtxz(tk.Frame):
     def generate_default(self, event=None):
         id_info = IDGener.TypeGATXZ(self.id_type.get())
         self.ID_No.set(id_info.No)
-        self.name_CH.set(id_info.name_ch)
+        self.name_ch.set(id_info.name_ch)
 
 
 class TWtxz(tk.Frame):
@@ -515,13 +515,13 @@ class TWtxz(tk.Frame):
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         self.btn_copy_ID_No.grid(row=1, column=2)
 
-        self.label_name_CH = tk.Label(self, text="中文名:")
-        self.label_name_CH.grid(row=2, column=0, sticky='e')
-        self.name_CH = tk.StringVar()
-        self.entry_name_CH = tk.Entry(self, textvariable=self.name_CH)
-        self.entry_name_CH.grid(row=2, column=1)
-        self.btn_copy_name_CH = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_CH.get()))
-        self.btn_copy_name_CH.grid(row=2, column=2)
+        self.label_name_ch = tk.Label(self, text="中文名:")
+        self.label_name_ch.grid(row=2, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=2, column=1)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=2, column=2)
 
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=3, column=0)
@@ -534,7 +534,7 @@ class TWtxz(tk.Frame):
     def generate_default(self, event=None):
         id_info = IDGener.TypeTWTXZ()
         self.ID_No.set(id_info.No)
-        self.name_CH.set(id_info.name_ch)
+        self.name_ch.set(id_info.name_ch)
 
 
 class MainApplication(tk.Tk):
