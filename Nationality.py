@@ -7,7 +7,7 @@
 # @Software : Nationality.py
 # @实现功能  : 存储国籍信息
 """
-import pandas as pd
+import csv
 import re
 import os
 
@@ -19,258 +19,6 @@ nationality_dict_by_code_2 = {}
 nationality_dict_by_code_3 = {}
 # 省市代码
 administrative_division = {}
-# 永久居留证国编代码和国籍缩写,可能没用了先留着吧
-CODE_NATIONALITY_DATA = {
-    "008": "ALB",
-    "012": "DZA",
-    "004": "AFG",
-    "032": "ARG",
-    "784": "ARE",
-    "533": "ABW",
-    "512": "OMN",
-    "031": "AZE",
-    "818": "EGY",
-    "231": "ETH",
-    "372": "IRL",
-    "233": "EST",
-    "020": "AND",
-    "024": "AGO",
-    "660": "AIA",
-    "028": "ATG",
-    "040": "AUT",
-    "248": "ALA",
-    "036": "AUS",
-    "446": "MAC",
-    "052": "BRB",
-    "598": "PNG",
-    "044": "BHS",
-    "586": "PAK",
-    "600": "PRY",
-    "275": "PSE",
-    "048": "BHR",
-    "591": "PAN",
-    "076": "BRA",
-    "112": "BLR",
-    "060": "BMU",
-    "100": "BGR",
-    "580": "MNP",
-    "807": "MKD",
-    "204": "BEN",
-    "056": "BEL",
-    "352": "ISL",
-    "630": "PRI",
-    "070": "BIH",
-    "616": "POL",
-    "068": "BOL",
-    "084": "BLZ",
-    "535": "BES",
-    "072": "BWA",
-    "064": "BTN",
-    "854": "BFA",
-    "108": "BDI",
-    "074": "BVT",
-    "408": "PRK",
-    "226": "GNQ",
-    "208": "DNK",
-    "276": "DEU",
-    "626": "TLS",
-    "768": "TGO",
-    "214": "DOM",
-    "212": "DMA",
-    "643": "RUS",
-    "218": "ECU",
-    "232": "ERI",
-    "250": "FRA",
-    "234": "FRO",
-    "258": "PYF",
-    "254": "GUF",
-    "260": "ATF",
-    "336": "VAT",
-    "608": "PHL",
-    "242": "FJI",
-    "246": "FIN",
-    "132": "CPV",
-    "238": "FLK",
-    "270": "GMB",
-    "178": "COG",
-    "180": "COD",
-    "170": "COL",
-    "188": "CRI",
-    "308": "GRD",
-    "304": "GRL",
-    "268": "GEO",
-    "831": "GGY",
-    "192": "CUB",
-    "312": "GLP",
-    "316": "GUM",
-    "328": "GUY",
-    "398": "KAZ",
-    "332": "HTI",
-    "410": "KOR",
-    "528": "NLD",
-    "334": "HMD",
-    "449": "MNE",
-    "340": "HND",
-    "296": "KIR",
-    "262": "DJI",
-    "417": "KGZ",
-    "324": "GIN",
-    "624": "GNB",
-    "124": "CAN",
-    "288": "GHA",
-    "266": "GAB",
-    "116": "KHM",
-    "203": "CZE",
-    "716": "ZWE",
-    "120": "CMR",
-    "634": "QAT",
-    "136": "CYM",
-    "166": "CCK",
-    "174": "COM",
-    "384": "CIV",
-    "414": "KWT",
-    "191": "HRV",
-    "404": "KEN",
-    "184": "COK",
-    "531": "CUW",
-    "428": "LVA",
-    "426": "LSO",
-    "418": "LAO",
-    "422": "LBN",
-    "440": "LTU",
-    "430": "LBR",
-    "434": "LBY",
-    "438": "LIE",
-    "638": "REU",
-    "442": "LUX",
-    "646": "RWA",
-    "642": "ROU",
-    "450": "MDG",
-    "833": "IMN",
-    "462": "MDV",
-    "470": "MLT",
-    "454": "MWI",
-    "458": "MYS",
-    "466": "MLI",
-    "584": "MHL",
-    "474": "MTQ",
-    "175": "MYT",
-    "480": "MUS",
-    "478": "MRT",
-    "840": "USA",
-    "581": "UMI",
-    "016": "ASM",
-    "850": "VIR",
-    "496": "MNG",
-    "500": "MSR",
-    "050": "BGD",
-    "604": "PER",
-    "583": "FSM",
-    "104": "MMR",
-    "498": "MDA",
-    "504": "MAR",
-    "492": "MCO",
-    "508": "MOZ",
-    "484": "MEX",
-    "516": "NAM",
-    "710": "ZAF",
-    "010": "ATA",
-    "239": "SGS",
-    "728": "SSD",
-    "520": "NRU",
-    "524": "NPL",
-    "558": "NIC",
-    "562": "NER",
-    "566": "NGA",
-    "570": "NIU",
-    "578": "NOR",
-    "574": "NFK",
-    "585": "PLW",
-    "612": "PCN",
-    "620": "PRT",
-    "392": "JPN",
-    "752": "SWE",
-    "756": "CHE",
-    "222": "SLV",
-    "882": "WSM",
-    "688": "SRB",
-    "694": "SLE",
-    "686": "SEN",
-    "196": "CYP",
-    "690": "SYC",
-    "682": "SAU",
-    "652": "BLM",
-    "162": "CXR",
-    "678": "STP",
-    "654": "SHN",
-    "659": "KNA",
-    "662": "LCA",
-    "663": "MAF",
-    "534": "SXM",
-    "674": "SMR",
-    "666": "SPM",
-    "670": "VCT",
-    "144": "LKA",
-    "703": "SVK",
-    "705": "SVN",
-    "744": "SJM",
-    "748": "SWZ",
-    "729": "SDN",
-    "740": "SUR",
-    "090": "SLB",
-    "706": "SOM",
-    "762": "TJK",
-    "158": "TWN",
-    "764": "THA",
-    "834": "TZA",
-    "776": "TON",
-    "796": "TCA",
-    "780": "TTO",
-    "788": "TUN",
-    "798": "TUV",
-    "792": "TUR",
-    "795": "TKM",
-    "772": "TKL",
-    "876": "WLF",
-    "548": "VUT",
-    "320": "GTM",
-    "862": "VEN",
-    "096": "BRN",
-    "800": "UGA",
-    "804": "UKR",
-    "858": "URY",
-    "860": "UZB",
-    "724": "ESP",
-    "732": "ESH",
-    "300": "GRC",
-    "344": "HKG",
-    "702": "SGP",
-    "540": "NCL",
-    "554": "NZL",
-    "348": "HUN",
-    "760": "SYR",
-    "388": "JAM",
-    "051": "ARM",
-    "887": "YEM",
-    "368": "IRQ",
-    "364": "IRN",
-    "376": "ISR",
-    "380": "ITA",
-    "356": "IND",
-    "360": "IDN",
-    "826": "GBR",
-    "092": "VGB",
-    "086": "IOT",
-    "400": "JOR",
-    "704": "VNM",
-    "894": "ZMB",
-    "832": "JEY",
-    "148": "TCD",
-    "292": "GIB",
-    "152": "CHL",
-    "140": "CAF",
-    "156": "CHN",
-}
 # 省级行政单位列表
 CODE_PROVINCE_DATA = {
     11: "北京",
@@ -353,34 +101,35 @@ def get_nationality_info() -> None:
         # nationality_read_new.to_csv(path_csv, index=True, encoding="utf-8")
         raise FileNotFoundError("找不到文件：" + path_csv)
     else:
-        nationality_read_new = pd.read_csv(path_csv, encoding="utf-8", dtype={'阿拉伯数字代码': str})
-    # 逐行解析
-    for index, row in nationality_read_new.iterrows():
-        name = row['中文和英文简称']
-        name_cn = name.split(" ")[0]
-        # 英文简称
-        name_en = name.split(" ")[1:]
-        # 国籍编号
-        number = row['阿拉伯数字代码']
-        number = number.zfill(3)
-        # 两位国籍代码
-        code_2 = row['两字符拉丁字母代码']
-        # 三位国籍代码
-        code_3 = row['三字符拉丁字母代码']
-        full_name = row['中文和英文全称']
-        # 没有中文全称和英文全称
-        try:
-            # 中文全称
-            full_name_cn = full_name.split(" ")[0]
-            # 英文全称
-            full_name_en = ' '.join(full_name.split(" ")[1:])
-        except AttributeError:
-            full_name_cn = ""
-            full_name_en = ""
-        nationality_info = NationalityInfo(name_cn, name_en, number, code_2, code_3, full_name_cn, full_name_en)
-        nationality_dict_by_number[nationality_info.number] = nationality_info
-        nationality_dict_by_code_2[nationality_info.code_2] = nationality_info
-        nationality_dict_by_code_3[nationality_info.code_3] = nationality_info
+        with open(path_csv, mode='r', encoding='utf-8') as file:
+            csv_reader = csv.DictReader(file)
+            # 逐行解析
+            for row in csv_reader:
+                name = row['中文和英文简称']
+                name_cn = name.split(" ")[0]
+                # 英文简称
+                name_en = name.split(" ")[1:]
+                # 国籍编号
+                number = row['阿拉伯数字代码']
+                number = number.zfill(3)
+                # 两位国籍代码
+                code_2 = row['两字符拉丁字母代码']
+                # 三位国籍代码
+                code_3 = row['三字符拉丁字母代码']
+                full_name = row['中文和英文全称']
+                # 没有中文全称和英文全称
+                try:
+                    # 中文全称
+                    full_name_cn = full_name.split(" ")[0]
+                    # 英文全称
+                    full_name_en = ' '.join(full_name.split(" ")[1:])
+                except AttributeError:
+                    full_name_cn = ""
+                    full_name_en = ""
+                nationality_info = NationalityInfo(name_cn, name_en, number, code_2, code_3, full_name_cn, full_name_en)
+                nationality_dict_by_number[nationality_info.number] = nationality_info
+                nationality_dict_by_code_2[nationality_info.code_2] = nationality_info
+                nationality_dict_by_code_3[nationality_info.code_3] = nationality_info
 
 
 # 获取省市代码
@@ -388,9 +137,10 @@ def get_province_code() -> None:
     # print("开始解析行政区划信息...")
     admin_division = r"./resource/administrative_division.csv"
     try:
-        region_info = pd.read_csv(admin_division, encoding="utf-8", dtype={'行政区代码': str})
-        for index, row in region_info.iterrows():
-            administrative_division[row['行政区代码']] = row['行政区名称']
+        with open(admin_division, mode='r', encoding='utf-8') as file:
+            csv_reader = csv.DictReader(file)
+            for row in csv_reader:
+                administrative_division[row['行政区代码']] = row['行政区名称']
     except FileNotFoundError:
         print(f'文件{admin_division}不存在')
 
