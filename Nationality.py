@@ -19,6 +19,8 @@ nationality_dict_by_code_2 = {}
 nationality_dict_by_code_3 = {}
 # 省市代码
 administrative_division = {}
+# 旧版行政区划
+administrative_division_old = {}
 # 省级行政单位列表
 CODE_PROVINCE_DATA = {
     11: "北京",
@@ -136,13 +138,20 @@ def get_nationality_info() -> None:
 def get_province_code() -> None:
     # print("开始解析行政区划信息...")
     admin_division = r"./resource/administrative_division.csv"
+    admin_division_old = r"./resource/administrative_division_old.csv"
     try:
-        with open(admin_division, mode='r', encoding='utf-8') as file:
+        with open(admin_division, mode='r', encoding='utf-8') as file, \
+                open(admin_division_old, mode='r', encoding='utf-8') as file_old:
             csv_reader = csv.DictReader(file)
+            csv_reader_old = csv.DictReader(file_old)
             for row in csv_reader:
                 administrative_division[row['行政区代码']] = row['行政区名称']
-    except FileNotFoundError:
-        print(f'文件{admin_division}不存在')
+            for row in csv_reader_old:
+                administrative_division_old[row['行政区代码']] = row['行政区名称']
+    except FileNotFoundError as e:
+        print(f'文件未找到:{e}')
+    except Exception as e:
+        print(f"发生错误: {e}")
 
 
 # 替换换行符

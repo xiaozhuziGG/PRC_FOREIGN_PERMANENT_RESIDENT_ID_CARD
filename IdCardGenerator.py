@@ -88,10 +88,10 @@ def convert_ten_tox(last_num: int) -> str:
 # 获取省市代码
 def get_province_city_code() -> tuple:
     items = list(Nationality.administrative_division.items())
-    """过滤掉省级行政区"""
     while True:
         selected_item = random.sample(items, 1)[0]
         name = selected_item[1]
+        # 过滤掉省级行政区,但不包括港澳台
         if ('台湾省' == name
                 or '省' not in name
                 or '自治区' not in name):
@@ -100,6 +100,28 @@ def get_province_city_code() -> tuple:
             break
     city_name = Nationality.administrative_division.get(city_code + '00', name)
     return city_code, city_name
+
+
+# 获取省市县代码
+def get_province_city_county_code() -> tuple:
+    items = list(Nationality.administrative_division.items())
+
+    while True:
+        selected_item = random.sample(items, 1)[0]
+        code = selected_item[0]
+        name = selected_item[1]
+        # 过滤掉市一级行政区,但不包括港澳台
+        if '00' == code[-2:] and '00' != code[-4:-2]:
+            # 行政区划格式为 330108,滨江区
+            continue
+        # 过滤掉省级行政区,但不包括港澳台
+        if ('台湾省' == name
+                or '省' not in name
+                or '自治区' not in name):
+            # 行政区划格式为 330108,滨江区
+            county_code = selected_item[0]
+            break
+    return code, name
 
 
 # 七三一算法
@@ -319,15 +341,32 @@ class IDNOGenerator(object):
 
 # 居民身份证
 class TypeSFZ(IDNOGenerator):
-    def __init__(self, county_code: str = None, birthday: str = None, gender: str = None,sequence_code: str = None):
+    def __init__(self, county_code: str = None, birthday: str = None, gender: str = None, sequence_code: str = None):
         super().__init__(birthday=birthday, gender=gender, sequence_code=sequence_code)
         self.type = IDType.ID_CARD.value
-        self.county_code = county_code
+        self.province_name = None
+        self.city_name = None
+        self.county_code = None
+        self.county_name = None
+        if not county_code:
+            self.county_code, self.county_name = get_province_city_county_code()
+        else:
+            if county_name := Nationality.administrative_division.get(county_code) \
+                    and ((county_code in ['710000', '810000', '820000'])
+                         or ('00' == county_code[-2:] and '00' != county_code[-4:-2])):
+                self.county_code = county_code
+                self.county_name = county_name
+            else:
+                if county_name := Nationality.administrative_division_old.get(county_code):
+                    self.county_code = county_code
+                    self.county_name = county_name
+                else:
+                    raise ValueError("输入的县代码错误")
 
     def __str__(self):
         return self.type
 
-    def print_info(self):
+    def get_province_city_county_name(self):
         pass
 
 
@@ -658,4 +697,5 @@ if __name__ == '__main__':
     # name = generate_chinese_name()
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
-    print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
+    # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
+    TypeSFZ()
