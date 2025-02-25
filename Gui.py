@@ -15,6 +15,15 @@ import Nationality
 import pyperclip
 
 
+class Sfz(tk.Frame):
+    """身份证的页面"""
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.title("身份证生成器")
+
+
+
 class Yjj2023(tk.Frame):
     """永居证的页面"""
 
@@ -536,6 +545,36 @@ class TWtxz(tk.Frame):
         self.ID_No.set(id_info.No)
         self.name_ch.set(id_info.name_ch)
 
+class ToolTip:
+    def __init__(self, widget, text='widget info'):
+        self.widget = widget
+        self.text = text
+        self.tip_window = None
+        self.id = None
+        self.x = self.y = 0
+
+    def showtip(self):
+        """Display text in tooltip window"""
+        if self.tip_window or not self.text:
+            return
+        x, y, cx, cy = self.widget.bbox("insert")
+        x = x + self.widget.winfo_rootx() + 25
+        y = y + cy + self.widget.winfo_rooty() + 25
+        self.tip_window = tw = tk.Toplevel(self.widget)
+        tw.wm_overrideredirect(True)
+        tw.wm_geometry("+%d+%d" % (x, y))
+        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
+                         background="#ffffe0", relief=tk.SOLID, borderwidth=1,
+                         font=("tahoma", "8", "normal"))
+        label.pack(ipadx=1)
+
+    def hidetip(self):
+        """Hide the tooltip window"""
+        tw = self.tip_window
+        self.tip_window = None
+        if tw:
+            tw.destroy()
+
 
 class MainApplication(tk.Tk):
     def __init__(self, id_kinds, ):
@@ -566,6 +605,8 @@ class MainApplication(tk.Tk):
             frame.grid(row=1, column=0, columnspan=4, padx=0, pady=20)
 
     def create_frame(self, event):
+        if IDGener.IDType.ID_CARD.value == str(self.id_kind.get()):
+            self.show_frame(Sfz(self))
         if IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
             self.show_frame(Yjj2023(self))
         elif IDGener.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
@@ -578,37 +619,6 @@ class MainApplication(tk.Tk):
             self.show_frame(Yjj2017(self))
         else:
             self.show_frame()
-
-
-class ToolTip:
-    def __init__(self, widget, text='widget info'):
-        self.widget = widget
-        self.text = text
-        self.tip_window = None
-        self.id = None
-        self.x = self.y = 0
-
-    def showtip(self):
-        """Display text in tooltip window"""
-        if self.tip_window or not self.text:
-            return
-        x, y, cx, cy = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + 25
-        y = y + cy + self.widget.winfo_rooty() + 25
-        self.tip_window = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry("+%d+%d" % (x, y))
-        label = tk.Label(tw, text=self.text, justify=tk.LEFT,
-                         background="#ffffe0", relief=tk.SOLID, borderwidth=1,
-                         font=("tahoma", "8", "normal"))
-        label.pack(ipadx=1)
-
-    def hidetip(self):
-        """Hide the tooltip window"""
-        tw = self.tip_window
-        self.tip_window = None
-        if tw:
-            tw.destroy()
 
 
 def create_tooltip(widget, text):

@@ -319,16 +319,16 @@ class IDNOGenerator(object):
 
 # 居民身份证
 class TypeSFZ(IDNOGenerator):
+    def __init__(self, county_code: str = None, birthday: str = None, gender: str = None,sequence_code: str = None):
+        super().__init__(birthday=birthday, gender=gender, sequence_code=sequence_code)
+        self.type = IDType.ID_CARD.value
+        self.county_code = county_code
+
     def __str__(self):
         return self.type
 
     def print_info(self):
         pass
-
-    def __init__(self):
-        super().__init__()
-        self.type = "居民身份证"
-        self.province_code = IDNOGenerator.get_province_code()
 
 
 # 23新版外国人永久居留证
