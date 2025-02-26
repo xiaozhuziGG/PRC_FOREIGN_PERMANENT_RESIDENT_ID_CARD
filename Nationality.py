@@ -110,7 +110,8 @@ def get_nationality_info() -> None:
                 name = row['中文和英文简称']
                 name_cn = name.split(" ")[0]
                 # 英文简称
-                name_en = name.split(" ")[1:]
+                name_en_parts = name.split(" ")[1:]
+                name_en = ' '.join(name_en_parts) if name_en_parts else ''
                 # 国籍编号
                 number = row['阿拉伯数字代码']
                 number = number.zfill(3)
@@ -146,8 +147,8 @@ def get_province_code() -> None:
             csv_reader_old = csv.DictReader(file_old)
             for row in csv_reader:
                 administration_division[row['行政区代码']] = row['行政区名称']
-            for row in csv_reader_old:
-                administration_division_old[row['行政区代码']] = row['行政区名称']
+            for row_old in csv_reader_old:
+                administration_division_old[row['行政区代码']] = row_old['行政区名称']
     except FileNotFoundError as e:
         print(f'文件未找到:{e}')
     except Exception as e:

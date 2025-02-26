@@ -14,7 +14,7 @@ import Nationality
 from os import path, makedirs
 
 
-#证件类型枚举
+# 证件类型枚举
 class IDType(Enum):
     ID_CARD = "居民身份证"
     BUSINESS_LICENSE = "营业执照"
@@ -30,6 +30,7 @@ class GATPermanentResident(Enum):
     HKG_PERMANENT_RESIDENT = "香港居民居住证"
     MAC_PERMANENT_RESIDENT = "澳门居民居住证"
     CTN_PERMANENT_RESIDENT = "台湾居民居住证"
+
 
 # 港澳居民来往内地通行证枚举
 class HkgMacPermit(Enum):
@@ -209,12 +210,14 @@ class IDNOGenerator(object):
     def __init__(self, name_ch: str = None, name_en: str = None,
                  birthday: str = None, gender: str = None, name_length: int = 3, sequence_code: str = None):
         """
-        - name_ch :中文名
-        - name_en :英文名
-        - birthday :生日
-        - gender :性别，男或者女
-        - name_length :中文名长度,未输入中文名时自动生成用
-        - sequence_code: 序列号,同时输入性别和序列号,以序列号为准
+        个人证件父类,生成基本的信息。
+
+        :param name_ch: (str)中文名
+        :param name_en: (str)英文名
+        :param birthday: (str)生日
+        :param gender: (str)性别，男或者女
+        :param name_length: (str)中文名长度,未输入中文名时自动生成用
+        :param sequence_code: (str) 序列号,同时输入性别和序列号,以序列号为准
         """
         # 证件类别
         self.__type = ' '
@@ -338,8 +341,19 @@ class IDNOGenerator(object):
 
 # 居民身份证
 class TypeSFZ(IDNOGenerator):
-    def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, gender: str = None, sequence_code: str = None,
+    def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, gender: str = None,
+                 sequence_code: str = None,
                  county_code: str = None):
+        """
+        生成身份证基本信息。
+
+        :param name_ch: (str)中文名
+        :param name_en: (str)英文名
+        :param birthday: (str)生日
+        :param gender: (str)性别,男或者女
+        :param sequence_code: (str) 序列号,同时输入性别和序列号,以序列号为准
+        :param county_code: (str)到县一级的行政区代码
+        """
         super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code)
         self.type = IDType.ID_CARD.value
         self.province_name = None
@@ -371,15 +385,15 @@ class TypeSFZ(IDNOGenerator):
     def __str__(self):
         return self.type
 
-    def get_province_city_county_name(self,is_new = True):
+    def get_province_city_county_name(self, is_new=True):
         if is_new:
             self.province_name = Nationality.administration_division.get(self.county_code[0:2] + '0000')
             self.city_name = Nationality.administration_division.get(self.county_code[0:4] + '00')
             if self.province_name == self.city_name == self.county_name:
                 self.city_name = None
                 self.county_name = None
-            #存在有市无县的情况，市代县的情况，例如429004,仙桃市
-            elif None == self.city_name:
+            # 存在有市无县的情况，市代县的情况，例如429004,仙桃市
+            elif None is self.city_name:
                 self.city_name = self.county_name
                 self.county_name = None
         else:
@@ -392,23 +406,21 @@ class TypeYJZ(IDNOGenerator):
     # 外国人永居证都是9为开头
     PREFIX_NUM = '9'
 
-    def __init__(self, name_ch: str = None, name_en: str = None, province_name: str = None,
-                 national_code_3: str = None, birthday: str = None, gender: str = None, name_length: int = 4):
+    def __init__(self, name_ch: str = None, name_en: str = None, province_name: str = None, national_code_3: str = None,
+                 birthday: str = None, gender: str = None, name_length: int = 4, sequence_code: str = None):
         """
         初始化外国人信息类,此构造函数用于初始化外国人永久居留身份证信息对象。。
 
-        参数:
-        - name_ch (str): 中文姓名，默认为None。
-        - name_en (str): 英文姓名，默认为None。
-        - province_name (str): 所属省份名称，默认为None。
-        - national_code_3 (str): 三位国家代码，默认为None。
-        - birthday (str): 出生日期，默认为None。
-        - gender (str): 性别，默认为None。
-        - name_length (int): 名称长度，默认为4。
-
-        参数类型通过类型注解明确指定，为字符串或整数。参数默认值为None，除了name_length默认值为4。
+        :param name_ch: (str)中文姓名，默认为None。
+        :param name_en: (str)英文姓名，默认为None。
+        :param province_name: (str): 所属省份名称，默认为None。
+        :param national_code_3: (str): 三位拉丁文国家代码,例如USA，默认为None。
+        :param birthday: (str)出生日期，默认为None。
+        :param gender: (str)性别，默认为None。
+        :param name_length: (int)名字长度，默认为4。
+        :param sequence_code: (str)顺序码,仅在依据旧版信息生成新版永居证号码时有用
         """
-        super().__init__(name_ch, name_en, birthday, gender, name_length)
+        super().__init__(name_ch, name_en, birthday, gender, name_length, sequence_code)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2023.value
         # 地区码
         if province_name is None:
@@ -543,18 +555,20 @@ class TypeYJZ(IDNOGenerator):
         )
 
 
-# 17旧版外国人永久居留证
+# 2017旧版外国人永久居留证
 class TypeYJZ2017(IDNOGenerator):
     def __init__(self, name_ch: str = None, name_en: str = None, national_abbreviation: str = None,
                  province_city_code: str = None, birthday: str = None, gender: str = None, sequence_code: str = None):
         """
-        - name_ch (str): 中文姓名，默认为None。
-        - name_en (str): 英文姓名，默认为None。
-        - national_abbreviation :国家简写，三位拉丁国籍代码，默认为None。
-        - province_city_code :省市代码
-        - birthday :生日
-        - gender :性别,输入性别时,随机生成顺序码
-        - sequence_code :顺序码,同时输入性别和顺序码,以顺序码为准
+        2017版永居证
+
+        :param name_ch: (str)中文姓名，默认为None。
+        :param name_en: (str)英文姓名，默认为None。
+        :param national_abbreviation: (str)国家简写，三位拉丁国籍代码，默认为None。
+        :param province_city_code: (str)省市代码
+        :param birthday :(str)生日
+        :param gender: (str)性别,输入性别时,随机生成顺序码
+        :param sequence_code: (str)顺序码,同时输入性别和顺序码,以顺序码为准
         """
         super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, name_length=4)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2017.value
@@ -593,6 +607,12 @@ class TypeYJZ2017(IDNOGenerator):
         self.No = self.nationality_code + self.city_code + self.birthday[2:] + self.sequence_code
         self.last_num = calculate_check_num_731(self.No)
         self.No = self.No + self.last_num
+        province_name = Nationality.CODE_PROVINCE_DATA.get(int(self.city_code[0:2]))
+        sequence_code = self.sequence_code.zfill(3)
+        # 推算出的2023年版永居证号码
+        self.No_2023 = TypeYJZ(name_ch=self.name_ch, name_en=self.name_en, province_name=province_name,
+                               national_code_3=self.nationality_code, birthday=self.birthday,
+                               gender=self.gender, sequence_code=sequence_code).No
 
     def __str__(self):
         return (

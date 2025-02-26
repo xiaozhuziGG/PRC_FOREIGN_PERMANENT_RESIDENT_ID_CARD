@@ -21,8 +21,8 @@ class Sfz(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        # 证件信息
-        self.id_info: IDGener.TypeSFZ = None
+        # 证件信息,IDGener.TypeSFZ类型
+        self.id_info = None
         # 创建证件号码标签和输入框
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
         self.label_ID_No.grid(row=1, column=0, sticky='e')
@@ -142,9 +142,8 @@ class Sfz(tk.Frame):
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
         administration_code = self.entry_administration_code.get() or None
-        self.id_info = IDGener.TypeSFZ(name_ch,name_en,birthday, gender,county_code=administration_code)
+        self.id_info = IDGener.TypeSFZ(name_ch, name_en, birthday, gender, county_code=administration_code)
         self.show_info()
-
 
     def check_number_complete(self):
         ID_No_src = self.ID_No.get()
@@ -165,7 +164,6 @@ class Sfz(tk.Frame):
         self.province_name.set('')
         self.city_name.set('')
         self.county_name.set('')
-
 
     def show_info(self):
         self.ID_No.set(self.id_info.No)
@@ -285,29 +283,40 @@ class Yjj2023(tk.Frame):
                                                       command=lambda: pyperclip.copy(self.nationality_name_cn.get()))
         self.btn_copy_nationality_name_cn.grid(row=10, column=2)
 
+        # 对应其他版本永居证的号码
+        self.label_ID_No_other = tk.Label(self, text="旧版号码:", anchor="e")
+        self.label_ID_No_other.grid(row=11, column=0, sticky='e')
+        self.ID_No_other = tk.StringVar()
+        self.entry_ID_No_other = tk.Entry(self, textvariable=self.ID_No_other)
+        self.entry_ID_No_other.grid(row=11, column=1)
+
+        # 添加复制按钮
+        self.btn_copy_ID_No_other = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No_other.get()))
+        self.btn_copy_ID_No_other.grid(row=11, column=2)
+
         # 刷新按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh.grid(row=11, column=1)
+        self.btn_refresh.grid(row=12, column=1)
 
         # 合成图像按钮
         self.btn_generate_image = tk.Button(self, text="合成图像", command=self.generate_image)
-        self.btn_generate_image.grid(row=11, column=2)
+        self.btn_generate_image.grid(row=12, column=2)
 
         self.button_check = tk.Button(self, text="清除信息", command=self.clear_all_fields)
-        self.button_check.grid(row=11, column=0)
+        self.button_check.grid(row=12, column=0)
 
         # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
         create_tooltip(self.btn_generate, text="依据部分字段输入进行生成")
-        self.btn_generate.grid(row=12, column=0)
+        self.btn_generate.grid(row=13, column=0)
 
         # 校验码计算
         self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
-        self.button_check_num_calculate.grid(row=12, column=1)
+        self.button_check_num_calculate.grid(row=13, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit.grid(row=12, column=2)
+        self.button_quit.grid(row=13, column=2)
 
         '''
         只有本类型的页面需要调用生成号码的逻辑,否则子类在使用super调用的时候会报错,因为子类会调用子类自己的generate_default()方法
@@ -369,6 +378,7 @@ class Yjj2023(tk.Frame):
         self.nationality_number.set(card_info.nationality_number)
         self.nationality_code.set(card_info.nationality_code)
         self.nationality_name_cn.set(card_info.nationality_name_ch)
+        self.ID_No_other.set('有需要在2017版页面中用校验位补全的方式生成')
 
     def generate_image(self, event=None):
         file_path = self.id_info.generate_image()
@@ -434,7 +444,8 @@ class Yjj2017(Yjj2023):
         self.btn_copy_city_name = tk.Button(self, text="复制",
                                             command=lambda: pyperclip.copy(self.city_name.get()))
         self.btn_copy_city_name.grid(row=7, column=2)
-
+        # 对应其他版本永居证的号码
+        self.label_ID_No_other = tk.Label(self, text="新版号码:", anchor="e")
         # 不显示合成图像按钮
         self.btn_generate_image.grid_forget()
 
@@ -487,6 +498,7 @@ class Yjj2017(Yjj2023):
         self.nationality_number.set(card_info.nationality_number)
         self.nationality_code.set(card_info.nationality_code)
         self.nationality_name_cn.set(card_info.nationality_name_ch)
+        self.ID_No_other.set(card_info.No_2023)
 
     def clear_all_fields(self):
         super().clear_all_fields()
