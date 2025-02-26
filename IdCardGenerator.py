@@ -14,8 +14,8 @@ import Nationality
 from os import path, makedirs
 
 
+#证件类型枚举
 class IDType(Enum):
-    """证件类型枚举"""
     ID_CARD = "居民身份证"
     BUSINESS_LICENSE = "营业执照"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
@@ -25,15 +25,14 @@ class IDType(Enum):
     HKG_MAC_PERMIT = "港澳居民来往内地通行证"
 
 
+# 港澳台居民居住证枚举
 class GATPermanentResident(Enum):
-    """港澳台居民居住证"""
     HKG_PERMANENT_RESIDENT = "香港居民居住证"
     MAC_PERMANENT_RESIDENT = "澳门居民居住证"
     CTN_PERMANENT_RESIDENT = "台湾居民居住证"
 
-
+# 港澳居民来往内地通行证枚举
 class HkgMacPermit(Enum):
-    """港澳居民来往内地通行证"""
     HKG_PERMIT = "香港居民来往内地通行证"
     MAC_PERMIT = "澳门居民来往内地通行证"
 
@@ -87,7 +86,7 @@ def convert_ten_tox(last_num: int) -> str:
 
 # 获取省市代码
 def get_province_city_code() -> tuple:
-    items = list(Nationality.administrative_division.items())
+    items = list(Nationality.administration_division.items())
     while True:
         selected_item = random.sample(items, 1)[0]
         name = selected_item[1]
@@ -98,19 +97,19 @@ def get_province_city_code() -> tuple:
             # 行政区划格式为 330108,滨江区
             city_code = selected_item[0][0:4]
             break
-    city_name = Nationality.administrative_division.get(city_code + '00', name)
+    city_name = Nationality.administration_division.get(city_code + '00', name)
     return city_code, city_name
 
 
 # 获取省市县代码
 def get_province_city_county_code() -> tuple:
-    items = list(Nationality.administrative_division.items())
+    items = list(Nationality.administration_division.items())
 
     while True:
         selected_item = random.sample(items, 1)[0]
         code = selected_item[0]
         name = selected_item[1]
-        # 过滤掉市一级行政区,但不包括港澳台
+        # 过滤掉市一级行政区,但不包括港澳台,例如810000
         if '00' == code[-2:] and '00' != code[-4:-2]:
             # 行政区划格式为 330108,滨江区
             continue
@@ -118,8 +117,6 @@ def get_province_city_county_code() -> tuple:
         if ('台湾省' == name
                 or '省' not in name
                 or '自治区' not in name):
-            # 行政区划格式为 330108,滨江区
-            county_code = selected_item[0]
             break
     return code, name
 
@@ -341,8 +338,9 @@ class IDNOGenerator(object):
 
 # 居民身份证
 class TypeSFZ(IDNOGenerator):
-    def __init__(self, county_code: str = None, birthday: str = None, gender: str = None, sequence_code: str = None):
-        super().__init__(birthday=birthday, gender=gender, sequence_code=sequence_code)
+    def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, gender: str = None, sequence_code: str = None,
+                 county_code: str = None):
+        super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code)
         self.type = IDType.ID_CARD.value
         self.province_name = None
         self.city_name = None
@@ -350,24 +348,43 @@ class TypeSFZ(IDNOGenerator):
         self.county_name = None
         if not county_code:
             self.county_code, self.county_name = get_province_city_county_code()
+            self.get_province_city_county_name()
         else:
-            if county_name := Nationality.administrative_division.get(county_code) \
+            if (county_name := Nationality.administration_division.get(county_code)) \
                     and ((county_code in ['710000', '810000', '820000'])
-                         or ('00' == county_code[-2:] and '00' != county_code[-4:-2])):
+                         or ('00' != county_code[-2:])):
                 self.county_code = county_code
                 self.county_name = county_name
+                self.get_province_city_county_name()
             else:
-                if county_name := Nationality.administrative_division_old.get(county_code):
+                if county_name := Nationality.administration_division_old.get(county_code):
                     self.county_code = county_code
                     self.county_name = county_name
+                    self.get_province_city_county_name(is_new=False)
                 else:
                     raise ValueError("输入的县代码错误")
+        self.No = f"{self.county_code}{self.birthday}{self.sequence_code}"
+        self.calculate_check_num()
+        # 拼接上校验位
+        self.No += self.last_num
 
     def __str__(self):
         return self.type
 
-    def get_province_city_county_name(self):
-        pass
+    def get_province_city_county_name(self,is_new = True):
+        if is_new:
+            self.province_name = Nationality.administration_division.get(self.county_code[0:2] + '0000')
+            self.city_name = Nationality.administration_division.get(self.county_code[0:4] + '00')
+            if self.province_name == self.city_name == self.county_name:
+                self.city_name = None
+                self.county_name = None
+            #存在有市无县的情况，市代县的情况，例如429004,仙桃市
+            elif None == self.city_name:
+                self.city_name = self.county_name
+                self.county_name = None
+        else:
+            self.province_name = Nationality.administration_division_old.get(self.county_code[0:2] + '0000')
+            self.city_name = Nationality.administration_division_old.get(self.county_code[0:4] + '00')
 
 
 # 23新版外国人永久居留证
@@ -569,7 +586,7 @@ class TypeYJZ2017(IDNOGenerator):
             self.city_name = city_info[1]
         else:
             try:
-                self.city_name = Nationality.administrative_division[province_city_code + '00']
+                self.city_name = Nationality.administration_division[province_city_code + '00']
                 self.city_code = province_city_code
             except KeyError:
                 raise KeyError("输入的省市代码无对应省份,请确认")
@@ -586,7 +603,7 @@ class TypeYJZ2017(IDNOGenerator):
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
             f"办理地区：{self.city_code},对应地区名称：{self.city_name},\
-对应省份={Nationality.administrative_division[self.city_code[0:2] + '0000']}\n"
+对应省份={Nationality.administration_division[self.city_code[0:2] + '0000']}\n"
             f"国籍：{self.nationality_code},国籍代码：{self.nationality_number},国家简称：{self.nationality_name_ch}\n"
         )
 
@@ -698,4 +715,5 @@ if __name__ == '__main__':
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
-    TypeSFZ()
+    a = TypeSFZ()
+    pass

@@ -18,9 +18,9 @@ nationality_dict_by_code_2 = {}
 # 依据三位国籍代码的国籍信息字典，键为三位国籍代码（字符串类型），值为国籍信息（字符串类型）
 nationality_dict_by_code_3 = {}
 # 省市代码
-administrative_division = {}
+administration_division = {}
 # 旧版行政区划
-administrative_division_old = {}
+administration_division_old = {}
 # 省级行政单位列表
 CODE_PROVINCE_DATA = {
     11: "北京",
@@ -145,13 +145,13 @@ def get_province_code() -> None:
             csv_reader = csv.DictReader(file)
             csv_reader_old = csv.DictReader(file_old)
             for row in csv_reader:
-                administrative_division[row['行政区代码']] = row['行政区名称']
+                administration_division[row['行政区代码']] = row['行政区名称']
             for row in csv_reader_old:
-                administrative_division_old[row['行政区代码']] = row['行政区名称']
+                administration_division_old[row['行政区代码']] = row['行政区名称']
     except FileNotFoundError as e:
         print(f'文件未找到:{e}')
     except Exception as e:
-        print(f"发生错误: {e}")
+        print(f"{__name__}发生错误: {e}")
 
 
 # 替换换行符

@@ -17,11 +17,166 @@ import pyperclip
 
 class Sfz(tk.Frame):
     """身份证的页面"""
+
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        self.title("身份证生成器")
+        # 证件信息
+        self.id_info: IDGener.TypeSFZ = None
+        # 创建证件号码标签和输入框
+        self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
+        self.label_ID_No.grid(row=1, column=0, sticky='e')
+        self.ID_No = tk.StringVar()
+        self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
+        self.entry_ID_No.grid(row=1, column=1)
+        # 添加复制按钮
+        self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
+        self.btn_copy_ID_No.grid(row=1, column=2)
 
+        # 创建中文名标签和输入框
+        self.label_name_ch = tk.Label(self, text="中文名:")
+        self.label_name_ch.grid(row=2, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=2, column=1)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=2, column=2)
+
+        # 创建英文名标签和输入框
+        self.label_name_en = tk.Label(self, text="英文名:")
+        self.label_name_en.grid(row=3, column=0, sticky='e')
+        self.name_en = tk.StringVar()
+        self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
+        self.entry_name_en.grid(row=3, column=1)
+        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
+        self.btn_copy_name_en.grid(row=3, column=2)
+
+        # 创建生日标签和输入框
+        self.label_birthday = tk.Label(self, text="生日:", anchor="e")
+        self.label_birthday.grid(row=4, column=0, sticky='e')
+        self.birthday = tk.StringVar()
+        self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
+        self.entry_birthday.grid(row=4, column=1)
+        self.btn_copy_birthday = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.birthday.get()))
+        self.btn_copy_birthday.grid(row=4, column=2)
+
+        # 创建性别标签和输入框
+        self.label_gender = tk.Label(self, text="性别:")
+        self.label_gender.grid(row=5, column=0, sticky='e')
+        self.gender = tk.StringVar()
+        self.gender.set("")
+        self.entry_gender_M = tk.Radiobutton(self, text='男', value='男', variable=self.gender)
+        self.entry_gender_F = tk.Radiobutton(self, text='女', value='女', variable=self.gender)
+        self.entry_gender_M.grid(row=5, column=1)
+        self.entry_gender_F.grid(row=5, column=2)
+
+        # 创建办理地区码标签和输入框
+        self.label_administration_code = tk.Label(self, text="行政区代码:")
+        self.label_administration_code.grid(row=6, column=0, sticky='e')
+        self.administration_code = tk.StringVar()
+        self.entry_administration_code = tk.Entry(self, textvariable=self.administration_code)
+        self.entry_administration_code.grid(row=6, column=1)
+        self.btn_copy_administration_code = tk.Button(self, text="复制",
+                                                      command=lambda: pyperclip.copy(self.administration_code.get()))
+        self.btn_copy_administration_code.grid(row=6, column=2)
+
+        # 创建办理省份标签和输入框
+        self.label_province_name = tk.Label(self, text="省:")
+        self.label_province_name.grid(row=7, column=0, sticky='e')
+        self.province_name = tk.StringVar()
+        self.entry_province_name = tk.Entry(self, textvariable=self.province_name)
+        self.entry_province_name.grid(row=7, column=1)
+        self.btn_copy_province_name = tk.Button(self, text="复制",
+                                                command=lambda: pyperclip.copy(self.province_name.get()))
+        self.btn_copy_province_name.grid(row=7, column=2)
+
+        # 创建国籍代码标签和输入框
+        self.label_city_name = tk.Label(self, text="市:")
+        self.label_city_name.grid(row=8, column=0, sticky='e')
+        self.city_name = tk.StringVar()
+        self.entry_city_name = tk.Entry(self, textvariable=self.city_name)
+        self.entry_city_name.grid(row=8, column=1)
+        self.btn_copy_city_name = tk.Button(self, text="复制",
+                                            command=lambda: pyperclip.copy(self.city_name.get()))
+        self.btn_copy_city_name.grid(row=8, column=2)
+
+        # 创建国籍标签和输入框
+        self.label_county_name = tk.Label(self, text="县:")
+        self.label_county_name.grid(row=9, column=0, sticky='e')
+        self.county_name = tk.StringVar()
+        self.entry_county_name = tk.Entry(self, textvariable=self.county_name)
+        self.entry_county_name.grid(row=9, column=1)
+        self.btn_copy_county_name = tk.Button(self, text="复制",
+                                              command=lambda: pyperclip.copy(self.county_name.get()))
+        self.btn_copy_county_name.grid(row=9, column=2)
+
+        # 刷新按钮
+        self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
+        self.btn_refresh.grid(row=11, column=1)
+
+        self.button_check = tk.Button(self, text="清除信息", command=self.clear_all_fields)
+        self.button_check.grid(row=11, column=0)
+
+        # 自定义生成按钮
+        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
+        create_tooltip(self.btn_generate, text="依据部分字段输入进行生成")
+        self.btn_generate.grid(row=12, column=0)
+
+        # 校验码计算
+        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete)
+        create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
+        self.button_check_num_calculate.grid(row=12, column=1)
+
+        self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
+        self.button_quit.grid(row=12, column=2)
+
+        self.generate_default()
+
+    def generate_default(self):
+        self.id_info = IDGener.TypeSFZ()
+        self.show_info()
+
+    def generate_by_input(self):
+        name_ch = self.entry_name_ch.get() or None
+        name_en = self.entry_name_en.get() or None
+        birthday = self.entry_birthday.get() or None
+        gender = self.gender.get() or None
+        administration_code = self.entry_administration_code.get() or None
+        self.id_info = IDGener.TypeSFZ(name_ch,name_en,birthday, gender,county_code=administration_code)
+        self.show_info()
+
+
+    def check_number_complete(self):
+        ID_No_src = self.ID_No.get()
+        ID_No_src = ID_No_src[0:17]
+        try:
+            ID_No_src = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+        except ValueError as e:
+            messagebox.showinfo("提示", f"输入有误,{e}")
+        self.ID_No.set(ID_No_src)
+
+    def clear_all_fields(self):
+        self.ID_No.set('')
+        self.name_ch.set('')
+        self.name_en.set('')
+        self.birthday.set('')
+        self.gender.set('')
+        self.administration_code.set('')
+        self.province_name.set('')
+        self.city_name.set('')
+        self.county_name.set('')
+
+
+    def show_info(self):
+        self.ID_No.set(self.id_info.No)
+        self.name_ch.set(self.id_info.name_ch)
+        self.name_en.set(self.id_info.name_en)
+        self.birthday.set(self.id_info.birthday)
+        self.gender.set(self.id_info.gender)
+        self.administration_code.set(self.id_info.county_code)
+        self.province_name.set(self.id_info.province_name)
+        self.city_name.set(self.id_info.city_name)
+        self.county_name.set(self.id_info.county_name)
 
 
 class Yjj2023(tk.Frame):
@@ -172,7 +327,7 @@ class Yjj2023(tk.Frame):
         if province_name is None and province_code:
             # 名称优先级高,同时输入了代码和名称时,根据名称查不到代码才使用代码信息,下方的国籍也是一样的
             try:
-                province_name = Nationality.administrative_division[province_code]
+                province_name = Nationality.administration_division[province_code]
             except KeyError as e:
                 raise e
         nationality_code = self.entry_nationality_code.get() or None
@@ -238,12 +393,11 @@ class Yjj2023(tk.Frame):
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
         ID_No_src = ID_No_src[0:17]
-        ID_No = ''
         try:
-            ID_No = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+            ID_No_src = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
-        self.ID_No.set(ID_No)
+        self.ID_No.set(ID_No_src)
         # print(type(self), event)
 
 
@@ -293,7 +447,6 @@ class Yjj2017(Yjj2023):
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
-        # 依据自定义输入,需要同步修改其他文件的内容
         name_ch = self.entry_name_ch.get() or None
         name_en = self.entry_name_en.get() or None
         birthday = self.entry_birthday.get() or None
@@ -329,7 +482,7 @@ class Yjj2017(Yjj2023):
         self.gender.set(card_info.gender)
         self.city_code.set(card_info.city_code)
         province_code = card_info.city_code[0:2] + '0000'
-        province_name = Nationality.administrative_division.get(province_code)
+        province_name = Nationality.administration_division.get(province_code)
         self.city_name.set(province_name + card_info.city_name)
         self.nationality_number.set(card_info.nationality_number)
         self.nationality_code.set(card_info.nationality_code)
@@ -342,13 +495,13 @@ class Yjj2017(Yjj2023):
 
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
-        ID_No = ''
+        check_num = ''
         try:
             ID_No_src = ID_No_src[0:14]
-            ID_No = IDGener.calculate_check_num_731(ID_No_src)
+            check_num = IDGener.calculate_check_num_731(ID_No_src)
         except Exception as e:
             messagebox.showinfo("提示", f"输入有误,错误信息:{e}")
-        self.ID_No.set(ID_No_src + ID_No)
+        self.ID_No.set(ID_No_src + check_num)
 
 
 class GATJzz(tk.Frame):
@@ -545,6 +698,7 @@ class TWtxz(tk.Frame):
         self.ID_No.set(id_info.No)
         self.name_ch.set(id_info.name_ch)
 
+
 class ToolTip:
     def __init__(self, widget, text='widget info'):
         self.widget = widget
@@ -607,7 +761,7 @@ class MainApplication(tk.Tk):
     def create_frame(self, event):
         if IDGener.IDType.ID_CARD.value == str(self.id_kind.get()):
             self.show_frame(Sfz(self))
-        if IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
+        elif IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
             self.show_frame(Yjj2023(self))
         elif IDGener.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
             self.show_frame(GATJzz(self))
