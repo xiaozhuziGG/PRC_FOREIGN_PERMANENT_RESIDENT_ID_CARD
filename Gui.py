@@ -399,6 +399,7 @@ class Yjj2023(tk.Frame):
         self.nationality_number.set("")
         self.nationality_code.set("")
         self.nationality_name_cn.set("")
+        self.ID_No_other.set('')
 
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -522,83 +523,94 @@ class GATJzz(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        # 行号迭代器，注意next返回当前值
+        row_num = RowNumIterator(1)
 
         # 创建港澳台页面的组件
         self.id_type = tk.StringVar()
         self.label_id_type = tk.Label(self, text="证件类别:")
-        self.label_id_type.grid(row=1, column=0, sticky='e')
+        self.label_id_type.grid(row=row_num.current, column=0, sticky='e')
         gat_id_type = tuple(member.value for member in IDGener.GATPermanentResident)
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=gat_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
-        self.combobox_id_type.grid(row=1, column=1, sticky='w')
+        self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
 
         self.label_name_ch = tk.Label(self, text="中文名:")
-        self.label_name_ch.grid(row=2, column=0, sticky='e')
+        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         self.name_ch = tk.StringVar()
         self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        self.entry_name_ch.grid(row=2, column=1)
+        self.entry_name_ch.grid(row=row_num.current, column=1)
         self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        self.btn_copy_name_ch.grid(row=2, column=2)
+        self.btn_copy_name_ch.grid(row=next(row_num), column=2)
+
+        # 创建英文名标签和输入框
+        self.label_name_en = tk.Label(self, text="英文名:")
+        self.label_name_en.grid(row=row_num.current, column=0, sticky='e')
+        self.name_en = tk.StringVar()
+        self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
+        self.entry_name_en.grid(row=row_num.current, column=1)
+        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
+        self.btn_copy_name_en.grid(row=next(row_num), column=2)
 
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        self.label_ID_No.grid(row=3, column=0, sticky='e')
+        self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
         self.ID_No = tk.StringVar()
         self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        self.entry_ID_No.grid(row=3, column=1)
+        self.entry_ID_No.grid(row=row_num.current, column=1)
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        self.btn_copy_ID_No.grid(row=3, column=2)
+        self.btn_copy_ID_No.grid(row=next(row_num), column=2)
 
         # 创建生日标签和输入框
         self.label_birthday = tk.Label(self, text="生日:", anchor="e")
-        self.label_birthday.grid(row=4, column=0, sticky='e')
+        self.label_birthday.grid(row=row_num.current, column=0, sticky='e')
         self.birthday = tk.StringVar()
         self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
-        self.entry_birthday.grid(row=4, column=1)
+        self.entry_birthday.grid(row=row_num.current, column=1)
         self.btn_copy_birthday = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.birthday.get()))
-        self.btn_copy_birthday.grid(row=4, column=2)
+        self.btn_copy_birthday.grid(row=next(row_num), column=2)
 
         # 创建性别标签和输入框
         self.label_gender = tk.Label(self, text="性别:")
-        self.label_gender.grid(row=5, column=0, sticky='e')
+        self.label_gender.grid(row=row_num.current, column=0, sticky='e')
         self.gender = tk.StringVar()
         self.gender.set('')
         self.entry_gender_M = tk.Radiobutton(self, text='男', value='男', variable=self.gender)
         self.entry_gender_F = tk.Radiobutton(self, text='女', value='女', variable=self.gender)
-        self.entry_gender_M.grid(row=5, column=1)
-        self.entry_gender_F.grid(row=5, column=2)
+        self.entry_gender_M.grid(row=row_num.current, column=1)
+        self.entry_gender_F.grid(row=next(row_num), column=2)
 
         # 创建办理地区码标签和输入框
         self.label_province_code = tk.Label(self, text="地区码:")
-        self.label_province_code.grid(row=6, column=0, sticky='e')
+        self.label_province_code.grid(row=row_num.current, column=0, sticky='e')
         self.province_code = tk.StringVar()
         self.entry_province_code = tk.Entry(self, textvariable=self.province_code)
-        self.entry_province_code.grid(row=6, column=1)
+        self.entry_province_code.grid(row=row_num.current, column=1)
         self.btn_copy_province_code = tk.Button(self, text="复制",
                                                 command=lambda: pyperclip.copy(self.province_code.get()))
-        self.btn_copy_province_code.grid(row=6, column=2)
+        self.btn_copy_province_code.grid(row=next(row_num), column=2)
 
         # 创建办理省份标签和输入框
         self.label_province_name = tk.Label(self, text="地区:")
-        self.label_province_name.grid(row=7, column=0, sticky='e')
+        self.label_province_name.grid(row=row_num.current, column=0, sticky='e')
         self.province_name = tk.StringVar()
         self.entry_province_name = tk.Entry(self, textvariable=self.province_name)
-        self.entry_province_name.grid(row=7, column=1)
+        self.entry_province_name.grid(row=row_num.current, column=1)
         self.btn_copy_province_name = tk.Button(self, text="复制",
                                                 command=lambda: pyperclip.copy(self.province_name.get()))
-        self.btn_copy_province_name.grid(row=7, column=2)
+        self.btn_copy_province_name.grid(row=next(row_num), column=2)
 
         # 生成按钮
         self.btn_generate_gat = tk.Button(self, text="自定义生成", command=lambda: print("生成港澳台"))
-        self.btn_generate_gat.grid(row=11, column=0)
+        self.btn_generate_gat.grid(row=row_num.current, column=0)
         # 刷新按钮
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=11, column=1)
+        self.btn_refresh_gat.grid(row=row_num.current, column=1)
 
         self.button_check_gat = tk.Button(self, text="校验位补全")
-        self.button_check_gat.grid(row=11, column=2)
+        self.button_check_gat.grid(row=next(row_num), column=2)
 
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit_gat.grid(row=12, column=2)
+        self.button_quit_gat.grid(row=next(row_num), column=2)
 
         # 默认显示香港居住证
         self.id_type.set(IDGener.GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
@@ -623,6 +635,7 @@ class GATJzz(tk.Frame):
     def show_info(self, card_info: IDGener.TypeGATJZZ):
         self.ID_No.set(card_info.No)
         self.name_ch.set(card_info.name_ch)
+        self.name_en.set(card_info.name_en)
         self.birthday.set(card_info.birthday)
         self.gender.set(card_info.gender)
         self.province_code.set(card_info.region_code)
@@ -741,6 +754,32 @@ class ToolTip:
         if tw:
             tw.destroy()
 
+def create_tooltip(widget, text):
+    tooltip = ToolTip(widget, text)
+
+    def enter(event):
+        tooltip.showtip()
+
+    def leave(event):
+        tooltip.hidetip()
+
+    widget.bind('<Enter>', enter)
+    widget.bind('<Leave>', leave)
+
+# 行ID迭代器
+class RowNumIterator:
+    def __init__(self, start=0):
+        self.current = start
+
+    def __iter__(self):
+        return self
+
+    # 注意，返回的是当前值，是为了在循环中，每次都是从头迭代
+    def __next__(self):
+        value = self.current
+        self.current += 1
+        return value
+
 
 class MainApplication(tk.Tk):
     def __init__(self, id_kinds, ):
@@ -752,7 +791,7 @@ class MainApplication(tk.Tk):
         self.combobox_id_kind = ttk.Combobox(self, textvariable=self.id_kind, values=id_kinds)
         self.combobox_id_kind.bind("<<ComboboxSelected>>", self.create_frame)
         self.combobox_id_kind.grid(row=0, column=1, sticky='w')
-        self.geometry("300x500+300+200")
+        self.geometry("310x450+300+200")
 
         # 创建不同的 Frame
         self.yjj_frame = Yjj2023(self)
@@ -786,18 +825,6 @@ class MainApplication(tk.Tk):
         else:
             self.show_frame()
 
-
-def create_tooltip(widget, text):
-    tooltip = ToolTip(widget, text)
-
-    def enter(event):
-        tooltip.showtip()
-
-    def leave(event):
-        tooltip.hidetip()
-
-    widget.bind('<Enter>', enter)
-    widget.bind('<Leave>', leave)
 
 
 if __name__ == '__main__':
