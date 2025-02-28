@@ -21,8 +21,8 @@ class IDType(Enum):
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
     GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
-    CTN_PERMIT = "台湾居民来往内地通行证"
     HKG_MAC_PERMIT = "港澳居民来往内地通行证"
+    CTN_PERMIT = "台湾居民来往内地通行证"
 
 
 # 港澳台居民居住证枚举
@@ -630,18 +630,8 @@ class TypeYJZ2017(IDNOGenerator):
 
 # 港澳台居住证
 class TypeGATJZZ(IDNOGenerator):
-    def __str__(self):
-        return (
-            f"证件类别：{self.__kind}\n"
-            f"证件类型：{self.__type}\n"
-            f"证件号码：{self.No}\n"
-            f"生日：{self.birthday}\n"
-            f"性别：{self.gender}\n"
-            f"地区码：{self.region_code}, 地区：{self.province_name}\n"
-        )
-
-    def __init__(self, id_type: str):
-        super().__init__()
+    def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None, gender: str = None):
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender)
         self.__kind = IDType.GAT_PERMANENT_RESIDENT.value
         self.__type = id_type
         if id_type == GATPermanentResident.HKG_PERMANENT_RESIDENT.value:
@@ -659,6 +649,17 @@ class TypeGATJZZ(IDNOGenerator):
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
+
+
+    def __str__(self):
+        return (
+            f"证件类别：{self.__kind}\n"
+            f"证件类型：{self.__type}\n"
+            f"证件号码：{self.No}\n"
+            f"生日：{self.birthday}\n"
+            f"性别：{self.gender}\n"
+            f"地区码：{self.region_code}, 地区：{self.province_name}\n"
+        )
 
 
 # 港澳通行证
