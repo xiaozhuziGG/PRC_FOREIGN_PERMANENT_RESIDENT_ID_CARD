@@ -9,8 +9,11 @@
 """
 import csv
 import re
-import os
+from os import path
+import sys
 
+
+BASE_DIR = path.dirname(path.realpath(sys.argv[0]))
 # 依据国籍编号的国籍信息字典，键为国籍编号（整数类型），值为国籍信息（字符串类型）
 nationality_dict_by_number = {}
 # 依据两位国籍代码的国籍信息字典，键为两位国籍代码（字符串类型），值为国籍信息（字符串类型）
@@ -94,9 +97,11 @@ def get_nationality_info() -> None:
 
     # 此处写从文件读取国籍信息的代码
     path_csv = r"./resource/GBT2659.1-2022.CSV"
+    path_csv = path.join(BASE_DIR, path_csv)
+    path_csv = path.normpath(path_csv)
     # path_xlsx = r"./resource/GBT2659.1-2022.xlsx"
 
-    if not os.path.exists(path_csv):
+    if not path.exists(path_csv):
         # nationality_read = pd.read_excel(path_xlsx, engine='openpyxl', header=0, index_col=None,
         #                                  sheet_name=0)
         # nationality_read_new = nationality_read.applymap(replace_newline)
