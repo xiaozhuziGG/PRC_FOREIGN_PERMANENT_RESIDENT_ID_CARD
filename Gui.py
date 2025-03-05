@@ -523,7 +523,7 @@ class GATJzz(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
-        # 行号迭代器，注意next返回当前值
+        # 行号迭代器，注意next方法返回当前值
         row_num = RowNumIterator(1)
 
         # 创建港澳台页面的组件
@@ -599,15 +599,18 @@ class GATJzz(tk.Frame):
                                                 command=lambda: pyperclip.copy(self.province_name.get()))
         self.btn_copy_province_name.grid(row=next(row_num), column=2)
 
-        # 生成按钮
-        self.btn_generate_gat = tk.Button(self, text="自定义生成", command=lambda: print("生成港澳台"))
-        self.btn_generate_gat.grid(row=row_num.current, column=0)
+        # 清理按钮
+        self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
+        self.btn_clear_gat.grid(row=row_num.current, column=0)
         # 刷新按钮
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=row_num.current, column=1)
 
-        self.button_check_gat = tk.Button(self, text="校验位补全")
+        self.button_check_gat = tk.Button(self, text="校验位补全", command=self.check_num_complete)
         self.button_check_gat.grid(row=next(row_num), column=2)
+        # 生成按钮
+        self.btn_generate_gat = tk.Button(self, text="自定义生成", command=self.generate_by_input)
+        self.btn_generate_gat.grid(row=row_num.current, column=0)
 
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
         self.button_quit_gat.grid(row=next(row_num), column=2)
@@ -617,15 +620,20 @@ class GATJzz(tk.Frame):
         self.generate_default()
 
     def generate_by_input(self, event=None):
-        # 依据自定义输入,需要同步修改其他文件的内容
-        # 需要做一个清空按钮
-        # 中文名
-        # 生日(做日期校验,在证件类中就要做)
-        # 性别
-        # 地区码或者省名,做模糊匹配
-        # 国家简写或者简称,做模糊匹配后取第一个
-        id_info = IDGener.TypeGATJZZ(self.id_type.get())
-        self.show_info(id_info)
+        name_ch = self.entry_name_ch.get() or None
+        name_en = self.entry_name_en.get() or None
+        birthday = self.entry_birthday.get() or None
+        gender = self.gender.get() or None
+        try:
+            id_info = IDGener.TypeGATJZZ(self.id_type.get(),
+                name_ch=name_ch,
+                name_en=name_en,
+                birthday=birthday,
+                gender=gender,
+            )
+            self.show_info(id_info)
+        except Exception as e:
+            messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
     def generate_default(self, event=None):  # event就是点击事件
         id_info = IDGener.TypeGATJZZ(self.id_type.get())
@@ -641,42 +649,73 @@ class GATJzz(tk.Frame):
         self.province_code.set(card_info.region_code)
         self.province_name.set(card_info.province_name)
 
+    def check_num_complete(self, event=None):
+        ID_No_src = self.ID_No.get()
+        ID_No_src = ID_No_src[0:17]
+        try:
+            ID_No_src = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+        except ValueError as e:
+            messagebox.showinfo("提示", f"输入有误,{e}")
+        self.ID_No.set(ID_No_src)
+
+
+    def clear_all_fields(self, event=None):
+        self.ID_No.set("")
+        self.name_ch.set("")
+        self.name_en.set("")
+        self.birthday.set("")
+        self.gender.set("")
+        self.province_code.set("")
+        self.province_name.set("")
+
 
 class GAtxz(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
 
+        # 行号迭代器，注意next方法返回当前值
+        row_num = RowNumIterator(1)
+
         # 创建港澳台页面的组件
         self.id_type = tk.StringVar()
         self.label_id_type = tk.Label(self, text="证件类别:")
-        self.label_id_type.grid(row=1, column=0, sticky='e')
+        self.label_id_type.grid(row=row_num.current, column=0, sticky='e')
         ga_id_type = tuple(member.value for member in IDGener.HkgMacPermit)
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=ga_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
-        self.combobox_id_type.grid(row=1, column=1, sticky='w')
+        self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
 
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        self.label_ID_No.grid(row=2, column=0, sticky='e')
+        self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
         self.ID_No = tk.StringVar()
         self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        self.entry_ID_No.grid(row=2, column=1, sticky='w')
+        self.entry_ID_No.grid(row=row_num.current, column=1, sticky='w')
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        self.btn_copy_ID_No.grid(row=2, column=2)
+        self.btn_copy_ID_No.grid(row=next(row_num), column=2)
 
         self.label_name_ch = tk.Label(self, text="中文名:")
-        self.label_name_ch.grid(row=3, column=0, sticky='e')
+        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         self.name_ch = tk.StringVar()
         self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        self.entry_name_ch.grid(row=3, column=1)
+        self.entry_name_ch.grid(row=row_num.current, column=1)
         self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        self.btn_copy_name_ch.grid(row=3, column=2)
+        self.btn_copy_name_ch.grid(row=next(row_num), column=2)
+
+        # 创建英文名标签和输入框
+        self.label_name_en = tk.Label(self, text="英文名:")
+        self.label_name_en.grid(row=row_num.current, column=0, sticky='e')
+        self.name_en = tk.StringVar()
+        self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
+        self.entry_name_en.grid(row=row_num.current, column=1)
+        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
+        self.btn_copy_name_en.grid(row=next(row_num), column=2)
 
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=4, column=0)
+        self.btn_refresh_gat.grid(row=row_num.current, column=1)
 
         self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_refresh_gat.grid(row=4, column=2)
+        self.btn_refresh_gat.grid(row=row_num.current, column=2)
 
         # 默认显示香港通行证
         self.id_type.set(IDGener.HkgMacPermit.HKG_PERMIT.value)
@@ -686,6 +725,7 @@ class GAtxz(tk.Frame):
         id_info = IDGener.TypeGATXZ(self.id_type.get())
         self.ID_No.set(id_info.No)
         self.name_ch.set(id_info.name_ch)
+        self.name_en.set(id_info.name_en)
 
 
 class TWtxz(tk.Frame):
@@ -694,27 +734,39 @@ class TWtxz(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        # 行号迭代器，注意next方法返回当前值
+        row_num = RowNumIterator(1)
+
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        self.label_ID_No.grid(row=1, column=0, sticky='e')
+        self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
         self.ID_No = tk.StringVar()
         self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        self.entry_ID_No.grid(row=1, column=1)
+        self.entry_ID_No.grid(row=row_num.current, column=1)
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        self.btn_copy_ID_No.grid(row=1, column=2)
+        self.btn_copy_ID_No.grid(row=next(row_num), column=2)
 
         self.label_name_ch = tk.Label(self, text="中文名:")
-        self.label_name_ch.grid(row=2, column=0, sticky='e')
+        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         self.name_ch = tk.StringVar()
         self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        self.entry_name_ch.grid(row=2, column=1)
+        self.entry_name_ch.grid(row=row_num.current, column=1)
         self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        self.btn_copy_name_ch.grid(row=2, column=2)
+        self.btn_copy_name_ch.grid(row=next(row_num), column=2)
+
+        # 创建英文名标签和输入框
+        self.label_name_en = tk.Label(self, text="英文名:")
+        self.label_name_en.grid(row=row_num.current, column=0, sticky='e')
+        self.name_en = tk.StringVar()
+        self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
+        self.entry_name_en.grid(row=row_num.current, column=1)
+        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
+        self.btn_copy_name_en.grid(row=next(row_num), column=2)
 
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=3, column=0)
+        self.btn_refresh_gat.grid(row=row_num.current, column=1)
 
         self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_refresh_gat.grid(row=3, column=2)
+        self.btn_refresh_gat.grid(row=row_num.current, column=2)
 
         self.generate_default()
 
@@ -722,6 +774,7 @@ class TWtxz(tk.Frame):
         id_info = IDGener.TypeTWTXZ()
         self.ID_No.set(id_info.No)
         self.name_ch.set(id_info.name_ch)
+        self.name_en.set(id_info.name_en)
 
 
 class ToolTip:
