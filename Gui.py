@@ -754,6 +754,7 @@ class ToolTip:
         if tw:
             tw.destroy()
 
+
 def create_tooltip(widget, text):
     tooltip = ToolTip(widget, text)
 
@@ -765,6 +766,7 @@ def create_tooltip(widget, text):
 
     widget.bind('<Enter>', enter)
     widget.bind('<Leave>', leave)
+
 
 # 行ID迭代器
 class RowNumIterator:
@@ -824,7 +826,6 @@ class MainApplication(tk.Tk):
             self.show_frame(Yjj2017(self))
         else:
             self.show_frame()
-
 
 
 if __name__ == '__main__':
