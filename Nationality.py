@@ -9,11 +9,31 @@
 """
 import csv
 import re
-from os import path
+import os
 import sys
 
 
-BASE_DIR = path.dirname(path.realpath(sys.argv[0]))
+def resource_path(relative_path):
+    """
+    获取资源的绝对路径。
+    该函数用于确定资源文件的绝对路径，特别是在使用PyInstaller等工具将Python脚本打包为可执行文件时。
+    当程序被打包为可执行文件并运行时，资源文件可能不在原始的相对路径位置，此时该函数能确保正确找到资源文件。
+
+    :param relative_path: (str)资源文件相对于程序的路径。
+
+    返回:
+    str: 资源文件的绝对路径。
+    """
+    #是否Bundle Resource
+    if getattr(sys, 'frozen', False):
+        base_path = sys._MEIPASS
+    else:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
+
+BASE_DIR =str(resource_path(''))
+
 # 依据国籍编号的国籍信息字典，键为国籍编号（整数类型），值为国籍信息（字符串类型）
 nationality_dict_by_number = {}
 # 依据两位国籍代码的国籍信息字典，键为两位国籍代码（字符串类型），值为国籍信息（字符串类型）
@@ -97,11 +117,11 @@ def get_nationality_info() -> None:
 
     # 此处写从文件读取国籍信息的代码
     path_csv = r"./resource/GBT2659.1-2022.CSV"
-    path_csv = path.join(BASE_DIR, path_csv)
-    path_csv = path.normpath(path_csv)
+    path_csv = os.path.join(BASE_DIR, path_csv)
+    path_csv = os.path.normpath(path_csv)
     # path_xlsx = r"./resource/GBT2659.1-2022.xlsx"
 
-    if not path.exists(path_csv):
+    if not os.path.exists(path_csv):
         # nationality_read = pd.read_excel(path_xlsx, engine='openpyxl', header=0, index_col=None,
         #                                  sheet_name=0)
         # nationality_read_new = nationality_read.applymap(replace_newline)
@@ -144,7 +164,11 @@ def get_nationality_info() -> None:
 def get_province_code() -> None:
     # print("开始解析行政区划信息...")
     admin_division = r"./resource/administrative_division.csv"
+    admin_division = os.path.join(BASE_DIR, admin_division)
+    admin_division = os.path.normpath(admin_division)
     admin_division_old = r"./resource/administrative_division_old.csv"
+    admin_division_old = os.path.join(BASE_DIR, admin_division_old)
+    admin_division_old = os.path.normpath(admin_division_old)
     try:
         with open(admin_division, mode='r', encoding='utf-8') as file, \
                 open(admin_division_old, mode='r', encoding='utf-8') as file_old:
@@ -155,9 +179,9 @@ def get_province_code() -> None:
             for row_old in csv_reader_old:
                 administration_division_old[row['行政区代码']] = row_old['行政区名称']
     except FileNotFoundError as e:
-        print(f'文件未找到:{e}')
+        raise FileNotFoundError(f'新版或者旧版行政区划文件未找到:{e}')
     except Exception as e:
-        print(f"{__name__}发生错误: {e}")
+        raise Exception(f"{__name__}发生错误: {e}")
 
 
 # 替换换行符

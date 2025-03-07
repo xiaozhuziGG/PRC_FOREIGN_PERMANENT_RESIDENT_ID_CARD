@@ -14,6 +14,8 @@ import Nationality
 from os import path, makedirs
 
 
+BASE_DIR = Nationality.BASE_DIR
+
 # 证件类型枚举
 class IDType(Enum):
     ID_CARD = "居民身份证"
@@ -472,7 +474,11 @@ class TypeYJZ(IDNOGenerator):
         # image = Image.open(image_path).convert("RGBA")
         # 打开jpeg
         path_src = r"./resource"
+        path_src = path.join(BASE_DIR, path_src)
+        path_src = path.normpath(path_src)
         path_result = r"./result/"
+        path_result = path.join(BASE_DIR, path_result)
+        path_result = path.normpath(path_result)
         if image_src is None:
             image_src = path.join(path_src, "YJJ_IDInfo.jpg")
         if image_dest is None:
@@ -480,7 +486,7 @@ class TypeYJZ(IDNOGenerator):
         try:
             image = Image.open(image_src).convert("RGB")
         except FileNotFoundError:
-            print("底稿文件不存在,渲染方法退出")
+            raise FileNotFoundError(f"输入的底稿文件不存在")
             return
         color = (0, 0, 0)  # 文字颜色，RGB 格式
         # 字体为黑体

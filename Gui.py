@@ -10,9 +10,9 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
-import IdCardGenerator as IDGener
-import Nationality
 import pyperclip
+import Nationality
+import IdCardGenerator
 
 
 class Sfz(tk.Frame):
@@ -133,7 +133,7 @@ class Sfz(tk.Frame):
         self.generate_default()
 
     def generate_default(self):
-        self.id_info = IDGener.TypeSFZ()
+        self.id_info = IdCardGenerator.TypeSFZ()
         self.show_info()
 
     def generate_by_input(self):
@@ -142,14 +142,14 @@ class Sfz(tk.Frame):
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
         administration_code = self.entry_administration_code.get() or None
-        self.id_info = IDGener.TypeSFZ(name_ch, name_en, birthday, gender, county_code=administration_code)
+        self.id_info = IdCardGenerator.TypeSFZ(name_ch, name_en, birthday, gender, county_code=administration_code)
         self.show_info()
 
     def check_number_complete(self):
         ID_No_src = self.ID_No.get()
         ID_No_src = ID_No_src[0:17]
         try:
-            ID_No_src = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+            ID_No_src = IdCardGenerator.IDNOGenerator.calculate_check_num_cls(ID_No_src)
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
         self.ID_No.set(ID_No_src)
@@ -342,7 +342,7 @@ class Yjj2023(tk.Frame):
         nationality_code = self.entry_nationality_code.get() or None
         # nationality_name_cn = self.entry_nationality_name_cn.get() or None
         try:
-            self.id_info = IDGener.TypeYJZ(
+            self.id_info = IdCardGenerator.TypeYJZ(
                 name_ch=name_ch,
                 name_en=name_en,
                 province_name=province_name,
@@ -355,11 +355,11 @@ class Yjj2023(tk.Frame):
         self.show_info(self.id_info)
 
     def generate_default(self, event=None):  # event就是点击事件
-        self.id_info = IDGener.TypeYJZ()
+        self.id_info = IdCardGenerator.TypeYJZ()
         # messagebox.showinfo("提示", "校验方法")
         self.show_info(self.id_info)
 
-    def show_info(self, card_info: IDGener.TypeYJZ):
+    def show_info(self, card_info: IdCardGenerator.TypeYJZ):
         """
         显示卡片信息。
 
@@ -381,9 +381,13 @@ class Yjj2023(tk.Frame):
         self.ID_No_other.set('有需要在2017版页面中用校验位补全的方式生成')
 
     def generate_image(self, event=None):
-        file_path = self.id_info.generate_image()
-        pyperclip.copy(file_path)
-        messagebox.showinfo("提示", f"生成证件图片并复制路径到剪切板:{file_path}")
+        try:
+            file_path = self.id_info.generate_image()
+            pyperclip.copy(file_path)
+            messagebox.showinfo("提示", f"生成证件图片并复制路径到剪切板:{file_path}")
+        except Exception as e:
+            messagebox.showinfo("提示", f"生成证件图片出错,错误信息为:{e}")
+
 
     def clear_all_fields(self):
         """
@@ -405,7 +409,7 @@ class Yjj2023(tk.Frame):
         ID_No_src = self.ID_No.get()
         ID_No_src = ID_No_src[0:17]
         try:
-            ID_No_src = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+            ID_No_src = IdCardGenerator.IDNOGenerator.calculate_check_num_cls(ID_No_src)
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
         self.ID_No.set(ID_No_src)
@@ -453,7 +457,7 @@ class Yjj2017(Yjj2023):
         self.generate_default()
 
     def generate_default(self, event=None):  # event就是点击事件
-        id_info = IDGener.TypeYJZ2017()
+        id_info = IdCardGenerator.TypeYJZ2017()
         # messagebox.showinfo("提示", "校验方法")
         self.show_info(id_info)
 
@@ -466,7 +470,7 @@ class Yjj2017(Yjj2023):
         nationality_code = self.entry_nationality_code.get() or None
         # nationality_name_cn = self.entry_nationality_name_cn.get() or None
         try:
-            self.id_info = IDGener.TypeYJZ2017(
+            self.id_info = IdCardGenerator.TypeYJZ2017(
                 name_ch=name_ch,
                 name_en=name_en,
                 national_abbreviation=nationality_code,
@@ -477,7 +481,7 @@ class Yjj2017(Yjj2023):
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
         self.show_info(self.id_info)
 
-    def show_info(self, card_info: IDGener.TypeYJZ2017):
+    def show_info(self, card_info: IdCardGenerator.TypeYJZ2017):
         """
         显示卡片信息。
 
@@ -511,7 +515,7 @@ class Yjj2017(Yjj2023):
         check_num = ''
         try:
             ID_No_src = ID_No_src[0:14]
-            check_num = IDGener.calculate_check_num_731(ID_No_src)
+            check_num = IdCardGenerator.calculate_check_num_731(ID_No_src)
         except Exception as e:
             messagebox.showinfo("提示", f"输入有误,错误信息:{e}")
         self.ID_No.set(ID_No_src + check_num)
@@ -530,7 +534,7 @@ class GATJzz(tk.Frame):
         self.id_type = tk.StringVar()
         self.label_id_type = tk.Label(self, text="证件类别:")
         self.label_id_type.grid(row=row_num.current, column=0, sticky='e')
-        gat_id_type = tuple(member.value for member in IDGener.GATPermanentResident)
+        gat_id_type = tuple(member.value for member in IdCardGenerator.GATPermanentResident)
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=gat_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
@@ -616,7 +620,7 @@ class GATJzz(tk.Frame):
         self.button_quit_gat.grid(row=next(row_num), column=2)
 
         # 默认显示香港居住证
-        self.id_type.set(IDGener.GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
+        self.id_type.set(IdCardGenerator.GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
         self.generate_default()
 
     def generate_by_input(self, event=None):
@@ -625,22 +629,22 @@ class GATJzz(tk.Frame):
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
         try:
-            id_info = IDGener.TypeGATJZZ(self.id_type.get(),
-                name_ch=name_ch,
-                name_en=name_en,
-                birthday=birthday,
-                gender=gender,
-            )
+            id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get(),
+                                                 name_ch=name_ch,
+                                                 name_en=name_en,
+                                                 birthday=birthday,
+                                                 gender=gender,
+                                                 )
             self.show_info(id_info)
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
     def generate_default(self, event=None):  # event就是点击事件
-        id_info = IDGener.TypeGATJZZ(self.id_type.get())
+        id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get())
         # messagebox.showinfo("提示", "校验方法")
         self.show_info(id_info)
 
-    def show_info(self, card_info: IDGener.TypeGATJZZ):
+    def show_info(self, card_info: IdCardGenerator.TypeGATJZZ):
         self.ID_No.set(card_info.No)
         self.name_ch.set(card_info.name_ch)
         self.name_en.set(card_info.name_en)
@@ -653,7 +657,7 @@ class GATJzz(tk.Frame):
         ID_No_src = self.ID_No.get()
         ID_No_src = ID_No_src[0:17]
         try:
-            ID_No_src = IDGener.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+            ID_No_src = IdCardGenerator.IDNOGenerator.calculate_check_num_cls(ID_No_src)
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
         self.ID_No.set(ID_No_src)
@@ -681,7 +685,7 @@ class GAtxz(tk.Frame):
         self.id_type = tk.StringVar()
         self.label_id_type = tk.Label(self, text="证件类别:")
         self.label_id_type.grid(row=row_num.current, column=0, sticky='e')
-        ga_id_type = tuple(member.value for member in IDGener.HkgMacPermit)
+        ga_id_type = tuple(member.value for member in IdCardGenerator.HkgMacPermit)
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=ga_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
@@ -718,11 +722,11 @@ class GAtxz(tk.Frame):
         self.btn_refresh_gat.grid(row=row_num.current, column=2)
 
         # 默认显示香港通行证
-        self.id_type.set(IDGener.HkgMacPermit.HKG_PERMIT.value)
+        self.id_type.set(IdCardGenerator.HkgMacPermit.HKG_PERMIT.value)
         self.generate_default()
 
     def generate_default(self, event=None):
-        id_info = IDGener.TypeGATXZ(self.id_type.get())
+        id_info = IdCardGenerator.TypeGATXZ(self.id_type.get())
         self.ID_No.set(id_info.No)
         self.name_ch.set(id_info.name_ch)
         self.name_en.set(id_info.name_en)
@@ -771,7 +775,7 @@ class TWtxz(tk.Frame):
         self.generate_default()
 
     def generate_default(self, event=None):
-        id_info = IDGener.TypeTWTXZ()
+        id_info = IdCardGenerator.TypeTWTXZ()
         self.ID_No.set(id_info.No)
         self.name_ch.set(id_info.name_ch)
         self.name_en.set(id_info.name_en)
@@ -852,7 +856,7 @@ class MainApplication(tk.Tk):
         self.yjj_frame = Yjj2023(self)
 
         # 默认显示永居证页面
-        self.id_kind.set(IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value)
+        self.id_kind.set(IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value)
         self.show_frame(self.yjj_frame)
 
     def show_frame(self, frame=None):
@@ -865,17 +869,17 @@ class MainApplication(tk.Tk):
             frame.grid(row=1, column=0, columnspan=4, padx=0, pady=20)
 
     def create_frame(self, event):
-        if IDGener.IDType.ID_CARD.value == str(self.id_kind.get()):
+        if IdCardGenerator.IDType.ID_CARD.value == str(self.id_kind.get()):
             self.show_frame(Sfz(self))
-        elif IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
+        elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
             self.show_frame(Yjj2023(self))
-        elif IDGener.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
+        elif IdCardGenerator.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
             self.show_frame(GATJzz(self))
-        elif IDGener.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
+        elif IdCardGenerator.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
             self.show_frame(GAtxz(self))
-        elif IDGener.IDType.CTN_PERMIT.value == str(self.id_kind.get()):
+        elif IdCardGenerator.IDType.CTN_PERMIT.value == str(self.id_kind.get()):
             self.show_frame(TWtxz(self))
-        elif IDGener.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == str(self.id_kind.get()):
+        elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == str(self.id_kind.get()):
             self.show_frame(Yjj2017(self))
         else:
             self.show_frame()
@@ -884,7 +888,7 @@ class MainApplication(tk.Tk):
 if __name__ == '__main__':
     # root = tk.Tk()
     # root.title("永居证生成器")
-    id_kinds_all = tuple(member.value for member in IDGener.IDType)
+    id_kinds_all = tuple(member.value for member in IdCardGenerator.IDType)
     # id_kind = tk.StringVar()
     # label_id_kinds = tk.Label(root, text="证件类型:")
     # label_id_kinds.grid(row=0, column=0, sticky='e')
