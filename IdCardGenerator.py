@@ -242,7 +242,7 @@ class IDNOGenerator(object):
                 # 生日时间转换为生日日期
                 self.birthday = birthday_time.date().strftime("%Y%m%d")
             except ValueError:
-                raise "输入的生日格式不正确"
+                raise ValueError("输入的生日格式不正确")
         # 顺序码
         if sequence_code is None:
             self.sequence_code = generate_sequence_code(0, 999)
@@ -650,7 +650,7 @@ class TypeGATJZZ(IDNOGenerator):
             self.region_code = '830000'
             self.province_name = '台湾'
         else:
-            raise "输入证件类型错误,输入证件类型不为港澳台居住证"
+            raise ValueError("输入证件类型错误,输入证件类型不为港澳台居住证")
         self.No = f"{str(self.region_code)}{self.birthday}{self.sequence_code}"
         self.calculate_check_num()
         # 拼接上校验位
