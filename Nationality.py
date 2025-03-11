@@ -24,7 +24,7 @@ def resource_path(relative_path):
     返回:
     str: 资源文件的绝对路径。
     """
-    #是否Bundle Resource
+    # 是否Bundle Resource
     if getattr(sys, 'frozen', False):
         base_path = sys._MEIPASS
     else:
@@ -32,7 +32,7 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
-BASE_DIR =str(resource_path(''))
+BASE_DIR = str(resource_path(''))
 
 # 依据国籍编号的国籍信息字典，键为国籍编号（整数类型），值为国籍信息（字符串类型）
 nationality_dict_by_number = {}

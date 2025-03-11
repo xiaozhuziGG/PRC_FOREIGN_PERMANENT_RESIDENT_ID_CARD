@@ -13,8 +13,8 @@ from enum import Enum
 import Nationality
 from os import path, makedirs
 
-
 BASE_DIR = Nationality.BASE_DIR
+
 
 # 证件类型枚举
 class IDType(Enum):
@@ -636,7 +636,8 @@ class TypeYJZ2017(IDNOGenerator):
 
 # 港澳台居住证
 class TypeGATJZZ(IDNOGenerator):
-    def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None, gender: str = None):
+    def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None,
+                 gender: str = None):
         super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender)
         self.__kind = IDType.GAT_PERMANENT_RESIDENT.value
         self.__type = id_type
@@ -655,7 +656,6 @@ class TypeGATJZZ(IDNOGenerator):
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
-
 
     def __str__(self):
         return (

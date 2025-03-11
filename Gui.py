@@ -388,7 +388,6 @@ class Yjj2023(tk.Frame):
         except Exception as e:
             messagebox.showinfo("提示", f"生成证件图片出错,错误信息为:{e}")
 
-
     def clear_all_fields(self):
         """
         清除所有标签组件的值
@@ -662,7 +661,6 @@ class GATJzz(tk.Frame):
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
         self.ID_No.set(ID_No_src)
-
 
     def clear_all_fields(self, event=None):
         self.ID_No.set("")
