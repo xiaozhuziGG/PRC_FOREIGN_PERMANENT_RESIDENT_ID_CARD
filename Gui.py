@@ -451,6 +451,7 @@ class Yjj2017(Yjj2023):
         self.btn_copy_city_name.grid(row=7, column=2)
         # 对应其他版本永居证的号码
         self.label_ID_No_other = tk.Label(self, text="新版号码:", anchor="e")
+        self.label_ID_No_other.grid(row=11, column=0, sticky='e')
         # 不显示合成图像按钮
         self.btn_generate_image.grid_forget()
 
