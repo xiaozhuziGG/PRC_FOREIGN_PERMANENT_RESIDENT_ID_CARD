@@ -484,14 +484,11 @@ class TypeYJZ(IDNOGenerator):
         if image_dest is None:
             image_dest = path_result
         try:
-            image = Image.open(image_src).convert("RGB")
+            image = Image.open(image_src).convert("RGBA")
         except FileNotFoundError:
             raise FileNotFoundError(f"输入的底稿文件不存在")
-            return
         color = (0, 0, 0)  # 文字颜色，RGB 格式
-        # 字体为黑体
-        type_face = "simhei.ttf"
-        # type_face = "msyhl.ttc"
+        type_face = "simhei.ttf"        # 字体为黑体
         font = ImageFont.truetype(type_face, 76)  # 字体类型和大小
         # 尺寸是2024 * 1280 ,一毫米对应24像素 ,每次上下端会留15个像素的边
         # 英文名 横向：35:428 竖向19:90
@@ -501,7 +498,31 @@ class TypeYJZ(IDNOGenerator):
         # 国籍  横线：35:428  竖向31.7：54
         # 有效期 横线：35:428  竖向39.8：54
         # 证件号 横线：26:85.6  竖向44.6：54
-        draw = ImageDraw.Draw(image)
+
+        # 创建一个透明的图层用于绘制水印
+        watermark = Image.new('RGBA', image.size, (0, 0, 0, 0))
+        draw_watermark = ImageDraw.Draw(watermark, 'RGBA')
+
+        # 水印文本
+        watermark_text = "OCR测试使用"
+        # 水印颜色和透明度
+        watermark_color = (127, 127, 127, 60)  # 中性灰，25% 透明度
+
+        # 计算水印位置
+        bbox = draw_watermark.textbbox((0, 0), watermark_text, font=font, align="left")
+        position1 = (10, 10)  # 左上角
+        position2 = (image.width - bbox[2] - 10, image.height - bbox[3] - 10)  # 右下角
+
+        # 绘制水印
+        draw_watermark.text(position1, watermark_text, font=font, fill=watermark_color)
+        draw_watermark.text(position2, watermark_text, font=font, fill=watermark_color)
+        # watermark.show()
+        # 将水印图层与原图合并
+        watermarked_image = Image.alpha_composite(image, watermark)
+
+        # 继续绘制其他信息
+        draw = ImageDraw.Draw(watermarked_image, "RGBA")
+        # draw = ImageDraw.Draw(image)
         # 英文名 横向：35:428 竖向19:90 9P黑体
         draw.text((166, 230), self.name_en, font=font, fill=color)
         # 中文名 9P黑体
@@ -530,19 +551,21 @@ class TypeYJZ(IDNOGenerator):
         draw.text((614, 1050), self.No, font=font, fill=color)
         # 写头像 头像大小为644*758
         # image.paste(head_portrait, (1314, 166,1929, 960)) #废弃原因，图像范围和图像大小不匹配
-        image.paste(head_portrait, (1314, 150,), head_portrait)
-        # 展示图像
-        # image.show()
+        watermarked_image.paste(head_portrait, (1314, 150,), head_portrait)
+        # 展示原尺寸图像
+        # watermarked_image.show()
         # 设置新的分辨率（例如，将图像缩小到原来的一半）
-        new_width = int(image.width / 2)
-        new_height = int(image.height / 2)
+        new_width = int(watermarked_image.width / 2)
+        new_height = int(watermarked_image.height / 2)
 
         # 调整图像大小
-        resized_image = image.resize((new_width, new_height), Image.Resampling.BILINEAR)
+        resized_image = watermarked_image.resize((new_width, new_height), Image.Resampling.BILINEAR)
         # 压缩保存
         if not path.exists(image_dest):
             makedirs(image_dest)
         file_path = path.join(image_dest, '{}-{}.jpg'.format(self.name_ch, self.No))
+        resized_image = resized_image.convert("RGB")
+        # resized_image.show()
         resized_image.save(file_path, format='JPEG', optimize=True, quality=20)
         return path.abspath(file_path)
 
@@ -719,8 +742,8 @@ class TypeTWTXZ(IDNOGenerator):
 
 if __name__ == '__main__':
     # wgr = TypeYJZ(gender='男')
-    # wgr = TypeYJZ()
-    # wgr.generate_image()
+    wgr = TypeYJZ()
+    wgr.generate_image()
     # print(wgr)
     # HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
     # print(HKG_card)
@@ -742,5 +765,5 @@ if __name__ == '__main__':
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
-    a = TypeSFZ()
+    # a = TypeSFZ()
     pass
