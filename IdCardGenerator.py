@@ -487,7 +487,7 @@ class TypeYJZ(IDNOGenerator):
             image = Image.open(image_src).convert("RGBA")
         except FileNotFoundError:
             raise FileNotFoundError(f"输入的底稿文件不存在")
-        color = (0, 0, 0)  # 文字颜色，RGB 格式
+        color = (0, 0, 0)  # 文字颜色为黑色，RGB 格式
         type_face = "simhei.ttf"        # 字体为黑体
         font = ImageFont.truetype(type_face, 76)  # 字体类型和大小
         # 尺寸是2024 * 1280 ,一毫米对应24像素 ,每次上下端会留15个像素的边
@@ -499,7 +499,7 @@ class TypeYJZ(IDNOGenerator):
         # 有效期 横线：35:428  竖向39.8：54
         # 证件号 横线：26:85.6  竖向44.6：54
 
-        # 创建一个透明的图层用于绘制水印
+        # 创建一个透明的图层用于绘制水印，也可以不创建，直接在原图上绘制
         watermark = Image.new('RGBA', image.size, (0, 0, 0, 0))
         draw_watermark = ImageDraw.Draw(watermark, 'RGBA')
 

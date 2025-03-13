@@ -5,3 +5,4 @@
 
 - 字体库中要有黑体（simhei.ttf）字体，用于永居证图片生成
 - 要用python3.11版本及以上版本的pyinstaller来打包
+- 入口程序为Gui.py
