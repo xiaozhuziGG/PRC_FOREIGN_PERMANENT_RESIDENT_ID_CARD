@@ -14,6 +14,7 @@ import pyperclip
 import Nationality
 import IdCardGenerator
 
+LABEL_BG ='#80FFFF'
 
 class Sfz(tk.Frame):
     """身份证的页面"""
@@ -115,11 +116,12 @@ class Sfz(tk.Frame):
         self.btn_refresh.grid(row=11, column=1)
 
         self.button_check = tk.Button(self, text="清除信息", command=self.clear_all_fields)
+        create_tooltip(self.button_check, text="清除所有输入框中的信息")
         self.button_check.grid(row=11, column=0)
 
         # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
-        create_tooltip(self.btn_generate, text="依据部分字段输入进行生成")
+        create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
         self.btn_generate.grid(row=12, column=0)
 
         # 校验码计算
@@ -197,7 +199,7 @@ class Yjj2023(tk.Frame):
         self.btn_copy_ID_No.grid(row=1, column=2)
 
         # 创建中文名标签和输入框
-        self.label_name_ch = tk.Label(self, text="中文名:")
+        self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
         self.label_name_ch.grid(row=2, column=0, sticky='e')
         self.name_ch = tk.StringVar()
         self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
@@ -206,7 +208,7 @@ class Yjj2023(tk.Frame):
         self.btn_copy_name_ch.grid(row=2, column=2)
 
         # 创建英文名标签和输入框
-        self.label_name_en = tk.Label(self, text="英文名:")
+        self.label_name_en = tk.Label(self, text="英文名:", bg=LABEL_BG)
         self.label_name_en.grid(row=3, column=0, sticky='e')
         self.name_en = tk.StringVar()
         self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
@@ -215,7 +217,7 @@ class Yjj2023(tk.Frame):
         self.btn_copy_name_en.grid(row=3, column=2)
 
         # 创建生日标签和输入框
-        self.label_birthday = tk.Label(self, text="生日:", anchor="e")
+        self.label_birthday = tk.Label(self, text="生日:", anchor="e", bg=LABEL_BG)
         self.label_birthday.grid(row=4, column=0, sticky='e')
         self.birthday = tk.StringVar()
         self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
@@ -224,7 +226,7 @@ class Yjj2023(tk.Frame):
         self.btn_copy_birthday.grid(row=4, column=2)
 
         # 创建性别标签和输入框
-        self.label_gender = tk.Label(self, text="性别:")
+        self.label_gender = tk.Label(self, text="性别:", bg=LABEL_BG)
         self.label_gender.grid(row=5, column=0, sticky='e')
         self.gender = tk.StringVar()
         self.gender.set("")
@@ -234,7 +236,7 @@ class Yjj2023(tk.Frame):
         self.entry_gender_F.grid(row=5, column=2)
 
         # 创建办理地区码标签和输入框
-        self.label_province_code = tk.Label(self, text="办理地区码:")
+        self.label_province_code = tk.Label(self, text="办理地区码:", bg=LABEL_BG)
         self.label_province_code.grid(row=6, column=0, sticky='e')
         self.province_code = tk.StringVar()
         self.entry_province_code = tk.Entry(self, textvariable=self.province_code)
@@ -244,7 +246,7 @@ class Yjj2023(tk.Frame):
         self.btn_copy_province_code.grid(row=6, column=2)
 
         # 创建办理省份标签和输入框
-        self.label_province_name = tk.Label(self, text="办理省份:")
+        self.label_province_name = tk.Label(self, text="办理省份:", bg=LABEL_BG)
         self.label_province_name.grid(row=7, column=0, sticky='e')
         self.province_name = tk.StringVar()
         self.entry_province_name = tk.Entry(self, textvariable=self.province_name)
@@ -264,7 +266,7 @@ class Yjj2023(tk.Frame):
         self.btn_copy_nationality_number.grid(row=8, column=2)
 
         # 创建国籍标签和输入框
-        self.label_nationality_code = tk.Label(self, text="国籍简写:")
+        self.label_nationality_code = tk.Label(self, text="国籍简写:", bg=LABEL_BG)
         self.label_nationality_code.grid(row=9, column=0, sticky='e')
         self.nationality_code = tk.StringVar()
         self.entry_nationality_code = tk.Entry(self, textvariable=self.nationality_code)
@@ -303,11 +305,12 @@ class Yjj2023(tk.Frame):
         self.btn_generate_image.grid(row=12, column=2)
 
         self.button_check = tk.Button(self, text="清除信息", command=self.clear_all_fields)
+        create_tooltip(self.button_check, text="清除所有输入框中的信息")
         self.button_check.grid(row=12, column=0)
 
         # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
-        create_tooltip(self.btn_generate, text="依据部分字段输入进行生成")
+        create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
         self.btn_generate.grid(row=13, column=0)
 
         # 校验码计算
@@ -430,7 +433,7 @@ class Yjj2017(Yjj2023):
         self.btn_copy_province_name.grid_forget()
 
         # 创建办理地区码标签和输入框
-        self.label_city_code = tk.Label(self, text="办理省市码:")
+        self.label_city_code = tk.Label(self, text="办理省市码:", bg=LABEL_BG)
         self.label_city_code.grid(row=6, column=0, sticky='e')
         self.city_code = tk.StringVar()
         self.entry_city_code = tk.Entry(self, textvariable=self.city_code)
@@ -468,12 +471,14 @@ class Yjj2017(Yjj2023):
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
         nationality_code = self.entry_nationality_code.get() or None
+        city_code = self.entry_city_code.get() or None
         # nationality_name_cn = self.entry_nationality_name_cn.get() or None
         try:
             self.id_info = IdCardGenerator.TypeYJZ2017(
                 name_ch=name_ch,
                 name_en=name_en,
                 national_abbreviation=nationality_code,
+                province_city_code=city_code,
                 birthday=birthday,
                 gender=gender,
             )
@@ -539,23 +544,6 @@ class GATJzz(tk.Frame):
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
 
-        self.label_name_ch = tk.Label(self, text="中文名:")
-        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
-        self.name_ch = tk.StringVar()
-        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        self.entry_name_ch.grid(row=row_num.current, column=1)
-        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        self.btn_copy_name_ch.grid(row=next(row_num), column=2)
-
-        # 创建英文名标签和输入框
-        self.label_name_en = tk.Label(self, text="英文名:")
-        self.label_name_en.grid(row=row_num.current, column=0, sticky='e')
-        self.name_en = tk.StringVar()
-        self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
-        self.entry_name_en.grid(row=row_num.current, column=1)
-        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
-        self.btn_copy_name_en.grid(row=next(row_num), column=2)
-
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
         self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
         self.ID_No = tk.StringVar()
@@ -564,8 +552,26 @@ class GATJzz(tk.Frame):
         self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         self.btn_copy_ID_No.grid(row=next(row_num), column=2)
 
+        self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
+        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=row_num.current, column=1)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=next(row_num), column=2)
+
+        # 创建英文名标签和输入框
+        self.label_name_en = tk.Label(self, text="英文名:", bg=LABEL_BG)
+        self.label_name_en.grid(row=row_num.current, column=0, sticky='e')
+        self.name_en = tk.StringVar()
+        self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
+        self.entry_name_en.grid(row=row_num.current, column=1)
+        self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
+        self.btn_copy_name_en.grid(row=next(row_num), column=2)
+
+
         # 创建生日标签和输入框
-        self.label_birthday = tk.Label(self, text="生日:", anchor="e")
+        self.label_birthday = tk.Label(self, text="生日:", anchor="e", bg=LABEL_BG)
         self.label_birthday.grid(row=row_num.current, column=0, sticky='e')
         self.birthday = tk.StringVar()
         self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
@@ -574,7 +580,7 @@ class GATJzz(tk.Frame):
         self.btn_copy_birthday.grid(row=next(row_num), column=2)
 
         # 创建性别标签和输入框
-        self.label_gender = tk.Label(self, text="性别:")
+        self.label_gender = tk.Label(self, text="性别:", bg=LABEL_BG)
         self.label_gender.grid(row=row_num.current, column=0, sticky='e')
         self.gender = tk.StringVar()
         self.gender.set('')
@@ -605,6 +611,7 @@ class GATJzz(tk.Frame):
 
         # 清理按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
+        create_tooltip(self.button_check, text="清除所有输入框中的信息")
         self.btn_clear_gat.grid(row=row_num.current, column=0)
         # 刷新按钮
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
@@ -614,6 +621,7 @@ class GATJzz(tk.Frame):
         self.button_check_gat.grid(row=next(row_num), column=2)
         # 生成按钮
         self.btn_generate_gat = tk.Button(self, text="自定义生成", command=self.generate_by_input)
+        create_tooltip(self.btn_generate_gat, text="依据变色字段输入进行生成")
         self.btn_generate_gat.grid(row=row_num.current, column=0)
 
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
@@ -824,7 +832,7 @@ def create_tooltip(widget, text):
     widget.bind('<Leave>', leave)
 
 
-# 行ID迭代器
+# 行号迭代器
 class RowNumIterator:
     def __init__(self, start=0):
         self.current = start
