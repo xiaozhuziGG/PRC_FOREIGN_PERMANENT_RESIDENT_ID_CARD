@@ -91,7 +91,7 @@ class Sfz(tk.Frame):
                                                 command=lambda: pyperclip.copy(self.province_name.get()))
         self.btn_copy_province_name.grid(row=7, column=2)
 
-        # 创建国籍代码标签和输入框
+        # 创建国籍编号标签和输入框
         self.label_city_name = tk.Label(self, text="市:")
         self.label_city_name.grid(row=8, column=0, sticky='e')
         self.city_name = tk.StringVar()
@@ -256,7 +256,7 @@ class Yjj2023(tk.Frame):
         self.btn_copy_province_name.grid(row=7, column=2)
 
         # 创建国籍代码标签和输入框
-        self.label_nationality_number = tk.Label(self, text="国籍代码:")
+        self.label_nationality_number = tk.Label(self, text="国籍编号:")
         self.label_nationality_number.grid(row=8, column=0, sticky='e')
         self.nationality_number = tk.StringVar()
         self.entry_nationality_number = tk.Entry(self, textvariable=self.nationality_number)
@@ -265,8 +265,8 @@ class Yjj2023(tk.Frame):
                                                      command=lambda: pyperclip.copy(self.nationality_number.get()))
         self.btn_copy_nationality_number.grid(row=8, column=2)
 
-        # 创建国籍标签和输入框
-        self.label_nationality_code = tk.Label(self, text="国籍简写:", bg=LABEL_BG)
+        # 创建国籍代码标签和输入框
+        self.label_nationality_code = tk.Label(self, text="国籍代码:", bg=LABEL_BG)
         self.label_nationality_code.grid(row=9, column=0, sticky='e')
         self.nationality_code = tk.StringVar()
         self.entry_nationality_code = tk.Entry(self, textvariable=self.nationality_code)
@@ -341,7 +341,8 @@ class Yjj2023(tk.Frame):
             try:
                 province_name = Nationality.administration_division[province_code]
             except KeyError as e:
-                raise e
+                messagebox.showinfo("提示", f"地区码码不合法,错误信息为:{e},请重新输入")
+                return
         nationality_code = self.entry_nationality_code.get() or None
         # nationality_name_cn = self.entry_nationality_name_cn.get() or None
         try:
@@ -353,9 +354,10 @@ class Yjj2023(tk.Frame):
                 gender=gender,
                 national_code_3=nationality_code
             )
+            self.show_info(self.id_info)
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
-        self.show_info(self.id_info)
+
 
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IdCardGenerator.TypeYJZ()
@@ -482,9 +484,10 @@ class Yjj2017(Yjj2023):
                 birthday=birthday,
                 gender=gender,
             )
+            self.show_info(self.id_info)
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
-        self.show_info(self.id_info)
+
 
     def show_info(self, card_info: IdCardGenerator.TypeYJZ2017):
         """

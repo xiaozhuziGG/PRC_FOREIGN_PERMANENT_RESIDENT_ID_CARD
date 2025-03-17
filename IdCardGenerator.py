@@ -367,7 +367,7 @@ class TypeSFZ(IDNOGenerator):
             self.get_province_city_county_name()
         else:
             if (county_name := Nationality.administration_division.get(county_code)) \
-                    and ((county_code in ['710000', '810000', '820000'])
+                    and ((county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
                          or ('00' != county_code[-2:])):
                 self.county_code = county_code
                 self.county_name = county_name
@@ -441,10 +441,11 @@ class TypeYJZ(IDNOGenerator):
             self.nationality_number = random.choice(list_nationality)
         elif isinstance(national_code_3, str):
             try:
+                national_code_3 = national_code_3.upper()
                 self.nationality_number = Nationality.nationality_dict_by_code_3[national_code_3].number
                 self.nationality_code = national_code_3
             except KeyError:
-                raise KeyError(f"输入的国家简称{national_code_3}无对应代码,请确认")
+                raise KeyError(f"输入国籍代码{national_code_3}无对应代码,请确认")
         else:
             raise TypeError("输入的国家简称不是字符串")
         # 拉丁字母国籍码
@@ -593,7 +594,7 @@ class TypeYJZ2017(IDNOGenerator):
 
         :param name_ch: (str)中文姓名，默认为None。
         :param name_en: (str)英文姓名，默认为None。
-        :param national_abbreviation: (str)国家简写，三位拉丁国籍代码，默认为None。
+        :param national_abbreviation: (str)国家简写，三位拉丁国籍代码,例如CHN,默认为None。
         :param province_city_code: (str)省市代码
         :param birthday :(str)生日
         :param gender: (str)性别,输入性别时,随机生成顺序码
@@ -615,24 +616,27 @@ class TypeYJZ2017(IDNOGenerator):
             self.nationality_name_ch = Nationality.nationality_dict_by_code_3[self.nationality_code].name_cn
         else:
             try:
+                national_abbreviation = national_abbreviation.upper()
                 dict_ret: Nationality.NationalityInfo = Nationality.nationality_dict_by_code_3[national_abbreviation]
                 self.nationality_code = national_abbreviation
                 # 国籍数字编号
                 self.nationality_number = dict_ret.number
                 # 中文简称
                 self.nationality_name_ch = dict_ret.name_cn
-            except KeyError:
-                raise KeyError("输入的国家简称无对应代码,请确认")
+            except KeyError as e:
+                raise KeyError(f"输入的国籍代码：{e}无对应代码,请确认")
         if province_city_code is None:
             city_info = get_province_city_code()
             self.city_code = city_info[0]
             self.city_name = city_info[1]
         else:
             try:
+                if province_city_code.endswith('00') and (province_city_code + '00') not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
+                    raise ValueError(f"输入的省市代码:{province_city_code}不合法,请确认")
                 self.city_name = Nationality.administration_division[province_city_code + '00']
                 self.city_code = province_city_code
-            except KeyError:
-                raise KeyError("输入的省市代码无对应省份,请确认")
+            except KeyError as e:
+                raise KeyError(f"输入的省市代码{province_city_code}无对应省市,请确认，错误信息{e}")
         self.No = self.nationality_code + self.city_code + self.birthday[2:] + self.sequence_code
         self.last_num = calculate_check_num_731(self.No)
         self.No = self.No + self.last_num

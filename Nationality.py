@@ -81,6 +81,8 @@ CODE_PROVINCE_DATA = {
     81: "香港",
     82: "澳门"
 }
+# 港澳台行政区代码
+CODE_HONGKONG_MACAO_TAIWAN = ['810000','820000','710000']
 
 
 # 国籍信息
