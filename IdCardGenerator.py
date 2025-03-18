@@ -631,12 +631,13 @@ class TypeYJZ2017(IDNOGenerator):
             self.city_name = city_info[1]
         else:
             try:
-                if province_city_code.endswith('00') and (province_city_code + '00') not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
+                if  len(province_city_code) != 4 or \
+                        (province_city_code.endswith('00') and (province_city_code + '00') not in Nationality.CODE_HONGKONG_MACAO_TAIWAN):
                     raise ValueError(f"输入的省市代码:{province_city_code}不合法,请确认")
                 self.city_name = Nationality.administration_division[province_city_code + '00']
                 self.city_code = province_city_code
             except KeyError as e:
-                raise KeyError(f"输入的省市代码{province_city_code}无对应省市,请确认，错误信息{e}")
+                raise KeyError(f"输入的省市代码{province_city_code}无对应省市,请确认;发生错误的查询信息为{e}")
         self.No = self.nationality_code + self.city_code + self.birthday[2:] + self.sequence_code
         self.last_num = calculate_check_num_731(self.No)
         self.No = self.No + self.last_num

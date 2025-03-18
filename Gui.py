@@ -506,7 +506,10 @@ class Yjj2017(Yjj2023):
         self.gender.set(card_info.gender)
         self.city_code.set(card_info.city_code)
         province_code = card_info.city_code[0:2] + '0000'
-        province_name = Nationality.administration_division.get(province_code)
+        if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
+            province_name = Nationality.administration_division.get(province_code)
+        else:
+            province_name = ''
         self.city_name.set(province_name + card_info.city_name)
         self.nationality_number.set(card_info.nationality_number)
         self.nationality_code.set(card_info.nationality_code)
@@ -614,7 +617,7 @@ class GATJzz(tk.Frame):
 
         # 清理按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
-        create_tooltip(self.button_check, text="清除所有输入框中的信息")
+        create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
         self.btn_clear_gat.grid(row=row_num.current, column=0)
         # 刷新按钮
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
@@ -879,20 +882,24 @@ class MainApplication(tk.Tk):
             frame.grid(row=1, column=0, columnspan=4, padx=0, pady=20)
 
     def create_frame(self, event):
-        if IdCardGenerator.IDType.ID_CARD.value == str(self.id_kind.get()):
-            self.show_frame(Sfz(self))
-        elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
-            self.show_frame(Yjj2023(self))
-        elif IdCardGenerator.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
-            self.show_frame(GATJzz(self))
-        elif IdCardGenerator.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
-            self.show_frame(GAtxz(self))
-        elif IdCardGenerator.IDType.CTN_PERMIT.value == str(self.id_kind.get()):
-            self.show_frame(TWtxz(self))
-        elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == str(self.id_kind.get()):
-            self.show_frame(Yjj2017(self))
-        else:
-            self.show_frame()
+        try:
+            if IdCardGenerator.IDType.ID_CARD.value == str(self.id_kind.get()):
+                self.show_frame(Sfz(self))
+            elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
+                self.show_frame(Yjj2023(self))
+            elif IdCardGenerator.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
+                self.show_frame(GATJzz(self))
+            elif IdCardGenerator.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
+                self.show_frame(GAtxz(self))
+            elif IdCardGenerator.IDType.CTN_PERMIT.value == str(self.id_kind.get()):
+                self.show_frame(TWtxz(self))
+            elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == str(self.id_kind.get()):
+                self.show_frame(Yjj2017(self))
+            else:
+                self.show_frame()
+        except Exception as e:
+            messagebox.showwarning("错误", f"发生错误,错误信息为:{e}")
+
 
 
 if __name__ == '__main__':
