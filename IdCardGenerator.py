@@ -19,7 +19,7 @@ BASE_DIR = Nationality.BASE_DIR
 # 证件类型枚举
 class IDType(Enum):
     ID_CARD = "居民身份证"
-    BUSINESS_LICENSE = "营业执照"
+    # BUSINESS_LICENSE = "营业执照"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
     GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
@@ -242,7 +242,7 @@ class IDNOGenerator(object):
                 # 生日时间转换为生日日期
                 self.birthday = birthday_time.date().strftime("%Y%m%d")
             except ValueError:
-                raise ValueError("输入的生日格式不正确")
+                raise ValueError(f"输入的生日格式不正确：{birthday}")
         # 顺序码
         if sequence_code is None:
             self.sequence_code = generate_sequence_code(0, 999)
@@ -362,23 +362,25 @@ class TypeSFZ(IDNOGenerator):
         self.city_name = None
         self.county_code = None
         self.county_name = None
+        # 随机生成
         if not county_code:
             self.county_code, self.county_name = get_province_city_county_code()
             self.get_province_city_county_name()
         else:
+            # 新版行政区划，剔除市一级但是保留港澳台
             if (county_name := Nationality.administration_division.get(county_code)) \
                     and ((county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
                          or ('00' != county_code[-2:])):
                 self.county_code = county_code
                 self.county_name = county_name
                 self.get_province_city_county_name()
+            # 旧版行政区划，剔除市一级
+            elif (county_name := Nationality.administration_division_old.get(county_code)) and '00' != county_code[-2:]:
+                self.county_code = county_code
+                self.county_name = county_name
+                self.get_province_city_county_name(is_new=False)
             else:
-                if county_name := Nationality.administration_division_old.get(county_code):
-                    self.county_code = county_code
-                    self.county_name = county_name
-                    self.get_province_city_county_name(is_new=False)
-                else:
-                    raise ValueError("输入的县代码错误")
+                raise ValueError(f"输入的行政区代码{county_code}错误,需要输入县一级的行政区划代码")
         self.No = f"{self.county_code}{self.birthday}{self.sequence_code}"
         self.calculate_check_num()
         # 拼接上校验位
@@ -391,6 +393,7 @@ class TypeSFZ(IDNOGenerator):
         if is_new:
             self.province_name = Nationality.administration_division.get(self.county_code[0:2] + '0000')
             self.city_name = Nationality.administration_division.get(self.county_code[0:4] + '00')
+            # 港澳台
             if self.province_name == self.city_name == self.county_name:
                 self.city_name = None
                 self.county_name = None

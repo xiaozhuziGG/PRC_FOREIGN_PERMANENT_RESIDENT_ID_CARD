@@ -35,7 +35,7 @@ class Sfz(tk.Frame):
         self.btn_copy_ID_No.grid(row=1, column=2)
 
         # 创建中文名标签和输入框
-        self.label_name_ch = tk.Label(self, text="中文名:")
+        self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
         self.label_name_ch.grid(row=2, column=0, sticky='e')
         self.name_ch = tk.StringVar()
         self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
@@ -44,7 +44,7 @@ class Sfz(tk.Frame):
         self.btn_copy_name_ch.grid(row=2, column=2)
 
         # 创建英文名标签和输入框
-        self.label_name_en = tk.Label(self, text="英文名:")
+        self.label_name_en = tk.Label(self, text="英文名:", bg=LABEL_BG)
         self.label_name_en.grid(row=3, column=0, sticky='e')
         self.name_en = tk.StringVar()
         self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
@@ -53,7 +53,7 @@ class Sfz(tk.Frame):
         self.btn_copy_name_en.grid(row=3, column=2)
 
         # 创建生日标签和输入框
-        self.label_birthday = tk.Label(self, text="生日:", anchor="e")
+        self.label_birthday = tk.Label(self, text="生日:", anchor="e", bg=LABEL_BG)
         self.label_birthday.grid(row=4, column=0, sticky='e')
         self.birthday = tk.StringVar()
         self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
@@ -62,7 +62,7 @@ class Sfz(tk.Frame):
         self.btn_copy_birthday.grid(row=4, column=2)
 
         # 创建性别标签和输入框
-        self.label_gender = tk.Label(self, text="性别:")
+        self.label_gender = tk.Label(self, text="性别:", bg=LABEL_BG)
         self.label_gender.grid(row=5, column=0, sticky='e')
         self.gender = tk.StringVar()
         self.gender.set("")
@@ -72,7 +72,7 @@ class Sfz(tk.Frame):
         self.entry_gender_F.grid(row=5, column=2)
 
         # 创建办理地区码标签和输入框
-        self.label_administration_code = tk.Label(self, text="行政区代码:")
+        self.label_administration_code = tk.Label(self, text="行政区代码:", bg=LABEL_BG)
         self.label_administration_code.grid(row=6, column=0, sticky='e')
         self.administration_code = tk.StringVar()
         self.entry_administration_code = tk.Entry(self, textvariable=self.administration_code)
@@ -144,8 +144,11 @@ class Sfz(tk.Frame):
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
         administration_code = self.entry_administration_code.get() or None
-        self.id_info = IdCardGenerator.TypeSFZ(name_ch, name_en, birthday, gender, county_code=administration_code)
-        self.show_info()
+        try:
+            self.id_info = IdCardGenerator.TypeSFZ(name_ch, name_en, birthday, gender, county_code=administration_code)
+            self.show_info()
+        except Exception as e:
+            messagebox.showinfo("提示", f"输入有误,错误信息为{e}")
 
     def check_number_complete(self):
         ID_No_src = self.ID_No.get()
@@ -801,28 +804,39 @@ class ToolTip:
         self.tip_window = None
         self.id = None
         self.x = self.y = 0
+        self.delay = 300  # 延迟显示时间（毫秒）
+        self.after_id = None
 
     def showtip(self):
-        """Display text in tooltip window"""
+        """延迟显示 Tooltip 窗口"""
+        if self.tip_window or not self.text:
+            return
+        # 延迟显示
+        self.after_id = self.widget.after(self.delay, self._create_tip)
+
+    def _create_tip(self):
+        """实际创建 Tooltip 窗口"""
         if self.tip_window or not self.text:
             return
         x, y, cx, cy = self.widget.bbox("insert")
         x = x + self.widget.winfo_rootx() + 25
         y = y + cy + self.widget.winfo_rooty() + 25
         self.tip_window = tw = tk.Toplevel(self.widget)
-        tw.wm_overrideredirect(True)
-        tw.wm_geometry("+%d+%d" % (x, y))
+        tw.wm_overrideredirect(True)  # 去掉窗口边框
+        tw.wm_geometry(f"+{x}+{y}")  # 设置窗口位置
         label = tk.Label(tw, text=self.text, justify=tk.LEFT,
                          background="#ffffe0", relief=tk.SOLID, borderwidth=1,
                          font=("tahoma", "8", "normal"))
         label.pack(ipadx=1)
 
     def hidetip(self):
-        """Hide the tooltip window"""
-        tw = self.tip_window
-        self.tip_window = None
-        if tw:
-            tw.destroy()
+        """隐藏 Tooltip 窗口"""
+        if self.after_id:
+            self.widget.after_cancel(self.after_id)  # 取消延迟显示
+            self.after_id = None
+        if self.tip_window:
+            self.tip_window.destroy()
+            self.tip_window = None
 
 
 def create_tooltip(widget, text):
@@ -836,7 +850,6 @@ def create_tooltip(widget, text):
 
     widget.bind('<Enter>', enter)
     widget.bind('<Leave>', leave)
-
 
 # 行号迭代器
 class RowNumIterator:

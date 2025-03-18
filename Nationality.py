@@ -179,7 +179,7 @@ def get_province_code() -> None:
             for row in csv_reader:
                 administration_division[row['行政区代码']] = row['行政区名称']
             for row_old in csv_reader_old:
-                administration_division_old[row['行政区代码']] = row_old['行政区名称']
+                administration_division_old[row_old['行政区代码']] = row_old['行政区名称']
     except FileNotFoundError as e:
         raise FileNotFoundError(f'新版或者旧版行政区划文件未找到:{e}')
     except Exception as e:
@@ -211,4 +211,4 @@ get_nationality_info()
 get_province_code()
 
 if __name__ == '__main__':
-    print(nationality_dict_by_number)
+    print(administration_division_old)
