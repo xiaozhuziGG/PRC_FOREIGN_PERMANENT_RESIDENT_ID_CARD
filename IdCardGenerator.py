@@ -110,16 +110,11 @@ def get_province_city_county_code() -> tuple:
 
     while True:
         selected_item = random.sample(items, 1)[0]
+        # 行政区划格式为 330108,滨江区
         code = selected_item[0]
         name = selected_item[1]
-        # 过滤掉市一级行政区,但不包括港澳台,例如810000
-        if '00' == code[-2:] and '00' != code[-4:-2]:
-            # 行政区划格式为 330108,滨江区
-            continue
-        # 过滤掉省级行政区,但不包括港澳台
-        if ('台湾省' == name
-                or '省' not in name
-                or '自治区' not in name):
+        # 过滤掉省市一级行政区,但不包括港澳台,例如810000
+        if code in Nationality.CODE_HONGKONG_MACAO_TAIWAN or '00' != code[-2:]:
             break
     return code, name
 
