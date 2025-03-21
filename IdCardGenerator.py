@@ -8,7 +8,7 @@
 # !/usr/bin/python3.6/
 import random
 import datetime
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from enum import Enum
 import Nationality
 from os import path, makedirs
@@ -200,7 +200,7 @@ def word_to_pinyin(chinese_text: str) -> list:
 
 
 # 个人证件父类
-class IDNOGenerator(object):
+class IDNOGenerator(object, ABC):
     # 权重参数
     WEIGHT = (7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2)
 

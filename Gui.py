@@ -13,8 +13,24 @@ from tkinter import messagebox
 import pyperclip
 import Nationality
 import IdCardGenerator
+from abc import abstractmethod, ABC
 
 LABEL_BG ='#80FFFF'
+
+
+class BaseCardFrame(tk.Frame, ABC):
+    """抽象基类，定义 generate_default 方法"""
+
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        self.id_info = None
+
+    @abstractmethod
+    def generate_default(self):
+        """生成默认信息的抽象方法"""
+        pass
+
 
 class Sfz(tk.Frame):
     """身份证的页面"""
@@ -878,12 +894,13 @@ class MainApplication(tk.Tk):
         self.combobox_id_kind.grid(row=0, column=1, sticky='w')
         self.geometry("310x450+300+200")
 
-        # 创建不同的 Frame
-        self.yjj_frame = Yjj2023(self)
+        # 创建不同的 Frame 缓存
+        self.frame_cache = {}
 
         # 默认显示永居证页面
         self.id_kind.set(IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value)
-        self.show_frame(self.yjj_frame)
+        self.create_frame(None)
+        self.show_frame(self.frame_cache.get(IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value))
 
     def show_frame(self, frame=None):
         # 隐藏所有 Frame
@@ -896,20 +913,23 @@ class MainApplication(tk.Tk):
 
     def create_frame(self, event):
         try:
-            if IdCardGenerator.IDType.ID_CARD.value == str(self.id_kind.get()):
-                self.show_frame(Sfz(self))
-            elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == str(self.id_kind.get()):
-                self.show_frame(Yjj2023(self))
-            elif IdCardGenerator.IDType.GAT_PERMANENT_RESIDENT.value == str(self.id_kind.get()):
-                self.show_frame(GATJzz(self))
-            elif IdCardGenerator.IDType.HKG_MAC_PERMIT.value == str(self.id_kind.get()):
-                self.show_frame(GAtxz(self))
-            elif IdCardGenerator.IDType.CTN_PERMIT.value == str(self.id_kind.get()):
-                self.show_frame(TWtxz(self))
-            elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == str(self.id_kind.get()):
-                self.show_frame(Yjj2017(self))
-            else:
-                self.show_frame()
+            selected_id_kind = str(self.id_kind.get())
+            if selected_id_kind not in self.frame_cache.keys():
+                if IdCardGenerator.IDType.ID_CARD.value == selected_id_kind:
+                    self.frame_cache[selected_id_kind] = Sfz(self)
+                elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == selected_id_kind:
+                    self.frame_cache[selected_id_kind] = Yjj2023(self)
+                elif IdCardGenerator.IDType.GAT_PERMANENT_RESIDENT.value == selected_id_kind:
+                    self.frame_cache[selected_id_kind] = GATJzz(self)
+                elif IdCardGenerator.IDType.HKG_MAC_PERMIT.value == selected_id_kind:
+                    self.frame_cache[selected_id_kind] = GAtxz(self)
+                elif IdCardGenerator.IDType.CTN_PERMIT.value == selected_id_kind:
+                    self.frame_cache[selected_id_kind] = TWtxz(self)
+                elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == selected_id_kind:
+                    self.frame_cache[selected_id_kind] = Yjj2017(self)
+                else:
+                    self.frame_cache[selected_id_kind] = None
+            self.show_frame(self.frame_cache.get(selected_id_kind))
         except Exception as e:
             messagebox.showwarning("错误", f"发生错误,错误信息为:{e}")
 
