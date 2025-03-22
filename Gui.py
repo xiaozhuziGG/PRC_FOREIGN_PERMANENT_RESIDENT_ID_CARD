@@ -15,7 +15,7 @@ import Nationality
 import IdCardGenerator
 from abc import abstractmethod, ABC
 
-LABEL_BG ='#80FFFF'
+LABEL_BG = '#80FFFF'
 
 
 class BaseCardFrame(tk.Frame, ABC):
@@ -31,8 +31,13 @@ class BaseCardFrame(tk.Frame, ABC):
         """生成默认信息的抽象方法"""
         pass
 
+    def refresh_default(self) -> tk.Frame:
+        """刷新默认信息，并返回刷新后的frame"""
+        self.generate_default()
+        return self
 
-class Sfz(tk.Frame):
+
+class Sfz(BaseCardFrame):
     """身份证的页面"""
 
     def __init__(self, master=None):
@@ -197,9 +202,13 @@ class Sfz(tk.Frame):
         self.city_name.set(self.id_info.city_name)
         self.county_name.set(self.id_info.county_name)
 
+    def refresh_default(self):
+        self.generate_default()
+        return self
 
-class Yjj2023(tk.Frame):
-    """永居证的页面"""
+
+class Yjj2023(BaseCardFrame):
+    """2023年版永居证的页面"""
 
     def __init__(self, master=None):
         super().__init__(master)
@@ -377,10 +386,8 @@ class Yjj2023(tk.Frame):
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
-
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IdCardGenerator.TypeYJZ()
-        # messagebox.showinfo("提示", "校验方法")
         self.show_info(self.id_info)
 
     def show_info(self, card_info: IdCardGenerator.TypeYJZ):
@@ -440,7 +447,7 @@ class Yjj2023(tk.Frame):
 
 
 class Yjj2017(Yjj2023):
-    """永居证的页面"""
+    """2017年版永居证的页面"""
 
     def __init__(self, master=None):
         super().__init__(master)
@@ -481,9 +488,9 @@ class Yjj2017(Yjj2023):
         self.generate_default()
 
     def generate_default(self, event=None):  # event就是点击事件
-        id_info = IdCardGenerator.TypeYJZ2017()
+        self.id_info = IdCardGenerator.TypeYJZ2017()
         # messagebox.showinfo("提示", "校验方法")
-        self.show_info(id_info)
+        self.show_info(self.id_info)
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
@@ -506,7 +513,6 @@ class Yjj2017(Yjj2023):
             self.show_info(self.id_info)
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
-
 
     def show_info(self, card_info: IdCardGenerator.TypeYJZ2017):
         """
@@ -551,7 +557,7 @@ class Yjj2017(Yjj2023):
         self.ID_No.set(ID_No_src + check_num)
 
 
-class GATJzz(tk.Frame):
+class GATJzz(BaseCardFrame):
     """港澳台居民居住证的页面"""
 
     def __init__(self, master=None):
@@ -593,7 +599,6 @@ class GATJzz(tk.Frame):
         self.entry_name_en.grid(row=row_num.current, column=1)
         self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
         self.btn_copy_name_en.grid(row=next(row_num), column=2)
-
 
         # 创建生日标签和输入框
         self.label_birthday = tk.Label(self, text="生日:", anchor="e", bg=LABEL_BG)
@@ -673,9 +678,9 @@ class GATJzz(tk.Frame):
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
     def generate_default(self, event=None):  # event就是点击事件
-        id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get())
+        self.id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get())
         # messagebox.showinfo("提示", "校验方法")
-        self.show_info(id_info)
+        self.show_info(self.id_info)
 
     def show_info(self, card_info: IdCardGenerator.TypeGATJZZ):
         self.ID_No.set(card_info.No)
@@ -705,7 +710,9 @@ class GATJzz(tk.Frame):
         self.province_name.set("")
 
 
-class GAtxz(tk.Frame):
+class GAtxz(BaseCardFrame):
+    """港澳通行证"""
+
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
@@ -764,7 +771,7 @@ class GAtxz(tk.Frame):
         self.name_en.set(id_info.name_en)
 
 
-class TWtxz(tk.Frame):
+class TWtxz(BaseCardFrame):
     """台湾通行证"""
 
     def __init__(self, master=None):
@@ -807,13 +814,15 @@ class TWtxz(tk.Frame):
         self.generate_default()
 
     def generate_default(self, event=None):
-        id_info = IdCardGenerator.TypeTWTXZ()
-        self.ID_No.set(id_info.No)
-        self.name_ch.set(id_info.name_ch)
-        self.name_en.set(id_info.name_en)
+        self.id_info = IdCardGenerator.TypeTWTXZ()
+        self.ID_No.set(self.id_info.No)
+        self.name_ch.set(self.id_info.name_ch)
+        self.name_en.set(self.id_info.name_en)
 
 
 class ToolTip:
+    """悬浮提示窗"""
+
     def __init__(self, widget, text='widget info'):
         self.widget = widget
         self.text = text
@@ -856,6 +865,7 @@ class ToolTip:
 
 
 def create_tooltip(widget, text):
+    """创建悬浮提示窗"""
     tooltip = ToolTip(widget, text)
 
     def enter(event):
@@ -866,6 +876,7 @@ def create_tooltip(widget, text):
 
     widget.bind('<Enter>', enter)
     widget.bind('<Leave>', leave)
+
 
 # 行号迭代器
 class RowNumIterator:
@@ -895,14 +906,14 @@ class MainApplication(tk.Tk):
         self.geometry("310x450+300+200")
 
         # 创建不同的 Frame 缓存
-        self.frame_cache = {}
+        self.frame_cache: dict[str, BaseCardFrame] = {}
 
         # 默认显示永居证页面
         self.id_kind.set(IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value)
         self.create_frame(None)
         self.show_frame(self.frame_cache.get(IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value))
 
-    def show_frame(self, frame=None):
+    def show_frame(self, frame: BaseCardFrame = None):
         # 隐藏所有 Frame
         for widget in self.winfo_children():
             if isinstance(widget, tk.Frame):
@@ -912,6 +923,7 @@ class MainApplication(tk.Tk):
             frame.grid(row=1, column=0, columnspan=4, padx=0, pady=20)
 
     def create_frame(self, event):
+        # 如果缓存中没有该 Frame，则创建并添加到缓存中
         try:
             selected_id_kind = str(self.id_kind.get())
             if selected_id_kind not in self.frame_cache.keys():
@@ -928,11 +940,17 @@ class MainApplication(tk.Tk):
                 elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = Yjj2017(self)
                 else:
-                    self.frame_cache[selected_id_kind] = None
-            self.show_frame(self.frame_cache.get(selected_id_kind))
+                    messagebox.showwarning("错误", f"当前输入的证件类型{selected_id_kind}不支持")
+
+                frame = self.frame_cache.get(selected_id_kind, None)
+
+            # 缓存中有该 Frame，则直接刷新并显示该 Frame
+            else:
+                frame = self.frame_cache.get(selected_id_kind, None).refresh_default()
+            self.show_frame(frame)
+
         except Exception as e:
             messagebox.showwarning("错误", f"发生错误,错误信息为:{e}")
-
 
 
 if __name__ == '__main__':

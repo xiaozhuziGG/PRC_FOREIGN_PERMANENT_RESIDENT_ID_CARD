@@ -200,7 +200,7 @@ def word_to_pinyin(chinese_text: str) -> list:
 
 
 # 个人证件父类
-class IDNOGenerator(object, ABC):
+class IDNOGenerator(ABC):
     # 权重参数
     WEIGHT = (7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2)
 
@@ -409,7 +409,7 @@ class TypeYJZ(IDNOGenerator):
     def __init__(self, name_ch: str = None, name_en: str = None, province_name: str = None, national_code_3: str = None,
                  birthday: str = None, gender: str = None, name_length: int = 4, sequence_code: str = None):
         """
-        初始化外国人信息类,此构造函数用于初始化外国人永久居留身份证信息对象。。
+        初始化外国人永居证信息,此构造函数用于初始化外国人永久居留身份证信息对象。。
 
         :param name_ch: (str)中文姓名，默认为None。
         :param name_en: (str)英文姓名，默认为None。
@@ -629,8 +629,8 @@ class TypeYJZ2017(IDNOGenerator):
             self.city_name = city_info[1]
         else:
             try:
-                if  len(province_city_code) != 4 or \
-                        (province_city_code.endswith('00') and (province_city_code + '00') not in Nationality.CODE_HONGKONG_MACAO_TAIWAN):
+                if len(province_city_code) != 4 or (province_city_code.endswith('00') and (province_city_code + '00')
+                                                    not in Nationality.CODE_HONGKONG_MACAO_TAIWAN):
                     raise ValueError(f"输入的省市代码:{province_city_code}不合法,请确认")
                 self.city_name = Nationality.administration_division[province_city_code + '00']
                 self.city_code = province_city_code
