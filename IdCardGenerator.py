@@ -13,7 +13,10 @@ from enum import Enum
 import Nationality
 from os import path, makedirs
 
+# 资源文件的绝对路径
 BASE_DIR = Nationality.BASE_DIR
+# 当前日期
+DATE_TODAY = datetime.date.today()
 
 
 # 证件类型枚举
@@ -46,15 +49,15 @@ def get_sex(num: str) -> str:
 
 
 def generate_date():
-    """生成随机日期,1920-01-01到2020-01-01"""
+    """生成随机日期,1920-01-01到当前日期"""
     # 设置日期范围
     start_date = datetime.date(1920, 1, 1)
-    end_date = datetime.date(2020, 1, 1)
+    end_date = DATE_TODAY
 
     # 计算日期范围的天数
     days_between = (end_date - start_date).days
 
-    # 生成随机天数并加上起始日期
+    # 生成随机天数并加上起始日期，randint包含起止区间
     random_days = random.randint(0, days_between)
     random_date = start_date + datetime.timedelta(days=random_days)
     return datetime.date.strftime(random_date, '%Y%m%d')
@@ -235,7 +238,7 @@ class IDNOGenerator(ABC):
                 # 判断字符串是不是合法日期
                 birthday_time = datetime.datetime.strptime(birthday, "%Y%m%d")
                 # 生日时间转换为生日日期
-                self.birthday = birthday_time.date().strftime("%Y%m%d")
+                self.birthday = birthday_time.strftime("%Y%m%d")
             except ValueError:
                 raise ValueError(f"输入的生日格式不正确：{birthday}")
         # 顺序码
@@ -340,7 +343,7 @@ class IDNOGenerator(ABC):
 class TypeSFZ(IDNOGenerator):
     def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, gender: str = None,
                  sequence_code: str = None,
-                 county_code: str = None):
+                 county_code: str = None, begin_date: str = None):
         """
         生成身份证基本信息。
 
@@ -350,6 +353,7 @@ class TypeSFZ(IDNOGenerator):
         :param gender: (str)性别,男或者女
         :param sequence_code: (str) 序列号,同时输入性别和序列号,以序列号为准
         :param county_code: (str)到县一级的行政区代码
+        :param begin_date: (str)证件有效期起始日期
         """
         super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code)
         self.type = IDType.ID_CARD.value
@@ -380,11 +384,18 @@ class TypeSFZ(IDNOGenerator):
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
+        self.begin_date = ''
+        self.end_date = ''
+        self.generate_valid_dates(begin_date)
 
     def __str__(self):
         return self.type
 
     def get_province_city_county_name(self, is_new=True):
+        """
+        获取省市县的名称
+        :param is_new: (bool)True-新版行政区代码，False-旧版行政区代码
+        """
         if is_new:
             self.province_name = Nationality.administration_division.get(self.county_code[0:2] + '0000')
             self.city_name = Nationality.administration_division.get(self.county_code[0:4] + '00')
@@ -399,6 +410,52 @@ class TypeSFZ(IDNOGenerator):
         else:
             self.province_name = Nationality.administration_division_old.get(self.county_code[0:2] + '0000')
             self.city_name = Nationality.administration_division_old.get(self.county_code[0:4] + '00')
+
+    def generate_valid_dates(self, begin_date: str = None):
+        """
+        生成证件的起始日期和终止日期,起始日期在生日和当前日期之间,终止日期根据起始日期时年龄确定有效期
+        :param begin_date: (str)证件有效期起始日期
+        """
+
+        # 生日字符串转换为日期对象
+        birthday_date = datetime.datetime.strptime(self.birthday, "%Y%m%d").date()
+        if not begin_date:
+            # 确定起始日期（生日到今天的闭区间内）
+            days_between = (DATE_TODAY - birthday_date).days
+            random_days = random.randint(0, days_between)
+            begin_date_obj = birthday_date + datetime.timedelta(days=random_days)
+            self.begin_date = begin_date_obj.strftime("%Y%m%d")
+        else:
+            try:
+                # 将起始日期转换为日期对象,判断字符串是不是合法日期
+                begin_date_obj = datetime.datetime.strptime(begin_date, "%Y%m%d").date()
+                self.begin_date = begin_date
+            except ValueError:
+                raise ValueError(f"输入的起始日期格式不正确：{begin_date}")
+
+        # 计算从生日到起始日期的年龄（精确计算）
+        age_at_begin_date = begin_date_obj.year - birthday_date.year - (
+                (begin_date_obj.month, begin_date_obj.day) < (birthday_date.month, birthday_date.day))
+
+        # 根据年龄计算终止日期
+        if age_at_begin_date < 16:
+            valid_years = 5
+        elif 16 <= age_at_begin_date < 26:
+            valid_years = 10
+        elif 26 <= age_at_begin_date < 46:
+            valid_years = 20
+        else:
+            self.end_date = "30001231"
+            return
+
+        # 计算终止日期
+        # 计算终止日期（处理闰年问题）
+        try:
+            end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years)
+        except ValueError:
+            # 如果起始日期是闰年的2月29日，调整为2月28日
+            end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years, day=28)
+        self.end_date = end_date.strftime("%Y%m%d")
 
 
 # 23新版外国人永久居留证
@@ -487,7 +544,7 @@ class TypeYJZ(IDNOGenerator):
         except FileNotFoundError:
             raise FileNotFoundError(f"输入的底稿文件不存在")
         color = (0, 0, 0)  # 文字颜色为黑色，RGB 格式
-        type_face = "simhei.ttf"        # 字体为黑体
+        type_face = "simhei.ttf"  # 字体为黑体
         font = ImageFont.truetype(type_face, 76)  # 字体类型和大小
         # 尺寸是2024 * 1280 ,一毫米对应24像素 ,每次上下端会留15个像素的边
         # 英文名 横向：35:428 竖向19:90
@@ -745,8 +802,8 @@ class TypeTWTXZ(IDNOGenerator):
 
 if __name__ == '__main__':
     # wgr = TypeYJZ(gender='男')
-    wgr = TypeYJZ()
-    wgr.generate_image()
+    # wgr = TypeYJZ()
+    # wgr.generate_image()
     # print(wgr)
     # HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
     # print(HKG_card)
@@ -768,5 +825,5 @@ if __name__ == '__main__':
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
-    # a = TypeSFZ()
+    a = TypeSFZ(birthday='20000229', begin_date='20200229')
     pass
