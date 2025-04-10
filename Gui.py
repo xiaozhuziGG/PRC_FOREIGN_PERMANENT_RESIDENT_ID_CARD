@@ -29,7 +29,13 @@ class BaseCardFrame(tk.Frame, ABC):
     @abstractmethod
     def generate_default(self):
         """生成默认信息的抽象方法"""
+        self.show_info()
+
+    @abstractmethod
+    def show_info(self):
+        """展示信息的抽象方法"""
         pass
+
 
     def refresh_default(self) -> tk.Frame:
         """刷新默认信息，并返回刷新后的frame"""
@@ -382,15 +388,15 @@ class Yjj2023(BaseCardFrame):
                 gender=gender,
                 national_code_3=nationality_code
             )
-            self.show_info(self.id_info)
+            self.show_info()
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IdCardGenerator.TypeYJZ()
-        self.show_info(self.id_info)
+        self.show_info()
 
-    def show_info(self, card_info: IdCardGenerator.TypeYJZ):
+    def show_info(self):
         """
         显示卡片信息。
 
@@ -399,16 +405,16 @@ class Yjj2023(BaseCardFrame):
         参数:
         card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
         """
-        self.ID_No.set(card_info.No)
-        self.name_en.set(card_info.name_en)
-        self.name_ch.set(card_info.name_ch)
-        self.birthday.set(card_info.birthday)
-        self.gender.set(card_info.gender)
-        self.province_code.set(card_info.province_code)
-        self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(card_info.province_code), '未知'))
-        self.nationality_number.set(card_info.nationality_number)
-        self.nationality_code.set(card_info.nationality_code)
-        self.nationality_name_cn.set(card_info.nationality_name_ch)
+        self.ID_No.set(self.id_info.No)
+        self.name_en.set(self.id_info.name_en)
+        self.name_ch.set(self.id_info.name_ch)
+        self.birthday.set(self.id_info.birthday)
+        self.gender.set(self.id_info.gender)
+        self.province_code.set(self.id_info.province_code)
+        self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(self.id_info.province_code), '未知'))
+        self.nationality_number.set(self.id_info.nationality_number)
+        self.nationality_code.set(self.id_info.nationality_code)
+        self.nationality_name_cn.set(self.id_info.nationality_name_ch)
         self.ID_No_other.set('有需要在2017版页面中用校验位补全的方式生成')
 
     def generate_image(self, event=None):
@@ -490,7 +496,7 @@ class Yjj2017(Yjj2023):
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IdCardGenerator.TypeYJZ2017()
         # messagebox.showinfo("提示", "校验方法")
-        self.show_info(self.id_info)
+        self.show_info()
 
     def generate_by_input(self, event=None):
         # 依据自定义输入,需要同步修改其他文件的内容
@@ -510,11 +516,11 @@ class Yjj2017(Yjj2023):
                 birthday=birthday,
                 gender=gender,
             )
-            self.show_info(self.id_info)
+            self.show_info()
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
-    def show_info(self, card_info: IdCardGenerator.TypeYJZ2017):
+    def show_info(self):
         """
         显示卡片信息。
 
@@ -524,22 +530,22 @@ class Yjj2017(Yjj2023):
         card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
         """
 
-        self.ID_No.set(card_info.No)
-        self.name_en.set(card_info.name_en)
-        self.name_ch.set(card_info.name_ch)
-        self.birthday.set(card_info.birthday)
-        self.gender.set(card_info.gender)
-        self.city_code.set(card_info.city_code)
-        province_code = card_info.city_code[0:2] + '0000'
+        self.ID_No.set(self.id_info.No)
+        self.name_en.set(self.id_info.name_en)
+        self.name_ch.set(self.id_info.name_ch)
+        self.birthday.set(self.id_info.birthday)
+        self.gender.set(self.id_info.gender)
+        self.city_code.set(self.id_info.city_code)
+        province_code = self.id_info.city_code[0:2] + '0000'
         if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
             province_name = Nationality.administration_division.get(province_code)
         else:
             province_name = ''
-        self.city_name.set(province_name + card_info.city_name)
-        self.nationality_number.set(card_info.nationality_number)
-        self.nationality_code.set(card_info.nationality_code)
-        self.nationality_name_cn.set(card_info.nationality_name_ch)
-        self.ID_No_other.set(card_info.No_2023)
+        self.city_name.set(province_name + self.id_info.city_name)
+        self.nationality_number.set(self.id_info.nationality_number)
+        self.nationality_code.set(self.id_info.nationality_code)
+        self.nationality_name_cn.set(self.id_info.nationality_name_ch)
+        self.ID_No_other.set(self.id_info.No_2023)
 
     def clear_all_fields(self):
         super().clear_all_fields()
@@ -667,29 +673,29 @@ class GATJzz(BaseCardFrame):
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
         try:
-            id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get(),
+            self.id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get(),
                                                  name_ch=name_ch,
                                                  name_en=name_en,
                                                  birthday=birthday,
                                                  gender=gender,
                                                  )
-            self.show_info(id_info)
+            self.show_info()
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get())
         # messagebox.showinfo("提示", "校验方法")
-        self.show_info(self.id_info)
+        self.show_info()
 
-    def show_info(self, card_info: IdCardGenerator.TypeGATJZZ):
-        self.ID_No.set(card_info.No)
-        self.name_ch.set(card_info.name_ch)
-        self.name_en.set(card_info.name_en)
-        self.birthday.set(card_info.birthday)
-        self.gender.set(card_info.gender)
-        self.province_code.set(card_info.region_code)
-        self.province_name.set(card_info.province_name)
+    def show_info(self):
+        self.ID_No.set(self.id_info.No)
+        self.name_ch.set(self.id_info.name_ch)
+        self.name_en.set(self.id_info.name_en)
+        self.birthday.set(self.id_info.birthday)
+        self.gender.set(self.id_info.gender)
+        self.province_code.set(self.id_info.region_code)
+        self.province_name.set(self.id_info.province_name)
 
     def check_num_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -711,7 +717,7 @@ class GATJzz(BaseCardFrame):
 
 
 class GAtxz(BaseCardFrame):
-    """港澳通行证"""
+    """港澳居民来往内地通行证"""
 
     def __init__(self, master=None):
         super().__init__(master)
@@ -754,6 +760,15 @@ class GAtxz(BaseCardFrame):
         self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
         self.btn_copy_name_en.grid(row=next(row_num), column=2)
 
+        # 创建生日标签和输入框
+        self.label_birthday = tk.Label(self, text="生日:")
+        self.label_birthday.grid(row=row_num.current, column=0, sticky='e')
+        self.birthday = tk.StringVar()
+        self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
+        self.entry_birthday.grid(row=row_num.current, column=1)
+        self.btn_copy_birthday = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.birthday.get()))
+        self.btn_copy_birthday.grid(row=next(row_num), column=2)
+
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=row_num.current, column=1)
 
@@ -765,14 +780,17 @@ class GAtxz(BaseCardFrame):
         self.generate_default()
 
     def generate_default(self, event=None):
-        id_info = IdCardGenerator.TypeGATXZ(self.id_type.get())
-        self.ID_No.set(id_info.No)
-        self.name_ch.set(id_info.name_ch)
-        self.name_en.set(id_info.name_en)
+        self.id_info = IdCardGenerator.TypeGATXZ(self.id_type.get())
+        self.show_info()
 
+    def show_info(self):
+        self.ID_No.set(self.id_info.No)
+        self.name_ch.set(self.id_info.name_ch)
+        self.name_en.set(self.id_info.name_en)
+        self.birthday.set(self.id_info.birthday)
 
 class TWtxz(BaseCardFrame):
-    """台湾通行证"""
+    """台湾居民来往内地通行证"""
 
     def __init__(self, master=None):
         super().__init__(master)
@@ -805,6 +823,15 @@ class TWtxz(BaseCardFrame):
         self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
         self.btn_copy_name_en.grid(row=next(row_num), column=2)
 
+        # 创建生日标签和输入框
+        self.label_birthday = tk.Label(self, text="生日:")
+        self.label_birthday.grid(row=row_num.current, column=0, sticky='e')
+        self.birthday = tk.StringVar()
+        self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
+        self.entry_birthday.grid(row=row_num.current, column=1)
+        self.btn_copy_birthday = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.birthday.get()))
+        self.btn_copy_birthday.grid(row=next(row_num), column=2)
+
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=row_num.current, column=1)
 
@@ -815,9 +842,13 @@ class TWtxz(BaseCardFrame):
 
     def generate_default(self, event=None):
         self.id_info = IdCardGenerator.TypeTWTXZ()
+        self.show_info()
+
+    def show_info(self):
         self.ID_No.set(self.id_info.No)
         self.name_ch.set(self.id_info.name_ch)
         self.name_en.set(self.id_info.name_en)
+        self.birthday.set(self.id_info.birthday)
 
 
 class ToolTip:
