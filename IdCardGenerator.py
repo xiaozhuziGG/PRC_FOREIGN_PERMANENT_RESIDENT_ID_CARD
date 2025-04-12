@@ -25,9 +25,9 @@ class IDType(Enum):
     # BUSINESS_LICENSE = "营业执照"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
-    GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
     HKG_MAC_PERMIT = "港澳居民来往内地通行证"
     CTN_PERMIT = "台湾居民来往内地通行证"
+    GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
 
 
 # 港澳台居民居住证枚举
@@ -414,48 +414,52 @@ class TypeSFZ(IDNOGenerator):
     def generate_valid_dates(self, begin_date: str = None):
         """
         生成证件的起始日期和终止日期,起始日期在生日和当前日期之间,终止日期根据起始日期时年龄确定有效期。
-        允许证件到期日期在当前日期之前，因为存在过期的证件，同时测试的时候一般不需要过期的证件，需要增加入参控制。同时界面显示的时候，有效期不要显示到最后
+        如果传入了初始日期，则允许证件到期日期在当前日期之前，因为存在已过期的证件，否则到期日期不允许超过今天。
         :param begin_date: (str)证件有效期起始日期
         """
 
         # 生日字符串转换为日期对象
         birthday_date = datetime.datetime.strptime(self.birthday, "%Y%m%d").date()
-        if not begin_date:
-            # 确定起始日期（生日到今天的闭区间内）
-            days_between = (DATE_TODAY - birthday_date).days
-            random_days = random.randint(0, days_between)
-            begin_date_obj = birthday_date + datetime.timedelta(days=random_days)
-            self.begin_date = begin_date_obj.strftime("%Y%m%d")
-        else:
+        if begin_date:
             try:
                 # 将起始日期转换为日期对象,判断字符串是不是合法日期
                 begin_date_obj = datetime.datetime.strptime(begin_date, "%Y%m%d").date()
                 self.begin_date = begin_date
             except ValueError:
-                raise ValueError(f"输入的起始日期格式不正确：{begin_date}")
+                raise ValueError(f"输入的证件起始日期格式不正确：{begin_date}")
+        while True:
+            if not begin_date:
+                # 确定起始日期（生日到今天的闭区间内）
+                days_between = (DATE_TODAY - birthday_date).days
+                random_days = random.randint(0, days_between)
+                begin_date_obj = birthday_date + datetime.timedelta(days=random_days)
+                self.begin_date = begin_date_obj.strftime("%Y%m%d")
 
-        # 计算从生日到起始日期的年龄（精确计算）
-        age_at_begin_date = begin_date_obj.year - birthday_date.year - (
-                (begin_date_obj.month, begin_date_obj.day) < (birthday_date.month, birthday_date.day))
+            # 计算从生日到起始日期的年龄（精确计算）
+            age_at_begin_date = begin_date_obj.year - birthday_date.year - (
+                    (begin_date_obj.month, begin_date_obj.day) < (birthday_date.month, birthday_date.day))
 
-        # 根据年龄计算终止日期
-        if age_at_begin_date < 16:
-            valid_years = 5
-        elif 16 <= age_at_begin_date < 26:
-            valid_years = 10
-        elif 26 <= age_at_begin_date < 46:
-            valid_years = 20
-        else:
-            self.end_date = "30001231"
-            return
+            # 根据年龄计算终止日期
+            if age_at_begin_date < 16:
+                valid_years = 5
+            elif 16 <= age_at_begin_date < 26:
+                valid_years = 10
+            elif 26 <= age_at_begin_date < 46:
+                valid_years = 20
+            else:
+                self.end_date = "30001231"
+                return
 
-        # 计算终止日期
-        # 计算终止日期（处理闰年问题）
-        try:
-            end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years)
-        except ValueError:
-            # 如果起始日期是闰年的2月29日，调整为2月28日
-            end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years, day=28)
+            # 计算终止日期（处理闰年问题）
+            try:
+                end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years)
+            except ValueError:
+                # 如果起始日期是闰年的2月29日，调整为2月28日
+                end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years, day=28)
+            print(end_date)
+
+            if end_date >= DATE_TODAY or begin_date:
+                break
         self.end_date = end_date.strftime("%Y%m%d")
 
 
