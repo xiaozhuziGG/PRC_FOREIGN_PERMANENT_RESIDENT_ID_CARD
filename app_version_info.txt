@@ -29,14 +29,14 @@ StringFileInfo(
   [
   StringTable(
     u'040904B0',
-    [StringStruct(u'CompanyName', u'恒生电子'), 
-    StringStruct(u'FileDescription', u'永居证生成器'),    # 文件说明
+    [StringStruct(u'CompanyName', u'发大财'), 
+    StringStruct(u'FileDescription', u'号码生成器'),    # 文件说明
     StringStruct(u'FileVersion', u'1.0.0'),
     StringStruct(u'InternalName', u'GitHub'),
-    StringStruct(u'LegalCopyright', u'wanggz38530'), #版权
-    StringStruct(u'OriginalFilename', u'永居证生成器.exe'), #原始文件名
-    StringStruct(u'ProductName', u'永居证生成器'),      #产品名称
-    StringStruct(u'ProductVersion', u'1.0.0')])    #产品版本
+    StringStruct(u'LegalCopyright', u'xiaozhuzi'), #版权
+    StringStruct(u'OriginalFilename', u'号码生成器.exe'), #原始文件名
+    StringStruct(u'ProductName', u'号码生成器'),      #产品名称
+    StringStruct(u'ProductVersion', u'1.0.1')])    #产品版本
   ]),
 VarFileInfo([VarStruct(u'Translation', [2052, 1200])]) # 语言
   ]
