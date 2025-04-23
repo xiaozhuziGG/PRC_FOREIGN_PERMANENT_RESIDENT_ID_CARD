@@ -18,6 +18,18 @@ from abc import abstractmethod, ABC
 LABEL_BG = '#80FFFF'
 
 
+class WidgetGroup:
+    """自定义组件的组合，定义 get 和 set 方法"""
+    def __init__(self):
+        pass
+
+    def get(self):
+        pass
+
+    def set(self, value):
+        pass
+
+
 class BaseCardFrame(tk.Frame, ABC):
     """抽象基类，定义 generate_default 方法"""
 
