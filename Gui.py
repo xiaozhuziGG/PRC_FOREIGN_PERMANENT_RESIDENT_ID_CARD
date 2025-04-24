@@ -45,17 +45,18 @@ class BaseCardFrame(tk.Frame, ABC):
 class WidgetGroup:
     """自定义组件的组合，定义 get 和 set 方法"""
 
-    def __init__(self, frame: BaseCardFrame, name: str, row_num: int):
+    def __init__(self, frame: BaseCardFrame, name: str, row_num: int, bg: str = None):
         """
         自定义控件的组合,Label+Entry+Button
 
-        :param frame: (BaseCardFrame) frame对象
+        :param frame: (BaseCardFrame) tk.frame对象
         :param name: (str) 字段名,也是label中的值
         :param row_num: (int) 行号
+        :param bg: (str) label组件的背景颜色
         """
 
         # 字段名label组件
-        frame.label = tk.Label(frame, text=name, anchor="e")
+        frame.label = tk.Label(frame, text=name, anchor="e", bg=bg)
         frame.label.grid(row=row_num, column=0, sticky='e')
         # 输入框组件entry和输入框中的值
         self.__entry_value = tk.StringVar()
@@ -906,6 +907,8 @@ class TWtxz(BaseCardFrame):
         self.name_ch.set(self.id_info.name_ch)
         self.name_en.set(self.id_info.name_en)
         self.birthday.set(self.id_info.birthday)
+        self.begin_date.set(self.id_info.begin_date)
+        self.end_date.set(self.id_info.end_date)
 
 
 class ToolTip:
