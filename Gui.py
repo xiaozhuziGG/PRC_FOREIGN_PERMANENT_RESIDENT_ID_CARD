@@ -703,6 +703,9 @@ class GATJzz(BaseCardFrame):
                                                 command=lambda: pyperclip.copy(self.province_name.get()))
         self.btn_copy_province_name.grid(row=next(row_num), column=2, sticky="w")
 
+        # 证件有效期
+        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
+        self.end_date = WidgetGroup(self, name="终止日期:", row_num=next(row_num))
         # 清理按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
@@ -755,6 +758,8 @@ class GATJzz(BaseCardFrame):
         self.gender.set(self.id_info.gender)
         self.province_code.set(self.id_info.region_code)
         self.province_name.set(self.id_info.province_name)
+        self.begin_date.set(self.id_info.begin_date)
+        self.end_date.set(self.id_info.end_date)
 
     def check_num_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -773,6 +778,8 @@ class GATJzz(BaseCardFrame):
         self.gender.set("")
         self.province_code.set("")
         self.province_name.set("")
+        self.begin_date.set("")
+        self.end_date.set("")
 
 
 class GAtxz(BaseCardFrame):
