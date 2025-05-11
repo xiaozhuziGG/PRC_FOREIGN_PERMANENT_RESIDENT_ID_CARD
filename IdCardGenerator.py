@@ -206,8 +206,21 @@ def word_to_pinyin(chinese_text: str) -> list:
 class IDNOGenerator(ABC):
     # 权重参数
     WEIGHT = (7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2)
+    # 详细地址信息,精确到街道和门牌号
+    ADDRESSES = (
+        "江南大道159号",
+        "中关村大街58号",
+        "张江路123号",
+        "科技南路88号",
+        "中山路99号",
+        "人民南路四段789号",
+        "解放大道1234号",
+        "长安中路456号",
+        "梅溪湖路7890号",
+        "长江一路234号"
+    )
 
-    def __init__(self, name_ch: str = None, name_en: str = None,birthday: str = None,
+    def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None,
                  gender: str = None, name_length: int = 3, sequence_code: str = None, begin_date: str = None):
         """
         个人证件父类,生成基本的信息。
@@ -408,7 +421,7 @@ class TypeSFZ(IDNOGenerator):
         :param county_code: (str)到县一级的行政区代码
         :param begin_date: (str)证件有效期起始日期
         """
-        super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code)
+        super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code, begin_date=begin_date)
         self.type = IDType.ID_CARD.value
         self.province_name = None
         self.city_name = None
@@ -437,6 +450,8 @@ class TypeSFZ(IDNOGenerator):
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
+        self.address = f"{self.province_name}{self.city_name}{self.county_name}{random.choice(self.ADDRESSES)}"\
+            .replace('None', '')
 
     def __str__(self):
         return self.type
@@ -724,8 +739,8 @@ class TypeYJZ2017(IDNOGenerator):
 # 港澳台居住证
 class TypeGATJZZ(IDNOGenerator):
     def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None,
-                 gender: str = None):
-        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender)
+                 gender: str = None, begin_date: str = None):
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, begin_date=begin_date)
         self.__kind = IDType.GAT_PERMANENT_RESIDENT.value
         self.__type = id_type
         if id_type == GATPermanentResident.HKG_PERMANENT_RESIDENT.value:
