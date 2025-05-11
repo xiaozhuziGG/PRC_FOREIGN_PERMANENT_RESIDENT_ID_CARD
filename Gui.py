@@ -73,6 +73,25 @@ class WidgetGroup:
         self.__entry_value.set(value)
 
 
+class GenderGroup:
+    """性别选择组件"""
+    def __init__(self, frame: BaseCardFrame, name: str, row_num: int, bg: str = None):
+    # 创建性别标签和输入框
+        frame.label_gender = tk.Label(frame, text="性别:", bg=LABEL_BG)
+        frame.label_gender.grid(row=row_num, column=0, sticky='e')
+        self.__gender = tk.StringVar()
+        frame.entry_gender_M = tk.Radiobutton(frame, text='男', value='男', variable=self.__gender)
+        frame.entry_gender_F = tk.Radiobutton(frame, text='女', value='女', variable=self.__gender)
+        frame.entry_gender_M.grid(row=row_num, column=1)
+        frame.entry_gender_F.grid(row=row_num, column=2, sticky="w")
+
+    def  get(self):
+        return self.__gender.get()
+
+    def set(self, value):
+        self.__gender.set(value)
+
+
 class Sfz(BaseCardFrame):
     """身份证的页面"""
 
@@ -189,6 +208,8 @@ class Sfz(BaseCardFrame):
         self.btn_copy_county_name = tk.Button(self, text="复制",
                                               command=lambda: pyperclip.copy(self.county_name.get()))
         self.btn_copy_county_name.grid(row=next(row_num), column=2, sticky="w")
+        # 地址
+        self.address = WidgetGroup(self, name="证件地址:", row_num=next(row_num))
 
         # 刷新按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
@@ -252,6 +273,7 @@ class Sfz(BaseCardFrame):
         self.county_name.set('')
         self.begin_date.set('')
         self.end_date.set('')
+        self.address.set('')
 
     def show_info(self):
         self.ID_No.set(self.id_info.No)
@@ -265,6 +287,7 @@ class Sfz(BaseCardFrame):
         self.county_name.set(self.id_info.county_name)
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
+        self.address.set(self.id_info.address)
 
     def refresh_default(self):
         self.generate_default()
@@ -277,9 +300,23 @@ class Yjj2023(BaseCardFrame):
     def __init__(self, master=None):
         super().__init__(master)
         self.master = master
+        # 行号迭代器，注意next方法返回当前值
+        row_num = RowNumIterator(1)
 
         # 证件信息
         self.id_info = None
+        self.ID_No
+        self.name_ch
+        self.name_en
+        self.birthday
+        self.province_code
+        self.province_name
+        self.nationality_number
+        self.nationality_code
+        self.nationality_name_cn
+        self.ID_No_other
+        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
+        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
         # 创建证件号码标签和输入框
         self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
         self.label_ID_No.grid(row=1, column=0, sticky='e')
@@ -704,8 +741,8 @@ class GATJzz(BaseCardFrame):
         self.btn_copy_province_name.grid(row=next(row_num), column=2, sticky="w")
 
         # 证件有效期
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
-        self.end_date = WidgetGroup(self, name="终止日期:", row_num=next(row_num))
+        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
+        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
         # 清理按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
@@ -734,13 +771,10 @@ class GATJzz(BaseCardFrame):
         name_en = self.entry_name_en.get() or None
         birthday = self.entry_birthday.get() or None
         gender = self.gender.get() or None
+        begin_date = self.begin_date.get() or None
         try:
-            self.id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get(),
-                                                      name_ch=name_ch,
-                                                      name_en=name_en,
-                                                      birthday=birthday,
-                                                      gender=gender,
-                                                      )
+            self.id_info = IdCardGenerator.TypeGATJZZ(self.id_type.get(), name_ch=name_ch, name_en=name_en,
+                                                      birthday=birthday, gender=gender, begin_date=begin_date, )
             self.show_info()
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
@@ -870,7 +904,7 @@ class TWtxz(BaseCardFrame):
         self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num))
         self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num))
         self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
-        self.end_date = WidgetGroup(self, name="终止日期:", row_num=next(row_num))
+        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
         # self.label_name_ch = tk.Label(self, text="中文名:")
         # self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         # self.name_ch = tk.StringVar()
@@ -1001,7 +1035,7 @@ class MainApplication(tk.Tk):
         self.combobox_id_kind = ttk.Combobox(self, textvariable=self.id_kind, values=id_kinds)
         self.combobox_id_kind.bind("<<ComboboxSelected>>", self.create_frame)
         self.combobox_id_kind.grid(row=0, column=1, sticky='w')
-        self.geometry("280x450+300+200")
+        self.geometry("280x462+300+200")
 
         # 创建不同的 Frame 缓存
         self.frame_cache: dict[str, BaseCardFrame] = {}
