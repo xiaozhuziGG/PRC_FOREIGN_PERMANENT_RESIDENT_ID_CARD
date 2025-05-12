@@ -353,7 +353,9 @@ class IDNOGenerator(ABC):
         根据生日和起始日期生成终止日期,起始日期在生日和当前日期之间,终止日期根据起始日期时年龄确定有效期。
         :param birthday: (datetime.date)生日,date对象
         :param begin_date: (datetime.date)证件有效期起始日期,date对象
-        :return: 如果年龄大于等于 46 岁，返回固定字符串 "30001231";否则返回计算得到的终止日期(datetime.date)对象;
+        :returns:
+            - 如果年龄大于等于 46 岁，返回固定字符串 "30001231"
+            - 否则返回计算得到的终止日期(datetime.date)对象
         :rtype: str or datetime.date
         """
         # 计算从生日到起始日期的年龄（精确计算）
