@@ -476,6 +476,7 @@ class Yjj2023(BaseCardFrame):
         gender = self.gender.get() or None
         province_code = self.province_code.get() or None
         province_name = self.province_name.get() or None
+        begin_date = self.begin_date.get() or None
         if province_name is None and province_code:
             # 名称优先级高,同时输入了代码和名称时,根据名称查不到代码才使用代码信息,下方的国籍也是一样的
             try:
@@ -492,7 +493,8 @@ class Yjj2023(BaseCardFrame):
                 province_name=province_name,
                 birthday=birthday,
                 gender=gender,
-                national_code_3=nationality_code
+                national_code_3=nationality_code,
+                begin_date = begin_date
             )
             self.show_info()
         except Exception as e:
