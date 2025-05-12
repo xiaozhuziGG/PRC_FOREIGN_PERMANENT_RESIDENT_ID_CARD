@@ -322,42 +322,59 @@ class IDNOGenerator(ABC):
                 # 将起始日期转换为日期对象,判断字符串是不是合法日期
                 begin_date_obj = datetime.datetime.strptime(begin_date, "%Y%m%d").date()
                 self.begin_date = begin_date
+                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date,begin_date=begin_date_obj)
+                if isinstance(end_date, datetime.date):
+                    self.end_date = end_date.strftime("%Y%m%d")
+                else:
+                    self.end_date = end_date
             except ValueError:
                 raise ValueError(f"输入的证件起始日期格式不正确：{begin_date}")
-        while True:
-            if not begin_date:
+        else:
+            while True:
                 # 确定起始日期（生日到今天的闭区间内）
                 days_between = (DATE_TODAY - birthday_date).days
                 random_days = random.randint(0, days_between)
                 begin_date_obj = birthday_date + datetime.timedelta(days=random_days)
-                self.begin_date = begin_date_obj.strftime("%Y%m%d")
+                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date,begin_date=begin_date_obj)
+                # print(end_date)
+                # 如果未输入起始日期，则终止日期要在今天之后
+                if isinstance(end_date, datetime.date) and end_date >= DATE_TODAY:
+                    self.begin_date = begin_date_obj.strftime("%Y%m%d")
+                    self.end_date = end_date.strftime("%Y%m%d")
+                    break
+                elif isinstance(end_date, str):
+                    self.begin_date = begin_date_obj.strftime("%Y%m%d")
+                    self.end_date = end_date
+                    break
 
-            # 计算从生日到起始日期的年龄（精确计算）
-            age_at_begin_date = begin_date_obj.year - birthday_date.year - (
-                    (begin_date_obj.month, begin_date_obj.day) < (birthday_date.month, birthday_date.day))
-
-            # 根据领证年龄计算终止日期，身份证有效期的逻辑
-            if age_at_begin_date < 16:
-                valid_years = 5
-            elif 16 <= age_at_begin_date < 26:
-                valid_years = 10
-            elif 26 <= age_at_begin_date < 46:
-                valid_years = 20
-            else:
-                self.end_date = "30001231"
-                return
-
-            # 计算终止日期（处理闰年问题）
-            try:
-                end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years)
-            except ValueError:
-                # 如果起始日期是闰年的2月29日，调整为2月28日
-                end_date = begin_date_obj.replace(year=begin_date_obj.year + valid_years, day=28)
-            # print(end_date)
-
-            if end_date >= DATE_TODAY or begin_date:
-                break
-        self.end_date = end_date.strftime("%Y%m%d")
+    @staticmethod
+    def generate_valid_dates_by_birthday(birthday: datetime.date, begin_date: datetime.date) ->  str | datetime.date:
+        """
+        根据生日和起始日期生成终止日期,起始日期在生日和当前日期之间,终止日期根据起始日期时年龄确定有效期。
+        :param birthday: (datetime.date)生日,date对象
+        :param begin_date: (datetime.date)证件有效期起始日期,date对象
+        :return: 如果年龄大于等于 46 岁，返回固定字符串 "30001231";否则返回计算得到的终止日期(datetime.date)对象;
+        :rtype: str or datetime.date
+        """
+        # 计算从生日到起始日期的年龄（精确计算）
+        age_at_begin_date = begin_date.year - birthday.year - (
+                (begin_date.month, begin_date.day) < (birthday.month, birthday.day))
+        # 根据领证年龄计算终止日期，身份证有效期的逻辑
+        if age_at_begin_date < 16:
+            valid_years = 5
+        elif 16 <= age_at_begin_date < 26:
+            valid_years = 10
+        elif 26 <= age_at_begin_date < 46:
+            valid_years = 20
+        else:
+            return "30001231"
+        # 计算终止日期（处理闰年问题）
+        try:
+            end_date = begin_date.replace(year=begin_date.year + valid_years)
+        except ValueError:
+            # 如果起始日期是闰年的2月29日，调整为2月28日
+            end_date = begin_date.replace(year=begin_date.year + valid_years, day=28)
+        return end_date
 
     @abstractmethod
     def __str__(self):
@@ -395,8 +412,12 @@ class IDNOGenerator(ABC):
         return str_number + last_num
 
     @classmethod
-    # 中文名转换成英文名
     def get_english_name(cls, name_ch):
+        """
+        中文名转换成英文名，
+        :param name_ch:(str, unicode编码)中文名
+        :return:(str)大写英文字母
+        """
         pinyin_list = word_to_pinyin(name_ch)
         if len(pinyin_list) > 2:
             pinyin_str = "".join(pinyin_list[0:-2]) + ", " + "".join(pinyin_list[-2:])
@@ -483,7 +504,7 @@ class TypeYJZ(IDNOGenerator):
     PREFIX_NUM = '9'
 
     def __init__(self, name_ch: str = None, name_en: str = None, province_name: str = None, national_code_3: str = None,
-                 birthday: str = None, gender: str = None, name_length: int = 4, sequence_code: str = None):
+                 birthday: str = None, gender: str = None, name_length: int = 4, sequence_code: str = None, begin_date: str=None):
         """
         初始化外国人永居证信息,此构造函数用于初始化外国人永久居留身份证信息对象。。
 
@@ -495,8 +516,9 @@ class TypeYJZ(IDNOGenerator):
         :param gender: (str)性别，默认为None。
         :param name_length: (int)名字长度，默认为4。
         :param sequence_code: (str)顺序码,仅在依据旧版信息生成新版永居证号码时有用
+        :param begin_date: (str)证件有效期起始日期
         """
-        super().__init__(name_ch, name_en, birthday, gender, name_length, sequence_code)
+        super().__init__(name_ch, name_en, birthday, gender, name_length, sequence_code, begin_date)
         self.type = IDType.FOREIGN_PERMANENT_RESIDENT2023.value
         # 地区码
         if province_name is None:
