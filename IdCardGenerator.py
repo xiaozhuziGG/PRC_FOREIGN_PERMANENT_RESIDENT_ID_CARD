@@ -307,6 +307,7 @@ class IDNOGenerator(ABC):
         # 终止日期
         self.end_date = ''
         self.generate_valid_dates(begin_date)
+        self.phone_number = generate_china_phone_number()
 
     def calculate_check_num(self):
         """计算最后一位校验位,ISO 7064:1983.MOD 11-2校验码算法。"""
