@@ -198,6 +198,9 @@ class Sfz(BaseCardFrame):
         self.btn_copy_end_date = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.end_date.get()))
         self.btn_copy_end_date.grid(row=next(row_num), column=2, sticky="w")
 
+        # 联系电话
+        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
+
         # 创建办理地区码标签和输入框
         self.label_administration_code = tk.Label(self, text="行政区代码:", bg=LABEL_BG)
         self.label_administration_code.grid(row=row_num.current, column=0, sticky='e')
@@ -296,12 +299,13 @@ class Sfz(BaseCardFrame):
         self.name_en.set('')
         self.birthday.set('')
         self.gender.set('')
+        self.begin_date.set('')
+        self.end_date.set('')
+        self.phone_number.set('')
         self.administration_code.set('')
         self.province_name.set('')
         self.city_name.set('')
         self.county_name.set('')
-        self.begin_date.set('')
-        self.end_date.set('')
         self.address.set('')
 
     def show_info(self):
@@ -310,12 +314,13 @@ class Sfz(BaseCardFrame):
         self.name_en.set(self.id_info.name_en)
         self.birthday.set(self.id_info.birthday)
         self.gender.set(self.id_info.gender)
+        self.begin_date.set(self.id_info.begin_date)
+        self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
         self.administration_code.set(self.id_info.county_code)
         self.province_name.set(self.id_info.province_name)
         self.city_name.set(self.id_info.city_name)
         self.county_name.set(self.id_info.county_name)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
         self.address.set(self.id_info.address)
 
     def refresh_default(self):
@@ -341,6 +346,7 @@ class Yjj2023(BaseCardFrame):
         self.gender = GenderGroup(self, name="性别:", row_num=next(row_num), bg=LABEL_BG)
         self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
         self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
+        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
         self.province_code = WidgetGroup(self, name="办理地区码:", row_num=next(row_num), bg=LABEL_BG)
         self.province_name = WidgetGroup(self, name="办理省份:", row_num=next(row_num), bg=LABEL_BG)
         self.nationality_number = WidgetGroup(self, name="国籍编号:", row_num=next(row_num))
@@ -539,6 +545,7 @@ class Yjj2023(BaseCardFrame):
         self.gender.set(self.id_info.gender)
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
         self.province_code.set(self.id_info.province_code)
         self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(self.id_info.province_code), '未知'))
         self.nationality_number.set(self.id_info.nationality_number)
@@ -563,12 +570,15 @@ class Yjj2023(BaseCardFrame):
         self.name_en.set("")
         self.birthday.set("")
         self.gender.set("")
+        self.begin_date.set("")
+        self.end_date.set("")
+        self.phone_number.set("")
         self.province_code.set("")
         self.province_name.set("")
         self.nationality_number.set("")
         self.nationality_code.set("")
         self.nationality_name_cn.set("")
-        self.ID_No_other.set('')
+        self.ID_No_other.set("")
 
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -666,6 +676,7 @@ class Yjj2017(Yjj2023):
         self.gender.set(self.id_info.gender)
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
         self.city_code.set(self.id_info.city_code)
         province_code = self.id_info.city_code[0:2] + '0000'
         if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
@@ -756,6 +767,11 @@ class GATJzz(BaseCardFrame):
         self.entry_gender_M.grid(row=row_num.current, column=1)
         self.entry_gender_F.grid(row=next(row_num), column=2, sticky="w")
 
+        # 证件有效期
+        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
+        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
+        # 联系电话
+        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
         # 创建办理地区码标签和输入框
         self.label_province_code = tk.Label(self, text="地区码:")
         self.label_province_code.grid(row=row_num.current, column=0, sticky='e')
@@ -776,9 +792,6 @@ class GATJzz(BaseCardFrame):
                                                 command=lambda: pyperclip.copy(self.province_name.get()))
         self.btn_copy_province_name.grid(row=next(row_num), column=2, sticky="w")
 
-        # 证件有效期
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
         # 清理按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
@@ -826,10 +839,12 @@ class GATJzz(BaseCardFrame):
         self.name_en.set(self.id_info.name_en)
         self.birthday.set(self.id_info.birthday)
         self.gender.set(self.id_info.gender)
-        self.province_code.set(self.id_info.region_code)
-        self.province_name.set(self.id_info.province_name)
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
+        self.province_code.set(self.id_info.region_code)
+        self.province_name.set(self.id_info.province_name)
+
 
     def check_num_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -846,11 +861,11 @@ class GATJzz(BaseCardFrame):
         self.name_en.set("")
         self.birthday.set("")
         self.gender.set("")
-        self.province_code.set("")
-        self.province_name.set("")
         self.begin_date.set("")
         self.end_date.set("")
-
+        self.phone_number.set("")
+        self.province_code.set("")
+        self.province_name.set("")
 
 class GAtxz(BaseCardFrame):
     """港澳居民来往内地通行证"""
@@ -905,6 +920,13 @@ class GAtxz(BaseCardFrame):
         self.btn_copy_birthday = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.birthday.get()))
         self.btn_copy_birthday.grid(row=next(row_num), column=2, sticky="w")
 
+        # 证件有效期
+        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
+        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
+
+        # 联系电话
+        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
+
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=row_num.current, column=1)
 
@@ -924,6 +946,9 @@ class GAtxz(BaseCardFrame):
         self.name_ch.set(self.id_info.name_ch)
         self.name_en.set(self.id_info.name_en)
         self.birthday.set(self.id_info.birthday)
+        self.begin_date.set(self.id_info.begin_date)
+        self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
 
 
 class TWtxz(BaseCardFrame):
@@ -941,6 +966,7 @@ class TWtxz(BaseCardFrame):
         self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num))
         self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
         self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
+        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
         # self.label_name_ch = tk.Label(self, text="中文名:")
         # self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         # self.name_ch = tk.StringVar()
@@ -986,13 +1012,19 @@ class TWtxz(BaseCardFrame):
         self.birthday.set(self.id_info.birthday)
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
 
 
 class ToolTip:
     """悬浮提示窗"""
 
     def __init__(self, widget, text='widget info'):
-        self.widget = widget
+        """
+        悬浮标签组件
+        :param widget: (tk.Widget)tkinter中的widget组件
+        :param text:  (str)悬浮标签中需要显示的文字内容
+        """
+        self.widget: tk.Widget = widget
         self.text = text
         self.tip_window = None
         self.id = None
@@ -1019,7 +1051,7 @@ class ToolTip:
         tw.wm_geometry(f"+{x}+{y}")  # 设置窗口位置
         label = tk.Label(tw, text=self.text, justify=tk.LEFT,
                          background="#ffffe0", relief=tk.SOLID, borderwidth=1,
-                         font=("tahoma", "8", "normal"))
+                         font=("tahoma", 8, "normal"))
         label.pack(ipadx=1)
 
     def hidetip(self):
