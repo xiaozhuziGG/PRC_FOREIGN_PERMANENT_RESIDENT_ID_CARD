@@ -195,12 +195,28 @@ def generate_chinese_name(length=3):
     return name
 
 
-def word_to_pinyin(chinese_text: str) -> list:
+def word_to_pinyin(chinese_text: str) -> list[str]:
+    """
+    将中文文本转换为不带声调的拼音
+    :param chinese_text: 中文文本字符串
+    :return: (list[str])拼音列表，每个汉字的拼音为一个元素
+    """
     from pypinyin import lazy_pinyin
     # 使用lazy_pinyin函数获取不带声调的拼音
     pinyin_without_tone = lazy_pinyin(chinese_text)
     return pinyin_without_tone
 
+def generate_china_phone_number():
+    """
+    生成电话号码
+    :return: 11位的字符串格式的电话号码
+    """
+    # 选择中国大陆手机号码常见的前两位
+    prefix = random.choice(['13', '14', '15', '17', '18', '19'])
+    # 生成后 9 位数字
+    suffix = ''.join(random.choices('0123456789', k=9))
+    # 拼接成完整的 11 位手机号码
+    return prefix + suffix
 
 # 个人证件父类
 class IDNOGenerator(ABC):
