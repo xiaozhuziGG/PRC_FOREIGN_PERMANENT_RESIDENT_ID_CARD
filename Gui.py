@@ -55,6 +55,8 @@ class WidgetGroup:
         :param bg: (str) label组件的背景颜色
         """
         self.__widget_list:list[tk.Widget] = []
+        self.name = name
+        self.row_num = row_num
         # 字段名label组件
         frame.label = tk.Label(frame, text=name, anchor="e", bg=bg)
         frame.label.grid(row=row_num, column=0, sticky='e')
@@ -76,12 +78,29 @@ class WidgetGroup:
         self.__entry_value.set(value)
 
     def grid_forget(self):
+        """
+        隐藏控件组中的所有子组件
+        :return:  - (int)控件组在frame组件中所在行
+        """
         for single_widget in self.__widget_list:
             single_widget.grid_forget()
+        return self.row_num
 
     def destroy(self):
+        """
+        销毁控件组中的所有子组件
+        :return: - (int)控件组在frame组件中所在行
+        """
         for single_widget in self.__widget_list:
             single_widget.destroy()
+        return self.row_num
+
+    def grid_info(self):
+        """
+        获取组件的基本信息
+        :return: 字典对象
+        """
+        return {'name':self.name, 'row_num': self.row_num}
 
 class GenderGroup:
     """性别选择组件"""
@@ -161,16 +180,6 @@ class Sfz(BaseCardFrame):
         self.entry_gender_M.grid(row=row_num.current, column=1)
         self.entry_gender_F.grid(row=next(row_num), column=2, sticky="w")
 
-        # 创建办理地区码标签和输入框
-        self.label_administration_code = tk.Label(self, text="行政区代码:", bg=LABEL_BG)
-        self.label_administration_code.grid(row=row_num.current, column=0, sticky='e')
-        self.administration_code = tk.StringVar()
-        self.entry_administration_code = tk.Entry(self, textvariable=self.administration_code)
-        self.entry_administration_code.grid(row=row_num.current, column=1)
-        self.btn_copy_administration_code = tk.Button(self, text="复制",
-                                                      command=lambda: pyperclip.copy(self.administration_code.get()))
-        self.btn_copy_administration_code.grid(row=next(row_num), column=2, sticky="w")
-
         # 证件有效期起始日期
         self.label_begin_date = tk.Label(self, text="起始日期:", bg=LABEL_BG)
         self.label_begin_date.grid(row=row_num.current, column=0, sticky='e')
@@ -188,6 +197,16 @@ class Sfz(BaseCardFrame):
         self.entry_end_date.grid(row=row_num.current, column=1)
         self.btn_copy_end_date = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.end_date.get()))
         self.btn_copy_end_date.grid(row=next(row_num), column=2, sticky="w")
+
+        # 创建办理地区码标签和输入框
+        self.label_administration_code = tk.Label(self, text="行政区代码:", bg=LABEL_BG)
+        self.label_administration_code.grid(row=row_num.current, column=0, sticky='e')
+        self.administration_code = tk.StringVar()
+        self.entry_administration_code = tk.Entry(self, textvariable=self.administration_code)
+        self.entry_administration_code.grid(row=row_num.current, column=1)
+        self.btn_copy_administration_code = tk.Button(self, text="复制",
+                                                      command=lambda: pyperclip.copy(self.administration_code.get()))
+        self.btn_copy_administration_code.grid(row=next(row_num), column=2, sticky="w")
 
         # 创建办理省份标签和输入框
         self.label_province_name = tk.Label(self, text="省:")
@@ -324,7 +343,7 @@ class Yjj2023(BaseCardFrame):
         self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
         self.province_code = WidgetGroup(self, name="办理地区码:", row_num=next(row_num), bg=LABEL_BG)
         self.province_name = WidgetGroup(self, name="办理省份:", row_num=next(row_num), bg=LABEL_BG)
-        self.nationality_number = WidgetGroup(self, name="国际编号:", row_num=next(row_num))
+        self.nationality_number = WidgetGroup(self, name="国籍编号:", row_num=next(row_num))
         self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(row_num), bg=LABEL_BG)
         self.nationality_name_cn = WidgetGroup(self, name="国家简称:", row_num=next(row_num))
         self.ID_No_other = WidgetGroup(self, name="旧版号码:", row_num=next(row_num))
@@ -569,35 +588,35 @@ class Yjj2017(Yjj2023):
         super().__init__(master)
 
         # 取消显示办理地区码
-        self.province_code.grid_forget()
+        num1 = self.province_code.grid_forget()
         # self.entry_province_code.grid_forget()
         # self.btn_copy_province_code.grid_forget()
-        self.province_name.grid_forget()
+        num2 = self.province_name.grid_forget()
         # self.entry_province_name.grid_forget()
         # self.btn_copy_province_name.grid_forget()
 
         # 创建办理地区码标签和输入框
         self.label_city_code = tk.Label(self, text="办理省市码:", bg=LABEL_BG)
-        self.label_city_code.grid(row=6, column=0, sticky='e')
+        self.label_city_code.grid(row=num1, column=0, sticky='e')
         self.city_code = tk.StringVar()
         self.entry_city_code = tk.Entry(self, textvariable=self.city_code)
-        self.entry_city_code.grid(row=6, column=1)
+        self.entry_city_code.grid(row=num1, column=1)
         self.btn_copy_city_code = tk.Button(self, text="复制",
                                             command=lambda: pyperclip.copy(self.city_code.get()))
-        self.btn_copy_city_code.grid(row=6, column=2, sticky="w")
+        self.btn_copy_city_code.grid(row=num1, column=2, sticky="w")
 
         # 创建办理省份标签和输入框
         self.label_city_name = tk.Label(self, text="办理省市:")
-        self.label_city_name.grid(row=7, column=0, sticky='e')
+        self.label_city_name.grid(row=num2, column=0, sticky='e')
         self.city_name = tk.StringVar()
         self.entry_city_name = tk.Entry(self, textvariable=self.city_name)
-        self.entry_city_name.grid(row=7, column=1)
+        self.entry_city_name.grid(row=num2, column=1)
         self.btn_copy_city_name = tk.Button(self, text="复制",
                                             command=lambda: pyperclip.copy(self.city_name.get()))
-        self.btn_copy_city_name.grid(row=7, column=2, sticky="w")
+        self.btn_copy_city_name.grid(row=num2, column=2, sticky="w")
         # 对应其他版本永居证的号码
-        self.label_ID_No_other = tk.Label(self, text="新版号码:", anchor="e")
-        self.label_ID_No_other.grid(row=11, column=0, sticky='e')
+        num3= self.ID_No_other.destroy()
+        self.ID_No_other = WidgetGroup(self, name="新版号码:", row_num=num3)
         # 不显示合成图像按钮
         self.btn_generate_image.grid_forget()
 
@@ -645,6 +664,8 @@ class Yjj2017(Yjj2023):
         self.name_ch.set(self.id_info.name_ch)
         self.birthday.set(self.id_info.birthday)
         self.gender.set(self.id_info.gender)
+        self.begin_date.set(self.id_info.begin_date)
+        self.end_date.set(self.id_info.end_date)
         self.city_code.set(self.id_info.city_code)
         province_code = self.id_info.city_code[0:2] + '0000'
         if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
