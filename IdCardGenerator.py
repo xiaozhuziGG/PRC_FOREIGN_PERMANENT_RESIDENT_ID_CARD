@@ -26,7 +26,7 @@ class IDType(Enum):
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
     HKG_MAC_PERMIT = "港澳居民来往内地通行证"
-    CTN_PERMIT = "台湾居民来往内地通行证"
+    CTN_PERMIT = "台湾居民来往大陆通行证"
     GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
 
 
