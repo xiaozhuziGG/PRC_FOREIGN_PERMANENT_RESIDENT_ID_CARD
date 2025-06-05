@@ -1043,9 +1043,9 @@ class ToolTip:
         """实际创建 Tooltip 窗口"""
         if self.tip_window or not self.text:
             return
-        x, y, cx, cy = self.widget.bbox("insert")
-        x = x + self.widget.winfo_rootx() + 25
-        y = y + cy + self.widget.winfo_rooty() + 25
+        # x, y, cx, cy = self.widget.bbox()
+        x = self.widget.winfo_rootx() + 25
+        y = self.widget.winfo_rooty() + 25
         self.tip_window = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(True)  # 去掉窗口边框
         tw.wm_geometry(f"+{x}+{y}")  # 设置窗口位置
