@@ -54,7 +54,7 @@ class WidgetGroup:
         :param row_num: (int) 行号
         :param bg: (str) label组件的背景颜色
         """
-        self.__widget_list:list[tk.Widget] = []
+        self.__widget_list: list[tk.Widget] = []
         self.name = name
         self.row_num = row_num
         # 字段名label组件
@@ -100,12 +100,14 @@ class WidgetGroup:
         获取组件的基本信息
         :return: 字典对象
         """
-        return {'name':self.name, 'row_num': self.row_num}
+        return {'name': self.name, 'row_num': self.row_num}
+
 
 class GenderGroup:
     """性别选择组件"""
+
     def __init__(self, frame: BaseCardFrame, name: str, row_num: int, bg: str = None):
-    # 创建性别标签和输入框
+        # 创建性别标签和输入框
         frame.label_gender = tk.Label(frame, text=name, bg=bg)
         frame.label_gender.grid(row=row_num, column=0, sticky='e')
         self.__gender = tk.StringVar()
@@ -114,7 +116,7 @@ class GenderGroup:
         frame.entry_gender_M.grid(row=row_num, column=1)
         frame.entry_gender_F.grid(row=row_num, column=2, sticky="w")
 
-    def  get(self):
+    def get(self):
         return self.__gender.get()
 
     def set(self, value):
@@ -242,10 +244,16 @@ class Sfz(BaseCardFrame):
         self.btn_copy_county_name.grid(row=next(row_num), column=2, sticky="w")
         # 地址
         self.address = WidgetGroup(self, name="证件地址:", row_num=next(row_num))
+        # 旧版号码,一代身份证号码
+        self.ID_No_old = WidgetGroup(self, name="旧版号码:", row_num=next(row_num))
 
         # 刷新按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh.grid(row=row_num.current, column=1)
+        # 身份证升位按钮
+        self.button_upgrade = tk.Button(self, text="升位", command=self.upgrade_ID_number)
+        create_tooltip(self.button_upgrade, text="15位号码升位为18位")
+        self.button_upgrade.grid(row=row_num.current, column=2, sticky="w")
 
         self.button_check = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.button_check, text="清除所有输入框中的信息")
@@ -269,6 +277,22 @@ class Sfz(BaseCardFrame):
     def generate_default(self):
         self.id_info = IdCardGenerator.TypeSFZ()
         self.show_info()
+
+    def upgrade_ID_number(self):
+        """
+        给15位旧版身份证号码做升位并显示在证件号码lable中
+        :return:
+        """
+        ID_no_old = self.ID_No_old.get()
+        if len(ID_no_old) != 15:
+            messagebox.showinfo("提示", "请输入15位旧版身份证号码")
+            return
+        ID_No_src = ID_no_old[0:6] + "19" + ID_no_old[6:]
+        try:
+            ID_no_new = IdCardGenerator.IDNOGenerator.calculate_check_num_cls(ID_No_src)
+            self.ID_No.set(ID_no_new)
+        except ValueError as e:
+            messagebox.showinfo("提示", f"输入有误,{e}")
 
     def generate_by_input(self):
         name_ch = self.entry_name_ch.get() or None
@@ -307,6 +331,7 @@ class Sfz(BaseCardFrame):
         self.city_name.set('')
         self.county_name.set('')
         self.address.set('')
+        self.ID_No_old.set('')
 
     def show_info(self):
         self.ID_No.set(self.id_info.No)
@@ -322,6 +347,7 @@ class Sfz(BaseCardFrame):
         self.city_name.set(self.id_info.city_name)
         self.county_name.set(self.id_info.county_name)
         self.address.set(self.id_info.address)
+        self.ID_No_old.set(self.id_info.No[0:6] + self.id_info.No[8:-1])
 
     def refresh_default(self):
         self.generate_default()
@@ -519,7 +545,7 @@ class Yjj2023(BaseCardFrame):
                 birthday=birthday,
                 gender=gender,
                 national_code_3=nationality_code,
-                begin_date = begin_date
+                begin_date=begin_date
             )
             self.show_info()
         except Exception as e:
@@ -625,7 +651,7 @@ class Yjj2017(Yjj2023):
                                             command=lambda: pyperclip.copy(self.city_name.get()))
         self.btn_copy_city_name.grid(row=num2, column=2, sticky="w")
         # 对应其他版本永居证的号码
-        num3= self.ID_No_other.destroy()
+        num3 = self.ID_No_other.destroy()
         self.ID_No_other = WidgetGroup(self, name="新版号码:", row_num=num3)
         # 不显示合成图像按钮
         self.btn_generate_image.grid_forget()
@@ -845,7 +871,6 @@ class GATJzz(BaseCardFrame):
         self.province_code.set(self.id_info.region_code)
         self.province_name.set(self.id_info.province_name)
 
-
     def check_num_complete(self, event=None):
         ID_No_src = self.ID_No.get()
         ID_No_src = ID_No_src[0:17]
@@ -866,6 +891,7 @@ class GATJzz(BaseCardFrame):
         self.phone_number.set("")
         self.province_code.set("")
         self.province_name.set("")
+
 
 class GAtxz(BaseCardFrame):
     """港澳居民来往内地通行证"""
