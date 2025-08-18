@@ -34,8 +34,8 @@ def resource_path(relative_path):
 
 BASE_DIR = str(resource_path(''))
 
-# 依据国籍编号的国籍信息字典，键为国籍编号（整数类型），值为国籍信息（字符串类型）
-nationality_dict_by_number = {}
+# 依据国籍编号的国籍信息字典，键为国籍编号（字符串类型），值为国籍信息（字符串类型）
+nationality_dict_by_number: dict[str, "NationalityInfo"] = {}
 # 依据两位国籍代码的国籍信息字典，键为两位国籍代码（字符串类型），值为国籍信息（字符串类型）
 nationality_dict_by_code_2 = {}
 # 依据三位国籍代码的国籍信息字典，键为三位国籍代码（字符串类型），值为国籍信息（字符串类型）
