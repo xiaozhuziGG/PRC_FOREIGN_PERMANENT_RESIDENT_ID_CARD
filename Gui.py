@@ -45,7 +45,8 @@ class BaseCardFrame(tk.Frame, ABC):
 class WidgetGroup:
     """自定义组件的组合，定义 get 和 set 方法"""
 
-    def __init__(self, frame: BaseCardFrame, name: str, row_num: int, bg: str = None):
+    def __init__(self, frame: BaseCardFrame, name: str, row_num: int, bg: str = None,
+                 bindings: list[tuple[str, callable]] = None):
         """
         自定义控件的组合,Label+Entry+Button
 
@@ -53,6 +54,7 @@ class WidgetGroup:
         :param name: (str) 字段名,也是label中的值
         :param row_num: (int) 行号
         :param bg: (str) label组件的背景颜色
+        :param bindings: (list[tuple[str, callable]]) 事件绑定列表，每个元素为(事件序列, 回调函数)
         """
         self.__widget_list: list[tk.Widget] = []
         self.name = name
@@ -64,6 +66,9 @@ class WidgetGroup:
         # 输入框组件entry和输入框中的值
         self.__entry_value = tk.StringVar()
         frame.entry = tk.Entry(frame, textvariable=self.__entry_value)
+        if bindings:
+            for sequence, func in bindings:
+                frame.entry.bind(sequence, func)
         frame.entry.grid(row=row_num, column=1)
         self.__widget_list.append(frame.entry)
         # 复制按钮
@@ -136,14 +141,18 @@ class Sfz(BaseCardFrame):
         row_num = RowNumIterator(1)
 
         # 创建证件号码标签和输入框
-        self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
-        self.ID_No = tk.StringVar()
-        self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        self.entry_ID_No.grid(row=row_num.current, column=1)
-        # 添加复制按钮
-        self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
+        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
+                                 bindings=[("<FocusOut>", self.id_no_parse),
+                                           ("<Return>", self.id_no_parse)]
+                                 )
+        # self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
+        # self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
+        # self.ID_No = tk.StringVar()
+        # self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
+        # self.entry_ID_No.grid(row=row_num.current, column=1)
+        # # 添加复制按钮
+        # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
+        # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
 
         # 创建中文名标签和输入框
         self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
@@ -155,7 +164,7 @@ class Sfz(BaseCardFrame):
         self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
 
         # 创建英文名标签和输入框
-        self.label_name_en = tk.Label(self, text="英文名:", bg=LABEL_BG)
+        self.label_name_en = tk.Label(self, text="英文名:")
         self.label_name_en.grid(row=row_num.current, column=0, sticky='e')
         self.name_en = tk.StringVar()
         self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
@@ -284,13 +293,15 @@ class Sfz(BaseCardFrame):
         :return:
         """
         ID_no_old = self.ID_No_old.get()
-        if len(ID_no_old) != 15:
-            messagebox.showinfo("提示", "请输入15位旧版身份证号码")
+        if (length := len(ID_no_old)) != 15:
+            messagebox.showinfo("提示", f"输入{ID_no_old}为{length}位,请输入15位旧版身份证号码")
             return
         ID_No_src = ID_no_old[0:6] + "19" + ID_no_old[6:]
         try:
             ID_no_new = IdCardGenerator.IDNOGenerator.calculate_check_num_cls(ID_No_src)
             self.ID_No.set(ID_no_new)
+            # 升位的同时解析新的身份证号码
+            self.id_no_parse()
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
 
@@ -353,6 +364,22 @@ class Sfz(BaseCardFrame):
         self.generate_default()
         return self
 
+    def id_no_parse(self, event=None):
+        print(f"{event}事件触发的解析身份证号码...")
+        try:
+            id_no = self.ID_No.get()
+            id_info: dict = IdCardGenerator.TypeSFZ.id_no_parse(id_no)
+            self.gender.set(id_info.get('gender', ''))
+            self.birthday.set(id_info.get('birthday', ''))
+            self.administration_code.set(id_info.get('county_code', ''))
+            self.province_name.set(id_info.get('province_name', ''))
+            self.city_name.set(id_info.get('city_name', ''))
+            self.county_name.set(id_info.get('county_name', ''))
+            self.address.set(id_info.get('address', ''))
+            self.ID_No_old.set(id_no[0:6] + id_no[8:-1])
+        except Exception as e:
+            messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
+
 
 class Yjj2023(BaseCardFrame):
     """2023年版永居证的页面"""
@@ -365,7 +392,21 @@ class Yjj2023(BaseCardFrame):
 
         # 证件信息
         self.id_info = None
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num))
+        # 创建证件号码标签和输入框
+        # self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
+        # self.label_ID_No.grid(row=1, column=0, sticky='e')
+        # self.ID_No = tk.StringVar()
+        # self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
+        # self.entry_ID_No.bind("<FocusOut>", self.id_no_parse)
+        # self.entry_ID_No.grid(row=1, column=1)
+        # # 添加复制按钮
+        # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
+        # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
+
+        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
+                                 bindings=[("<FocusOut>", self.id_no_parse),
+                                           ("<Return>", self.id_no_parse)]
+                                 )
         self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num), bg=LABEL_BG)
         self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num), bg=LABEL_BG)
         self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num), bg=LABEL_BG)
@@ -379,16 +420,7 @@ class Yjj2023(BaseCardFrame):
         self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(row_num), bg=LABEL_BG)
         self.nationality_name_cn = WidgetGroup(self, name="国家简称:", row_num=next(row_num))
         self.ID_No_other = WidgetGroup(self, name="旧版号码:", row_num=next(row_num))
-        # # 创建证件号码标签和输入框
-        # self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        # self.label_ID_No.grid(row=1, column=0, sticky='e')
-        # self.ID_No = tk.StringVar()
-        # self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        # self.entry_ID_No.grid(row=1, column=1)
-        # # 添加复制按钮
-        # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        # self.btn_copy_ID_No.grid(row=1, column=2, sticky="w")
-        #
+
         # # 创建中文名标签和输入框
         # self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
         # self.label_name_ch.grid(row=2, column=0, sticky='e')
@@ -554,6 +586,21 @@ class Yjj2023(BaseCardFrame):
     def generate_default(self, event=None):  # event就是点击事件
         self.id_info = IdCardGenerator.TypeYJZ()
         self.show_info()
+
+    def id_no_parse(self, event=None):
+        print(f"{event}事件触发的解析永居证号码...")
+        try:
+            id_no = self.ID_No.get()
+            id_info: dict = IdCardGenerator.TypeYJZ.id_no_parse(id_no)
+            self.gender.set(id_info.get('gender', ''))
+            self.birthday.set(id_info.get('birthday', ''))
+            self.province_code.set(id_info.get('province_code', ''))
+            self.province_name.set(id_info.get('province_name', ''))
+            self.nationality_code.set(id_info.get('nationality_code', ''))
+            self.nationality_number.set(id_info.get('nationality_number', ''))
+            self.nationality_name_cn.set(id_info.get('nationality_name_ch', ''))
+        except Exception as e:
+            messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
 
     def show_info(self):
         """

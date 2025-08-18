@@ -43,7 +43,7 @@ class HkgMacPermit(Enum):
     MAC_PERMIT = "澳门居民来往内地通行证"
 
 
-def get_sex(num: str) -> str:
+def get_gender(num: str) -> str:
     """校验性别"""
     return '女' if int(num) % 2 == 0 else '男'
 
@@ -206,6 +206,7 @@ def word_to_pinyin(chinese_text: str) -> list[str]:
     pinyin_without_tone = lazy_pinyin(chinese_text)
     return pinyin_without_tone
 
+
 def generate_china_phone_number():
     """
     生成电话号码
@@ -217,6 +218,7 @@ def generate_china_phone_number():
     suffix = ''.join(random.choices('0123456789', k=9))
     # 拼接成完整的 11 位手机号码
     return prefix + suffix
+
 
 # 个人证件父类
 class IDNOGenerator(ABC):
@@ -297,7 +299,7 @@ class IDNOGenerator(ABC):
                     self.sequence_code = str(int(self.sequence_code) + 1).zfill(3)
         # 通过序列号计算性别
         else:
-            self.gender = get_sex(self.sequence_code)
+            self.gender = get_gender(self.sequence_code)
         # 校验位
         self.last_num = ''
         # 证件号码
@@ -339,7 +341,7 @@ class IDNOGenerator(ABC):
                 # 将起始日期转换为日期对象,判断字符串是不是合法日期
                 begin_date_obj = datetime.datetime.strptime(begin_date, "%Y%m%d").date()
                 self.begin_date = begin_date
-                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date,begin_date=begin_date_obj)
+                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date, begin_date=begin_date_obj)
                 if isinstance(end_date, datetime.date):
                     self.end_date = end_date.strftime("%Y%m%d")
                 else:
@@ -352,7 +354,7 @@ class IDNOGenerator(ABC):
                 days_between = (DATE_TODAY - birthday_date).days
                 random_days = random.randint(0, days_between)
                 begin_date_obj = birthday_date + datetime.timedelta(days=random_days)
-                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date,begin_date=begin_date_obj)
+                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date, begin_date=begin_date_obj)
                 # print(end_date)
                 # 如果未输入起始日期，则终止日期要在今天之后
                 if isinstance(end_date, datetime.date) and end_date >= DATE_TODAY:
@@ -365,7 +367,7 @@ class IDNOGenerator(ABC):
                     break
 
     @staticmethod
-    def generate_valid_dates_by_birthday(birthday: datetime.date, begin_date: datetime.date) ->  str | datetime.date:
+    def generate_valid_dates_by_birthday(birthday: datetime.date, begin_date: datetime.date) -> str | datetime.date:
         """
         根据生日和起始日期生成终止日期,起始日期在生日和当前日期之间,终止日期根据起始日期时年龄确定有效期。
         :param birthday: (datetime.date)生日,date对象
@@ -444,9 +446,15 @@ class IDNOGenerator(ABC):
             pinyin_str = "".join(pinyin_list)
         return pinyin_str.upper()
 
+    @classmethod
+    def id_no_parse(cls, id_no):
+        pass
+
 
 # 居民身份证
 class TypeSFZ(IDNOGenerator):
+    ID_NO_LENGTH: int = 18
+
     def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, gender: str = None,
                  sequence_code: str = None,
                  county_code: str = None, begin_date: str = None):
@@ -490,7 +498,7 @@ class TypeSFZ(IDNOGenerator):
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
-        self.address = f"{self.province_name}{self.city_name}{self.county_name}{random.choice(self.ADDRESSES)}"\
+        self.address = f"{self.province_name}{self.city_name}{self.county_name}{random.choice(self.ADDRESSES)}" \
             .replace('None', '')
 
     def __str__(self):
@@ -516,14 +524,58 @@ class TypeSFZ(IDNOGenerator):
             self.province_name = Nationality.administration_division_old.get(self.county_code[0:2] + '0000')
             self.city_name = Nationality.administration_division_old.get(self.county_code[0:4] + '00')
 
+    @classmethod
+    def id_no_parse(cls, id_no):
+        """
+        身份证号解析器,将身份证号码进行解码
+        :param id_no:
+        :return: id_info: (dict[str,str])
+        """
+        if len(id_no) == cls.ID_NO_LENGTH:
+            # 创建实例
+            # instance = cls()
+            # 创建空的类对象,未进行初始化
+            instance = cls.__new__(cls)
+            instance.county_code = id_no[0:6]
+            nationality_number = id_no[3:6]
+            birthday = id_no[6:13]
+            gender_number = id_no[16]
+            if (county_name := Nationality.administration_division.get(instance.county_code)) \
+                    and ((instance.county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
+                         or ('00' != instance.county_code[-2:])):
+                instance.county_name = county_name
+                instance.get_province_city_county_name()
+            # 旧版行政区划，剔除市一级
+            elif (county_name := Nationality.administration_division_old.get(instance.county_code)) and '00' != instance.county_code[-2:]:
+                instance.county_name = county_name
+                instance.get_province_city_county_name(is_new=False)
+            else:
+                raise ValueError(f"输入的证件号码{id_no}中行政区代码{instance.county_code}错误")
+            gender = get_gender(gender_number)
+            return {
+                'birthday': birthday,
+                'gender': gender,
+                'county_code': instance.county_code,
+                'province_name': instance.province_name,
+                'city_name': instance.city_name,
+                'county_name': instance.county_name,
+                'address': f"{instance.province_name}{instance.city_name}{instance.county_name}"
+                           f"{random.choice(cls.ADDRESSES)}".replace('None', ''),
+            }
+        else:
+            raise ValueError(f"证件号码{id_no}长度错误,长度为:{len(id_no)}")
+
 
 # 23新版外国人永久居留证
 class TypeYJZ(IDNOGenerator):
     # 外国人永居证都是9为开头
     PREFIX_NUM = '9'
+    # 号码长度
+    ID_NO_LENGTH = 18
 
     def __init__(self, name_ch: str = None, name_en: str = None, province_name: str = None, national_code_3: str = None,
-                 birthday: str = None, gender: str = None, name_length: int = 4, sequence_code: str = None, begin_date: str=None):
+                 birthday: str = None, gender: str = None, name_length: int = 4, sequence_code: str = None,
+                 begin_date: str = None):
         """
         初始化外国人永居证信息,此构造函数用于初始化外国人永久居留身份证信息对象。。
 
@@ -698,6 +750,36 @@ class TypeYJZ(IDNOGenerator):
             f"国籍代码：{self.nationality_number}, 国籍：\
 {self.nationality_code}, 国家简称:{self.nationality_name_ch}\n"
         )
+
+    @classmethod
+    def id_no_parse(cls, id_no):
+        """
+        证件号码解析器,将证件号码进行解码
+        :param id_no:
+        :return: id_info: (dict[str,str])
+        """
+        if len(id_no) == cls.ID_NO_LENGT:
+            province_code = id_no[1:3]
+            nationality_number = id_no[3:6]
+            birthday = id_no[6:13]
+            gender_number = id_no[16]
+            province_name = Nationality.CODE_PROVINCE_DATA.get(int(province_code), '未知')
+            nationality_info = Nationality.nationality_dict_by_number.get(nationality_number, '未知')
+            nationality_number = nationality_info.number
+            nationality_name_ch = nationality_info.name_cn
+            nationality_code = nationality_info.code_3
+            gender = get_gender(gender_number)
+            return {
+                'province_code': province_code,
+                'province_name': province_name,
+                'nationality_number': nationality_number,
+                'nationality_name_ch': nationality_name_ch,
+                'nationality_code': nationality_code,
+                'birthday': birthday,
+                'gender': gender
+            }
+        else:
+            raise ValueError(f"证件号码{id_no}长度错误len:{len(id_no)}")
 
 
 # 2017旧版外国人永久居留证
