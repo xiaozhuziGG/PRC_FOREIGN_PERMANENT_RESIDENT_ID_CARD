@@ -588,7 +588,7 @@ class Yjj2023(BaseCardFrame):
         self.show_info()
 
     def id_no_parse(self, event=None):
-        print(f"{event}事件触发的解析永居证号码...")
+        print(f"{event}事件触发的解析新版永居证号码...")
         try:
             id_no = self.ID_No.get()
             id_info: dict = IdCardGenerator.TypeYJZ.id_no_parse(id_no)
@@ -776,6 +776,23 @@ class Yjj2017(Yjj2023):
         except Exception as e:
             messagebox.showinfo("提示", f"输入有误,错误信息:{e}")
         self.ID_No.set(ID_No_src + check_num)
+
+
+    def id_no_parse(self, event=None):
+        print(f"{event}事件触发的解析旧版永居证号码...")
+        try:
+            id_no = self.ID_No.get()
+            id_info: dict = IdCardGenerator.TypeYJZ2017.id_no_parse(id_no)
+            self.gender.set(id_info.get('gender', ''))
+            self.birthday.set(id_info.get('birthday', ''))
+            self.city_code.set(id_info.get('province_city_code', ''))
+            self.city_name.set(id_info.get('province_city_name', ''))
+            self.nationality_number.set(id_info.get('nationality_number', ''))
+            self.nationality_code.set(id_info.get('nationality_code', ''))
+            self.nationality_name_cn.set(id_info.get('nationality_name_ch', ''))
+            self.ID_No_other.set(id_info.get('ID_No_other', ''))
+        except Exception as e:
+            messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
 
 
 class GATJzz(BaseCardFrame):
