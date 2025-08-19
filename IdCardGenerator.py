@@ -95,11 +95,10 @@ def get_province_city_code() -> tuple:
     items = list(Nationality.administration_division.items())
     while True:
         selected_item = random.sample(items, 1)[0]
+        code = selected_item[0]
         name = selected_item[1]
-        # 过滤掉省级行政区,但不包括港澳台
-        if ('台湾省' == name
-                or '省' not in name
-                or '自治区' not in name):
+        # 过滤掉省级行政区,包括省，自治区，直辖市,但不包括港澳台.
+        if not (code.endswith('0000') and code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN):
             # 行政区划格式为 330108,滨江区
             city_code = selected_item[0][0:4]
             break
@@ -758,10 +757,10 @@ class TypeYJZ(IDNOGenerator):
         :param id_no:
         :return: id_info: (dict[str,str])
         """
-        if len(id_no) == cls.ID_NO_LENGT:
+        if len(id_no) == cls.ID_NO_LENGTH:
             province_code = id_no[1:3]
             nationality_number = id_no[3:6]
-            birthday = id_no[6:13]
+            birthday = id_no[6:14]
             gender_number = id_no[16]
             province_name = Nationality.CODE_PROVINCE_DATA.get(int(province_code), '未知')
             nationality_info = Nationality.nationality_dict_by_number.get(nationality_number, '未知')
@@ -784,6 +783,8 @@ class TypeYJZ(IDNOGenerator):
 
 # 2017旧版外国人永久居留证
 class TypeYJZ2017(IDNOGenerator):
+    ID_NO_LENGTH = 15
+
     def __init__(self, name_ch: str = None, name_en: str = None, national_abbreviation: str = None,
                  province_city_code: str = None, birthday: str = None, gender: str = None, sequence_code: str = None):
         """
@@ -858,6 +859,49 @@ class TypeYJZ2017(IDNOGenerator):
             f"国籍：{self.nationality_code},国籍代码：{self.nationality_number},国家简称：{self.nationality_name_ch}\n"
         )
 
+
+    @classmethod
+    def id_no_parse(cls, id_no):
+        """
+        旧版永居证号码解析器,将证件号码进行解码
+        :param id_no:
+        :return: id_info: (dict[str,str])
+        """
+        if len(id_no) == cls.ID_NO_LENGTH:
+            nationality_code = id_no[0:3]
+            province_city_code = id_no[3:7]
+            province_code = province_city_code[0:2]
+            birthday = '19' + id_no[7:13]
+            gender_number = id_no[13]
+            sequence_code = gender_number.zfill(3)
+
+            city_name = Nationality.administration_division[province_city_code + '00']
+            if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
+                province_name = Nationality.administration_division.get(province_code + '0000','')
+            else:
+                province_name = ''
+            province_city_name = province_name + city_name
+            nationality_info = Nationality.nationality_dict_by_code_3[nationality_code]
+            nationality_number = nationality_info.number
+            nationality_info = Nationality.nationality_dict_by_number.get(nationality_number, '未知')
+            nationality_name_ch = nationality_info.name_cn
+            gender = get_gender(gender_number)
+            province_name = Nationality.CODE_PROVINCE_DATA.get(int(province_code))
+            ID_No_other = TypeYJZ(name_ch=None, name_en=None, province_name=province_name,
+                              national_code_3=nationality_code, birthday=birthday,
+                              gender=gender, sequence_code=sequence_code).No
+            return {
+                'birthday': birthday,
+                'gender': gender,
+                'province_city_code': province_city_code,
+                'province_city_name': province_city_name,
+                'nationality_number': nationality_number,
+                'nationality_name_ch': nationality_name_ch,
+                'nationality_code': nationality_code,
+                'ID_No_other': ID_No_other,
+            }
+        else:
+            raise ValueError(f"证件号码{id_no}长度错误len:{len(id_no)}")
 
 # 港澳台居住证
 class TypeGATJZZ(IDNOGenerator):
