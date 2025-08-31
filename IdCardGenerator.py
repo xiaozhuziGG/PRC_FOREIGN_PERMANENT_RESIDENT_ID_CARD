@@ -545,7 +545,8 @@ class TypeSFZ(IDNOGenerator):
                 instance.county_name = county_name
                 instance.get_province_city_county_name()
             # 旧版行政区划，剔除市一级
-            elif (county_name := Nationality.administration_division_old.get(instance.county_code)) and '00' != instance.county_code[-2:]:
+            elif (county_name := Nationality.administration_division_old.get(
+                    instance.county_code)) and '00' != instance.county_code[-2:]:
                 instance.county_name = county_name
                 instance.get_province_city_county_name(is_new=False)
             else:
@@ -859,7 +860,6 @@ class TypeYJZ2017(IDNOGenerator):
             f"国籍：{self.nationality_code},国籍代码：{self.nationality_number},国家简称：{self.nationality_name_ch}\n"
         )
 
-
     @classmethod
     def id_no_parse(cls, id_no):
         """
@@ -877,7 +877,7 @@ class TypeYJZ2017(IDNOGenerator):
 
             city_name = Nationality.administration_division[province_city_code + '00']
             if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
-                province_name = Nationality.administration_division.get(province_code + '0000','')
+                province_name = Nationality.administration_division.get(province_code + '0000', '')
             else:
                 province_name = ''
             province_city_name = province_name + city_name
@@ -888,8 +888,8 @@ class TypeYJZ2017(IDNOGenerator):
             gender = get_gender(gender_number)
             province_name = Nationality.CODE_PROVINCE_DATA.get(int(province_code))
             ID_No_other = TypeYJZ(name_ch=None, name_en=None, province_name=province_name,
-                              national_code_3=nationality_code, birthday=birthday,
-                              gender=gender, sequence_code=sequence_code).No
+                                  national_code_3=nationality_code, birthday=birthday,
+                                  gender=gender, sequence_code=sequence_code).No
             return {
                 'birthday': birthday,
                 'gender': gender,
@@ -903,8 +903,11 @@ class TypeYJZ2017(IDNOGenerator):
         else:
             raise ValueError(f"证件号码{id_no}长度错误len:{len(id_no)}")
 
+
 # 港澳台居住证
 class TypeGATJZZ(IDNOGenerator):
+    ID_NO_LENGTH = 18
+
     def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None,
                  gender: str = None, begin_date: str = None):
         super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, begin_date=begin_date)
@@ -935,6 +938,38 @@ class TypeGATJZZ(IDNOGenerator):
             f"性别：{self.gender}\n"
             f"地区码：{self.region_code}, 地区：{self.province_name}\n"
         )
+
+    @classmethod
+    def id_no_parse(cls, id_no):
+        """
+        港澳台居住证解析器,将港澳台居住证号码进行解码
+        :param id_no:
+        :return: id_info: (dict[str,str])
+        """
+        if len(id_no) == cls.ID_NO_LENGTH:
+            region_code = id_no[0:6]
+            birthday = id_no[6:14]
+            gender_number = id_no[16]
+            if region_code == '810000':
+                id_type = GATPermanentResident.HKG_PERMANENT_RESIDENT.value
+                province_name = '香港'
+            elif region_code == '820000':
+                id_type = GATPermanentResident.MAC_PERMANENT_RESIDENT.value
+                province_name = '澳门'
+            elif region_code == '830000':
+                id_type = GATPermanentResident.CTN_PERMANENT_RESIDENT.value
+                province_name = '台湾'
+            gender = get_gender(gender_number)
+
+            return {
+                'id_type': id_type,
+                'birthday': birthday,
+                'gender': gender,
+                'region_code': region_code,
+                'province_name': province_name,
+            }
+        else:
+            raise ValueError(f"证件号码{id_no}长度错误,长度为:{len(id_no)}")
 
 
 # 港澳通行证
