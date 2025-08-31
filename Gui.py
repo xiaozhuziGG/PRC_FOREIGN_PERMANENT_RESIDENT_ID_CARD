@@ -777,7 +777,6 @@ class Yjj2017(Yjj2023):
             messagebox.showinfo("提示", f"输入有误,错误信息:{e}")
         self.ID_No.set(ID_No_src + check_num)
 
-
     def id_no_parse(self, event=None):
         print(f"{event}事件触发的解析旧版永居证号码...")
         try:
@@ -813,13 +812,17 @@ class GATJzz(BaseCardFrame):
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
 
-        self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
-        self.ID_No = tk.StringVar()
-        self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        self.entry_ID_No.grid(row=row_num.current, column=1)
-        self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
+        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
+                                 bindings=[("<FocusOut>", self.id_no_parse),
+                                           ("<Return>", self.id_no_parse)]
+                                 )
+        # self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
+        # self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
+        # self.ID_No = tk.StringVar()
+        # self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
+        # self.entry_ID_No.grid(row=row_num.current, column=1)
+        # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
+        # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
 
         self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
         self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
@@ -955,6 +958,21 @@ class GATJzz(BaseCardFrame):
         self.phone_number.set("")
         self.province_code.set("")
         self.province_name.set("")
+
+
+    def id_no_parse(self, event=None):
+        print(f"{event}事件触发的解析港澳台居住证号码...")
+        try:
+            id_no = self.ID_No.get()
+            id_info: dict = IdCardGenerator.TypeGATJZZ.id_no_parse(id_no)
+            self.id_type.set(id_info.get('id_type', ''))
+            self.gender.set(id_info.get('gender', ''))
+            self.birthday.set(id_info.get('birthday', ''))
+            self.province_name.set(id_info.get('province_name', ''))
+            self.province_code.set(id_info.get('region_code', ''))
+
+        except Exception as e:
+            messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
 
 
 class GAtxz(BaseCardFrame):
