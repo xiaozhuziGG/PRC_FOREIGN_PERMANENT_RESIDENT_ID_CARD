@@ -536,8 +536,7 @@ class TypeSFZ(IDNOGenerator):
             # 创建空的类对象,未进行初始化
             instance = cls.__new__(cls)
             instance.county_code = id_no[0:6]
-            nationality_number = id_no[3:6]
-            birthday = id_no[6:13]
+            birthday = id_no[6:14]
             gender_number = id_no[16]
             if (county_name := Nationality.administration_division.get(instance.county_code)) \
                     and ((instance.county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
