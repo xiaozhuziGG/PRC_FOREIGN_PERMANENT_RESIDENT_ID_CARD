@@ -140,6 +140,15 @@ class Sfz(BaseCardFrame):
         # 行号迭代器，注意next方法返回当前值
         row_num = RowNumIterator(1)
 
+        # 创建中文名标签和输入框
+        self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
+        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=row_num.current, column=1)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
+
         # 创建证件号码标签和输入框
         self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
                                  bindings=[("<FocusOut>", self.id_no_parse),
@@ -153,15 +162,6 @@ class Sfz(BaseCardFrame):
         # # 添加复制按钮
         # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
-
-        # 创建中文名标签和输入框
-        self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
-        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
-        self.name_ch = tk.StringVar()
-        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        self.entry_name_ch.grid(row=row_num.current, column=1)
-        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
 
         # 创建英文名标签和输入框
         self.label_name_en = tk.Label(self, text="英文名:")
@@ -402,12 +402,11 @@ class Yjj2023(BaseCardFrame):
         # # 添加复制按钮
         # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
-
+        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num), bg=LABEL_BG)
         self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
                                  bindings=[("<FocusOut>", self.id_no_parse),
                                            ("<Return>", self.id_no_parse)]
                                  )
-        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num), bg=LABEL_BG)
         self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num), bg=LABEL_BG)
         self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num), bg=LABEL_BG)
         self.gender = GenderGroup(self, name="性别:", row_num=next(row_num), bg=LABEL_BG)
@@ -812,6 +811,15 @@ class GATJzz(BaseCardFrame):
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
 
+
+        self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
+        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
+        self.name_ch = tk.StringVar()
+        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
+        self.entry_name_ch.grid(row=row_num.current, column=1)
+        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
+        self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
+
         self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
                                  bindings=[("<FocusOut>", self.id_no_parse),
                                            ("<Return>", self.id_no_parse)]
@@ -823,14 +831,6 @@ class GATJzz(BaseCardFrame):
         # self.entry_ID_No.grid(row=row_num.current, column=1)
         # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
         # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
-
-        self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
-        self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
-        self.name_ch = tk.StringVar()
-        self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        self.entry_name_ch.grid(row=row_num.current, column=1)
-        self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
 
         # 创建英文名标签和输入框
         self.label_name_en = tk.Label(self, text="英文名:", bg=LABEL_BG)
@@ -994,14 +994,7 @@ class GAtxz(BaseCardFrame):
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
 
-        self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
-        self.ID_No = tk.StringVar()
-        self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        self.entry_ID_No.grid(row=row_num.current, column=1, sticky='w')
-        self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
-
+        # 中文名
         self.label_name_ch = tk.Label(self, text="中文名:")
         self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         self.name_ch = tk.StringVar()
@@ -1009,6 +1002,15 @@ class GAtxz(BaseCardFrame):
         self.entry_name_ch.grid(row=row_num.current, column=1)
         self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
         self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
+
+        # 证件号码
+        self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
+        self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
+        self.ID_No = tk.StringVar()
+        self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
+        self.entry_ID_No.grid(row=row_num.current, column=1, sticky='w')
+        self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
+        self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
 
         # 创建英文名标签和输入框
         self.label_name_en = tk.Label(self, text="英文名:")
@@ -1068,8 +1070,8 @@ class TWtxz(BaseCardFrame):
         # 行号迭代器，注意next方法返回当前值
         row_num = RowNumIterator(1)
 
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num))
         self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num))
+        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num))
         self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num))
         self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num))
         self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
