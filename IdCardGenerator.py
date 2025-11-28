@@ -7,6 +7,7 @@
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3.6/
 import random
+import string
 import datetime
 from abc import abstractmethod, ABC
 from enum import Enum
@@ -219,6 +220,48 @@ def generate_china_phone_number():
     return prefix + suffix
 
 
+def generate_email_address(username=None, domain=None, domains_list=None):
+    """
+    生成一个电子邮箱地址
+
+    :param username: (str) 用户名
+    :param domain: (str) 域名
+    :param domains_list: (list[str]) 备选域名列表
+
+    :return: （str）电子邮箱地址
+    """
+    # 默认域名列表
+    if domains_list is None:
+        domains_list = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'qq.com', '163.com', 'foxmail.com', '126.com','yeah.net',
+                        'sina.com', 'sina.cn', 'aliyun.com','139.com','189.com']
+
+    # 如果没有提供用户名，则生成一个随机用户名
+    if username is None:
+        username_length = random.randint(5, 12)
+        username = ''.join(random.choices(string.ascii_lowercase + string.digits, k=username_length))
+
+    # 如果没有提供域名，则从域名列表中随机选择一个
+    if domain is None:
+        domain = random.choice(domains_list)
+
+    # 返回生成的邮箱地址
+    return f"{username}@{domain}"
+
+
+def generate_china_fax_number(area_code):
+    """
+    生成传真号码
+    :return: 区号-传真号格式的字符串
+    """
+
+    if area_code is None:
+        area_code = '010'
+    # 生成后 9 位数字
+    suffix = ''.join(random.choices('0123456789', k=8))
+    # 拼接成完整传真号码
+    return area_code + '-' + suffix
+
+
 # 个人证件父类
 class IDNOGenerator(ABC):
     # 权重参数
@@ -309,6 +352,9 @@ class IDNOGenerator(ABC):
         self.end_date = ''
         self.generate_valid_dates(begin_date)
         self.phone_number = generate_china_phone_number()
+        self.email_address = generate_email_address()
+        self.zipcode = None
+        self.fax_number = generate_china_fax_number()
 
     def calculate_check_num(self):
         """计算最后一位校验位,ISO 7064:1983.MOD 11-2校验码算法。"""
