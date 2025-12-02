@@ -207,9 +207,9 @@ def word_to_pinyin(chinese_text: str) -> list[str]:
     return pinyin_without_tone
 
 
-def generate_china_phone_number():
+def generate_mobile_phone_number():
     """
-    生成电话号码
+    生成移动电话号码
     :return: 11位的字符串格式的电话号码
     """
     # 选择中国大陆手机号码常见的前两位
@@ -248,7 +248,7 @@ def generate_email_address(username=None, domain=None, domains_list=None):
     return f"{username}@{domain}"
 
 
-def generate_china_fax_number(area_code):
+def generate_china_fax_number(area_code,length=8):
     """
     生成传真号码
     :return: 区号-传真号格式的字符串
@@ -256,9 +256,29 @@ def generate_china_fax_number(area_code):
 
     if area_code is None:
         area_code = '010'
-    # 生成后 9 位数字
-    suffix = ''.join(random.choices('0123456789', k=8))
+    # 生成后面的号码
+    if length < 7 or length > 8:
+        raise ValueError("传真号码段长度必须在7-8之间")
+    suffix = ''.join(random.choices('0123456789', k=length))
     # 拼接成完整传真号码
+    return area_code + '-' + suffix
+
+
+def generate_china_landline_number(area_code=None,length=8):
+    """
+    生成带区号的固定电话号码
+
+    :param area_code: (str) 区号，默认为None时使用'010'
+    :param length: (int) 号码段的长度，5-8
+    :return: (str) 区号-电话号码格式的字符串
+    """
+    if area_code is None:
+        area_code = '010'
+    # 号码段的数字（固定电话为5-8位）
+    if length < 5 or length > 8:
+        raise ValueError("固定电话号码段长度必须在5-8之间")
+    suffix = ''.join(random.choices('0123456789', k=length))
+    # 拼接成完整固定电话号码
     return area_code + '-' + suffix
 
 
@@ -351,10 +371,11 @@ class IDNOGenerator(ABC):
         # 终止日期
         self.end_date = ''
         self.generate_valid_dates(begin_date)
-        self.phone_number = generate_china_phone_number()
+        self.phone_number = generate_mobile_phone_number()
         self.email_address = generate_email_address()
         self.zipcode = None
         self.fax_number = generate_china_fax_number()
+        self.landline_number = generate_china_landline_number()
 
     def calculate_check_num(self):
         """计算最后一位校验位,ISO 7064:1983.MOD 11-2校验码算法。"""
