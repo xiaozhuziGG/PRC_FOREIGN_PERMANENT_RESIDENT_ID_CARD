@@ -372,10 +372,10 @@ class IDNOGenerator(ABC):
         self.end_date = ''
         self.generate_valid_dates(begin_date)
         self.phone_number = generate_mobile_phone_number()
-        self.email_address = generate_email_address()
-        self.zipcode = None
-        self.fax_number = generate_china_fax_number()
-        self.landline_number = generate_china_landline_number()
+        # self.email_address = generate_email_address()
+        # self.zipcode = None
+        # self.fax_number = generate_china_fax_number()
+        # self.landline_number = generate_china_landline_number()
 
     def calculate_check_num(self):
         """计算最后一位校验位,ISO 7064:1983.MOD 11-2校验码算法。"""

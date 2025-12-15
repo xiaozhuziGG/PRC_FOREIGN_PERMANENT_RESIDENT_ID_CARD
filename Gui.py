@@ -269,7 +269,7 @@ class Sfz(BaseCardFrame):
         self.button_check.grid(row=next(row_num), column=0, sticky="e")
 
         # 自定义生成按钮
-        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
+        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
         self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
 
@@ -531,7 +531,7 @@ class Yjj2023(BaseCardFrame):
         self.btn_generate_image.grid(row=next(row_num), column=2, sticky="w")
 
         # 自定义生成按钮
-        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input)
+        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
         self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
 
@@ -894,7 +894,7 @@ class GATJzz(BaseCardFrame):
         self.btn_refresh_gat.grid(row=next(row_num), column=1)
 
         # 生成按钮
-        self.btn_generate_gat = tk.Button(self, text="自定义生成", command=self.generate_by_input)
+        self.btn_generate_gat = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate_gat, text="依据变色字段输入进行生成")
         self.btn_generate_gat.grid(row=row_num.current, column=0, sticky="e")
         # 校验位补全按钮
