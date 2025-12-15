@@ -16,6 +16,7 @@ import IdCardGenerator
 from abc import abstractmethod, ABC
 
 LABEL_BG = '#80FFFF'
+LABEL_BG_NO = '#1CE47A'
 
 
 class BaseCardFrame(tk.Frame, ABC):
@@ -151,6 +152,7 @@ class Sfz(BaseCardFrame):
 
         # 创建证件号码标签和输入框
         self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
+                                 bg=LABEL_BG_NO,
                                  bindings=[("<FocusOut>", self.id_no_parse),
                                            ("<Return>", self.id_no_parse)]
                                  )
@@ -260,7 +262,7 @@ class Sfz(BaseCardFrame):
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh.grid(row=row_num.current, column=1)
         # 身份证升位按钮
-        self.button_upgrade = tk.Button(self, text="升位", command=self.upgrade_ID_number)
+        self.button_upgrade = tk.Button(self, text="升位", command=self.upgrade_ID_number, bg=LABEL_BG_NO)
         create_tooltip(self.button_upgrade, text="15位号码升位为18位")
         self.button_upgrade.grid(row=row_num.current, column=2, sticky="w")
 
@@ -274,7 +276,8 @@ class Sfz(BaseCardFrame):
         self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
 
         # 校验码计算
-        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete)
+        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete,
+                                                    bg=LABEL_BG_NO)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
         self.button_check_num_calculate.grid(row=row_num.current, column=1)
 
@@ -404,6 +407,7 @@ class Yjj2023(BaseCardFrame):
         # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
         self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num), bg=LABEL_BG)
         self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
+                                 bg=LABEL_BG_NO,
                                  bindings=[("<FocusOut>", self.id_no_parse),
                                            ("<Return>", self.id_no_parse)]
                                  )
@@ -536,7 +540,8 @@ class Yjj2023(BaseCardFrame):
         self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
 
         # 校验码计算
-        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete)
+        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete,
+                                                    bg=LABEL_BG_NO)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
         self.button_check_num_calculate.grid(row=row_num.current, column=1)
 
@@ -811,7 +816,6 @@ class GATJzz(BaseCardFrame):
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
 
-
         self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
         self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         self.name_ch = tk.StringVar()
@@ -821,6 +825,7 @@ class GATJzz(BaseCardFrame):
         self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
 
         self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
+                                 bg=LABEL_BG_NO,
                                  bindings=[("<FocusOut>", self.id_no_parse),
                                            ("<Return>", self.id_no_parse)]
                                  )
@@ -898,7 +903,7 @@ class GATJzz(BaseCardFrame):
         create_tooltip(self.btn_generate_gat, text="依据变色字段输入进行生成")
         self.btn_generate_gat.grid(row=row_num.current, column=0, sticky="e")
         # 校验位补全按钮
-        self.button_check_gat = tk.Button(self, text="校验位补全", command=self.check_num_complete)
+        self.button_check_gat = tk.Button(self, text="校验位补全", command=self.check_num_complete, bg=LABEL_BG_NO)
         self.button_check_gat.grid(row=row_num.current, column=1)
         # 退出按钮
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
@@ -958,7 +963,6 @@ class GATJzz(BaseCardFrame):
         self.phone_number.set("")
         self.province_code.set("")
         self.province_name.set("")
-
 
     def id_no_parse(self, event=None):
         print(f"{event}事件触发的解析港澳台居住证号码...")
