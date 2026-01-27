@@ -213,7 +213,12 @@ class Sfz(BaseCardFrame):
 
         # 联系电话
         self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-
+        #固定电话
+        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
+        # 邮箱地址
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
+        # 传真号码
+        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
         # 创建办理地区码标签和输入框
         self.label_administration_code = tk.Label(self, text="行政区代码:", bg=LABEL_BG)
         self.label_administration_code.grid(row=row_num.current, column=0, sticky='e')
@@ -340,6 +345,9 @@ class Sfz(BaseCardFrame):
         self.begin_date.set('')
         self.end_date.set('')
         self.phone_number.set('')
+        self.landline_number.set('')
+        self.email_address.set('')
+        self.fax_number
         self.administration_code.set('')
         self.province_name.set('')
         self.city_name.set('')
@@ -356,6 +364,9 @@ class Sfz(BaseCardFrame):
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
         self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.email_address.set(self.id_info.email_address)
+        self.fax_number.set(self.id_info.fax_number)
         self.administration_code.set(self.id_info.county_code)
         self.province_name.set(self.id_info.province_name)
         self.city_name.set(self.id_info.city_name)

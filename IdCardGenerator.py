@@ -248,7 +248,7 @@ def generate_email_address(username=None, domain=None, domains_list=None):
     return f"{username}@{domain}"
 
 
-def generate_china_fax_number(area_code,length=8):
+def generate_china_fax_number(area_code=None,length=8):
     """
     生成传真号码
     :return: 区号-传真号格式的字符串
@@ -372,10 +372,10 @@ class IDNOGenerator(ABC):
         self.end_date = ''
         self.generate_valid_dates(begin_date)
         self.phone_number = generate_mobile_phone_number()
-        # self.email_address = generate_email_address()
+        self.email_address = generate_email_address()
         # self.zipcode = None
-        # self.fax_number = generate_china_fax_number()
-        # self.landline_number = generate_china_landline_number()
+        self.fax_number = generate_china_fax_number(area_code=None)
+        self.landline_number = generate_china_landline_number()
 
     def calculate_check_num(self):
         """计算最后一位校验位,ISO 7064:1983.MOD 11-2校验码算法。"""
