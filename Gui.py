@@ -347,7 +347,7 @@ class Sfz(BaseCardFrame):
         self.phone_number.set('')
         self.landline_number.set('')
         self.email_address.set('')
-        self.fax_number
+        self.fax_number.set('')
         self.administration_code.set('')
         self.province_name.set('')
         self.city_name.set('')
