@@ -23,7 +23,7 @@ DATE_TODAY = datetime.date.today()
 # 证件类型枚举
 class IDType(Enum):
     ID_CARD = "居民身份证"
-    # BUSINESS_LICENSE = "营业执照"
+    BUSINESS_LICENSE = "营业执照"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
     HKG_MAC_PERMIT = "港澳居民来往内地通行证"
@@ -232,8 +232,9 @@ def generate_email_address(username=None, domain=None, domains_list=None):
     """
     # 默认域名列表
     if domains_list is None:
-        domains_list = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'qq.com', '163.com', 'foxmail.com', '126.com','yeah.net',
-                        'sina.com', 'sina.cn', 'aliyun.com','139.com','189.com']
+        domains_list = ['gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'qq.com', '163.com', 'foxmail.com',
+                        '126.com', 'yeah.net',
+                        'sina.com', 'sina.cn', 'aliyun.com', '139.com', '189.com']
 
     # 如果没有提供用户名，则生成一个随机用户名
     if username is None:
@@ -248,7 +249,7 @@ def generate_email_address(username=None, domain=None, domains_list=None):
     return f"{username}@{domain}"
 
 
-def generate_china_fax_number(area_code=None,length=8):
+def generate_china_fax_number(area_code=None, length=8):
     """
     生成传真号码
     :return: 区号-传真号格式的字符串
@@ -264,7 +265,7 @@ def generate_china_fax_number(area_code=None,length=8):
     return area_code + '-' + suffix
 
 
-def generate_china_landline_number(area_code=None,length=8):
+def generate_china_landline_number(area_code=None, length=8):
     """
     生成带区号的固定电话号码
 
@@ -280,6 +281,43 @@ def generate_china_landline_number(area_code=None,length=8):
     suffix = ''.join(random.choices('0123456789', k=length))
     # 拼接成完整固定电话号码
     return area_code + '-' + suffix
+
+
+def generate_organization_code():
+    """
+    生成组织机构代码
+    :return: -(str)组织机构代码
+    """
+    LENGTH = 8
+    # 加权因子列表
+    FACTOR_LIST = [3, 7, 9, 10, 5, 8, 4, 2]
+    # 不包含I、O、Z、S、V
+    BASE_CODE = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K',
+                 'L', 'M', 'N', 'P', 'Q', 'R', 'T', 'U', 'W', 'X', 'Y']
+    organ_code = []
+    sum_o = 0
+    for _ in range(LENGTH):
+        organ_code.append(random.choice(BASE_CODE))
+    for i in range(LENGTH):
+        # 判断是否为数字,如果是数字转换为int类型
+        if str.isdigit(organ_code[i]):
+            single_num = int(organ_code[i])
+        # 如果是大写英文字母转换为对应的数字
+        if str.isalpha(organ_code[i]) and str.isupper(organ_code[i]):
+            single_num = ord(organ_code[i]) - ord('A') + 10
+        sum_o += single_num * FACTOR_LIST[i]
+    # 模11加权算法计算校验码
+
+    C9 = 11 - sum_o % 11
+    if C9 == 10:
+        check_no = 'X'
+    elif C9 == 11:
+        check_no = str(0)
+    else:
+        check_no = str(C9)
+
+    return ''.join(organ_code) + '-' + check_no
 
 
 # 个人证件父类
@@ -374,7 +412,7 @@ class IDNOGenerator(ABC):
         self.phone_number = generate_mobile_phone_number()
         self.email_address = generate_email_address()
         # self.zipcode = None
-        self.fax_number = generate_china_fax_number(area_code=None)
+        self.fax_number = generate_china_fax_number()
         self.landline_number = generate_china_landline_number()
 
     def calculate_check_num(self):
@@ -1087,6 +1125,104 @@ class TypeTWTXZ(IDNOGenerator):
         )
 
 
+# 营业执照
+class TypeYYZZ(IDNOGenerator):
+    """
+    营业执照生成的规则:
+    第1位	登记管理部门代码	标识负责登记的部门，使用阿拉伯数字或大写英文字母表示
+9：机构编制
+1：工商
+5：民政
+Y：其他
+    第2位	机构类别代码	表示该组织的类型
+9+1：（市场监管）企业
+9+2：个体工商户
+9+3：农民专业合作社
+5+1：社会团体
+5+2：民办非企业单位
+5+3：基金会
+*+9:其他组织
+    第3–8位	登记管理机关行政区划码	表示登记机关所在地的行政区划代码，参照《中华人民共和国行政区划代码》（GB/T 2260）
+110000：北京市
+440300：深圳市
+由系统自动生成，体现注册地
+    第9–17位	主体标识码（组织机构代码）	全国唯一的组织机构代码，确保主体唯一性	如“12345678-9”，共9位，含连字符但不占位‌
+    第18位	校验码	用于验证整个代码的正确性，防止录入错误	通过特定算法计算得出，可能是0–9或字母X
+    """
+
+    ID_NO_LENGTH = 18
+    # 加权因子 Wi = MOD(3^(i-1), 31)
+    # WEIGHT = [(3**i) % 31 for i in range(ID_NO_LENGTH-1)]
+    WEIGHT = [1, 3, 9, 27, 19, 26, 16, 17, 20, 29, 25, 13, 8, 24, 10, 30, 28]
+    # 字符到数值的映射表
+    CHAR_TO_VALUE = {
+        '0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5, '6': 6, '7': 7, '8': 8, '9': 9,
+        'A': 10, 'B': 11, 'C': 12, 'D': 13, 'E': 14, 'F': 15, 'G': 16, 'H': 17, 'J': 18,
+        'K': 19, 'L': 20, 'M': 21, 'N': 22, 'P': 23, 'Q': 24, 'R': 25, 'T': 26, 'U': 27,
+        'W': 28, 'X': 29, 'Y': 30
+    }
+    # 登记管理部门代码
+    MANAGEMENT_DEPARTMENT_CODE = '9'
+    # 机构类别代码
+    ORGANIZATION_CODE = '1'
+
+    def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, begin_date: str = None):
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, begin_date=begin_date)
+        self.__kind = IDType.BUSINESS_LICENSE.value
+        self.department_administration_division = get_province_city_county_code()
+        self.organization_code = generate_organization_code()
+        self.No_without_check_num = (
+                    f"{self.MANAGEMENT_DEPARTMENT_CODE}"
+                    f"{self.department_administration_division}"
+                    f"{self.organization_code}"
+                    f"{self.organization_code.replace('-', '')}"
+        )
+        self.check_num = IDNOGenerator.calculate_check_num_cls(self.No_without_check_num)
+        self.No = f"{self.No_without_check_num}{self.check_num}"
+
+    def __str__(self):
+        pass
+
+    @classmethod
+    def calculate_check_num_cls(cls, str_number: str) -> str:
+        """
+            计算最后一位校验位,返回有校验位的证件号码依据GB 32100-2015
+            适用证件类型,营业执照
+        :param str_number:(str)没有校验位的统一机构代码
+        :return: (str)计算后的校验位
+        """
+        if (id_withou_C18 := len(str_number)) != cls.ID_NO_LENGTH - 1:
+            raise ValueError(f"证件号码长度错误,号码{str_number}长度为:{id_withou_C18}")
+        sum_y = 0
+        for i in range(len(str_number)):
+            # 判断是否为数字,如果是数字转换为int类型
+            if str.isdigit(single_str := (str_number[i])):
+                single_num = int(single_str)
+            # 如果是大写英文字母转换为对应的数字
+            elif str.isalpha(str_number[i]) and str.isupper(str_number[i]):
+                try:
+                    single_num = cls.CHAR_TO_VALUE[str_number[i]]
+                except KeyError:
+                    raise ValueError(f"证件号码{str_number}第{i + 1}位为: {str_number[i]}不合法,请检查")
+            else:
+                raise ValueError(f"证件号码{str_number}第{i + 1}位为: {str_number[i]}位不合法,请检查")
+            sum_y += single_num * cls.WEIGHT[i]
+
+        C18 = 31 - sum_y % 31
+        check_no = None
+        for k, v in cls.CHAR_TO_VALUE.items():
+            if C18 == v:
+                check_no = k
+                break
+        else:
+            if check_no is None:
+                raise ValueError(f"证件号码{str_number}计算校验位失败,意料外的错误,可能是校验位配置失败")
+        return str(check_no)
+
+
+
+
+
 if __name__ == '__main__':
     # wgr = TypeYJZ(gender='男')
     # wgr = TypeYJZ()
@@ -1112,5 +1248,6 @@ if __name__ == '__main__':
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
-    a = TypeSFZ(birthday='20000229', begin_date='20200229')
+    # a = TypeSFZ(birthday='20000229', begin_date='20200229')
+    a = TypeYYZZ.calculate_check_num_cls('91934502THQ7F74W5')
     pass
