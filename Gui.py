@@ -17,6 +17,7 @@ from abc import abstractmethod, ABC
 
 LABEL_BG = '#80FFFF'
 LABEL_BG_NO = '#1CE47A'
+LABEL_BG_OLD_NO = '#90FFA7'
 
 
 class BaseCardFrame(tk.Frame, ABC):
@@ -261,13 +262,13 @@ class Sfz(BaseCardFrame):
         # 地址
         self.address = WidgetGroup(self, name="证件地址:", row_num=next(row_num))
         # 旧版号码,一代身份证号码
-        self.ID_No_old = WidgetGroup(self, name="旧版号码:", row_num=next(row_num))
+        self.ID_No_old = WidgetGroup(self, name="旧版号码:", row_num=next(row_num), bg=LABEL_BG_OLD_NO)
 
         # 刷新按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh.grid(row=row_num.current, column=1)
         # 身份证升位按钮
-        self.button_upgrade = tk.Button(self, text="升位", command=self.upgrade_ID_number, bg=LABEL_BG_NO)
+        self.button_upgrade = tk.Button(self, text="升位", command=self.upgrade_ID_number, bg=LABEL_BG_OLD_NO)
         create_tooltip(self.button_upgrade, text="15位号码升位为18位")
         self.button_upgrade.grid(row=row_num.current, column=2, sticky="w")
 
