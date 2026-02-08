@@ -13,6 +13,7 @@ from abc import abstractmethod, ABC
 from enum import Enum
 import Nationality
 from os import path, makedirs
+from typing import List, Dict, Optional
 
 # 资源文件的绝对路径
 BASE_DIR = Nationality.BASE_DIR
@@ -23,12 +24,12 @@ DATE_TODAY = datetime.date.today()
 # 证件类型枚举
 class IDType(Enum):
     ID_CARD = "居民身份证"
-    BUSINESS_LICENSE = "营业执照"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
     HKG_MAC_PERMIT = "港澳居民来往内地通行证"
     CTN_PERMIT = "台湾居民来往大陆通行证"
     GAT_PERMANENT_RESIDENT = "港澳台居民居住证"
+    BUSINESS_LICENSE = "营业执照"
 
 
 # 港澳台居民居住证枚举
@@ -339,7 +340,8 @@ class IDNOGenerator(ABC):
     )
 
     def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None,
-                 gender: str = None, name_length: int = 3, sequence_code: str = None, begin_date: str = None):
+                 gender: str = None, name_length: int = 3, sequence_code: str = None,
+                 begin_date: str = None, county_code: str = None):
         """
         个人证件父类,生成基本的信息。
 
@@ -350,6 +352,7 @@ class IDNOGenerator(ABC):
         :param name_length: (str)中文名长度,未输入中文名时自动生成用
         :param sequence_code: (str) 序列号,同时输入性别和序列号,以序列号为准
         :param begin_date: (str)证件有效期起始日期
+        :param county_code: (str)行政区代码,到县一级
         """
         # 证件类别
         self.__type = ' '
@@ -400,6 +403,29 @@ class IDNOGenerator(ABC):
         # 通过序列号计算性别
         else:
             self.gender = get_gender(self.sequence_code)
+        # 随机生成
+        self.province_name: str = None
+        self.city_name: str = None
+        self.county_code: str = None
+        self.county_name: str = None
+        if not county_code:
+            self.county_code, self.county_name = get_province_city_county_code()
+            self.get_province_city_county_name()
+        else:
+            # 新版行政区划，剔除市一级但是保留港澳台
+            if (county_name := Nationality.administration_division.get(county_code)) \
+                    and ((county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
+                         or ('00' != county_code[-2:])):
+                self.county_code = county_code
+                self.county_name = county_name
+                self.get_province_city_county_name()
+            # 旧版行政区划，剔除市一级
+            elif (county_name := Nationality.administration_division_old.get(county_code)) and '00' != county_code[-2:]:
+                self.county_code = county_code
+                self.county_name = county_name
+                self.get_province_city_county_name(is_new=False)
+            else:
+                raise ValueError(f"输入的行政区代码{county_code}错误,需要输入县一级的行政区划代码")
         # 校验位
         self.last_num = ''
         # 证件号码
@@ -411,9 +437,74 @@ class IDNOGenerator(ABC):
         self.generate_valid_dates(begin_date)
         self.phone_number = generate_mobile_phone_number()
         self.email_address = generate_email_address()
-        # self.zipcode = None
-        self.fax_number = generate_china_fax_number()
-        self.landline_number = generate_china_landline_number()
+
+        zipinfo = None
+        if self.county_name:
+            zipinfo_list = Nationality.ZipCodeStore.query_by_county(self.county_name)
+            if len(zipinfo_list) == 0:
+                # 改名称后再查询
+                if self.county_name.endswith('县'):
+                    search_str = self.county_name[:-1] + '区'
+                    zipinfo_list = Nationality.ZipCodeStore.query_by_county(search_str)
+                    if len(zipinfo_list) == 0:
+                        search_str = self.county_name[:-1] + '市'
+                        zipinfo_list = Nationality.ZipCodeStore.query_by_county(search_str)
+                elif self.county_name.endswith('区'):
+                    search_str = self.county_name[:-1] + '县'
+                    zipinfo_list = Nationality.ZipCodeStore.query_by_county(search_str)
+                    if len(zipinfo_list) == 0:
+                        search_str = self.county_name[:-1] + '市'
+                        zipinfo_list = Nationality.ZipCodeStore.query_by_county(search_str)
+                elif self.county_name.endswith('市'):
+                    search_str = self.county_name[:-1] + '县'
+                    zipinfo_list = Nationality.ZipCodeStore.query_by_county(search_str)
+                    if len(zipinfo_list) == 0:
+                        search_str = self.county_name[:-1] + '区'
+                        zipinfo_list = Nationality.ZipCodeStore.query_by_county(search_str)
+
+                # 三种情况都找不到,那就找市的邮编
+                if len(zipinfo_list) == 0:
+                    zipinfo_list = [random.choice(Nationality.ZipCodeStore.query_by_county(self.city_name))]
+
+            zipinfo = zipinfo_list[0]
+            self.zipcode = zipinfo.post_code
+            self.area_code = zipinfo.area_code
+        else:
+            # 港澳台行政区代码没有到县区一级的情况,随机从省级选一个
+            if self.province_name in ''.join(Nationality.NAME_HONGKONG_MACAO_TAIWAN):
+                zipinfo = random.choice(Nationality.ZipCodeStore.query_by_province(self.province_name))
+                self.zipcode = zipinfo.post_code
+                self.area_code = zipinfo.area_code
+
+            # 有的行政区码没有到县一级的情况,用市名当县名重选一个
+            else:
+                zipinfo = random.choice(Nationality.ZipCodeStore.query_by_county(self.city_name))
+                self.zipcode = zipinfo.post_code
+                self.area_code = zipinfo.area_code
+
+        self.fax_number = generate_china_fax_number(area_code=self.area_code)
+        self.landline_number = generate_china_landline_number(area_code=self.area_code)
+        self.address = zipinfo.address
+
+    def get_province_city_county_name(self, is_new=True):
+        """
+        获取省市县的名称
+        :param is_new: (bool)True-新版行政区代码，False-旧版行政区代码
+        """
+        if is_new:
+            self.province_name = Nationality.administration_division.get(self.county_code[0:2] + '0000')
+            self.city_name = Nationality.administration_division.get(self.county_code[0:4] + '00')
+            # 港澳台
+            if self.province_name == self.city_name == self.county_name:
+                self.city_name = None
+                self.county_name = None
+            # 存在有市无县的情况，市代县的情况，例如429004,仙桃市
+            elif None is self.city_name:
+                self.city_name = self.county_name
+                self.county_name = None
+        else:
+            self.province_name = Nationality.administration_division_old.get(self.county_code[0:2] + '0000')
+            self.city_name = Nationality.administration_division_old.get(self.county_code[0:4] + '00')
 
     def calculate_check_num(self):
         """计算最后一位校验位,ISO 7064:1983.MOD 11-2校验码算法。"""
@@ -573,31 +664,27 @@ class TypeSFZ(IDNOGenerator):
         :param county_code: (str)到县一级的行政区代码
         :param begin_date: (str)证件有效期起始日期
         """
-        super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code, begin_date=begin_date)
+        super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code, begin_date=begin_date,county_code=county_code)
         self.type = IDType.ID_CARD.value
-        self.province_name = None
-        self.city_name = None
-        self.county_code = None
-        self.county_name = None
-        # 随机生成
-        if not county_code:
-            self.county_code, self.county_name = get_province_city_county_code()
-            self.get_province_city_county_name()
-        else:
-            # 新版行政区划，剔除市一级但是保留港澳台
-            if (county_name := Nationality.administration_division.get(county_code)) \
-                    and ((county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
-                         or ('00' != county_code[-2:])):
-                self.county_code = county_code
-                self.county_name = county_name
-                self.get_province_city_county_name()
-            # 旧版行政区划，剔除市一级
-            elif (county_name := Nationality.administration_division_old.get(county_code)) and '00' != county_code[-2:]:
-                self.county_code = county_code
-                self.county_name = county_name
-                self.get_province_city_county_name(is_new=False)
-            else:
-                raise ValueError(f"输入的行政区代码{county_code}错误,需要输入县一级的行政区划代码")
+        # 随机生成,这段逻辑已移动到父类中
+        # if not self.county_code:
+        #     self.county_code, self.county_name = get_province_city_county_code()
+        #     self.get_province_city_county_name()
+        # else:
+        #     # 新版行政区划，剔除市一级但是保留港澳台
+        #     if (county_name := Nationality.administration_division.get(county_code)) \
+        #             and ((county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
+        #                  or ('00' != county_code[-2:])):
+        #         self.county_code = county_code
+        #         self.county_name = county_name
+        #         self.get_province_city_county_name()
+        #     # 旧版行政区划，剔除市一级
+        #     elif (county_name := Nationality.administration_division_old.get(county_code)) and '00' != county_code[-2:]:
+        #         self.county_code = county_code
+        #         self.county_name = county_name
+        #         self.get_province_city_county_name(is_new=False)
+        #     else:
+        #         raise ValueError(f"输入的行政区代码{county_code}错误,需要输入县一级的行政区划代码")
         self.No = f"{self.county_code}{self.birthday}{self.sequence_code}"
         self.calculate_check_num()
         # 拼接上校验位
@@ -608,25 +695,7 @@ class TypeSFZ(IDNOGenerator):
     def __str__(self):
         return self.type
 
-    def get_province_city_county_name(self, is_new=True):
-        """
-        获取省市县的名称
-        :param is_new: (bool)True-新版行政区代码，False-旧版行政区代码
-        """
-        if is_new:
-            self.province_name = Nationality.administration_division.get(self.county_code[0:2] + '0000')
-            self.city_name = Nationality.administration_division.get(self.county_code[0:4] + '00')
-            # 港澳台
-            if self.province_name == self.city_name == self.county_name:
-                self.city_name = None
-                self.county_name = None
-            # 存在有市无县的情况，市代县的情况，例如429004,仙桃市
-            elif None is self.city_name:
-                self.city_name = self.county_name
-                self.county_name = None
-        else:
-            self.province_name = Nationality.administration_division_old.get(self.county_code[0:2] + '0000')
-            self.city_name = Nationality.administration_division_old.get(self.county_code[0:4] + '00')
+
 
     @classmethod
     def id_no_parse(cls, id_no):
@@ -1248,6 +1317,6 @@ if __name__ == '__main__':
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
-    # a = TypeSFZ(birthday='20000229', begin_date='20200229')
-    a = TypeYYZZ.calculate_check_num_cls('91934502THQ7F74W5')
+    a = TypeSFZ(birthday='19120115',gender='男',sequence_code='282',county_code='430407')
+    #a = TypeYYZZ.calculate_check_num_cls('91934502THQ7F74W5')
     pass
