@@ -137,7 +137,7 @@ class Sfz(BaseCardFrame):
         super().__init__(master)
         self.master = master
         # 证件信息,IDGener.TypeSFZ类型
-        self.id_info = None
+        self.id_info: IdCardGenerator.TypeSFZ = None
 
         # 行号迭代器，注意next方法返回当前值
         row_num = RowNumIterator(1)
@@ -216,10 +216,12 @@ class Sfz(BaseCardFrame):
         self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
         #固定电话
         self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
-        # 邮箱地址
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
         # 传真号码
         self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
+        # 邮箱地址
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
+        # 邮政编码
+        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(row_num))
         # 创建办理地区码标签和输入框
         self.label_administration_code = tk.Label(self, text="行政区代码:", bg=LABEL_BG)
         self.label_administration_code.grid(row=row_num.current, column=0, sticky='e')
@@ -349,6 +351,7 @@ class Sfz(BaseCardFrame):
         self.landline_number.set('')
         self.email_address.set('')
         self.fax_number.set('')
+        self.zipcode.set('')
         self.administration_code.set('')
         self.province_name.set('')
         self.city_name.set('')
@@ -368,6 +371,7 @@ class Sfz(BaseCardFrame):
         self.landline_number.set(self.id_info.landline_number)
         self.email_address.set(self.id_info.email_address)
         self.fax_number.set(self.id_info.fax_number)
+        self.zipcode.set(self.id_info.zipcode)
         self.administration_code.set(self.id_info.county_code)
         self.province_name.set(self.id_info.province_name)
         self.city_name.set(self.id_info.city_name)
