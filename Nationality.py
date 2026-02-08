@@ -11,6 +11,7 @@ import csv
 import re
 import os
 import sys
+from typing import List, Dict, Optional
 
 
 def resource_path(relative_path):
@@ -21,8 +22,7 @@ def resource_path(relative_path):
 
     :param relative_path: (str)资源文件相对于程序的路径。
 
-    返回:
-    str: 资源文件的绝对路径。
+    :return: str: 资源文件的绝对路径。
     """
     # 是否Bundle Resource
     if getattr(sys, 'frozen', False):
@@ -83,6 +83,9 @@ CODE_PROVINCE_DATA = {
 }
 # 港澳台行政区代码
 CODE_HONGKONG_MACAO_TAIWAN = ('810000', '820000', '710000')
+# 港澳行政区名称
+NAME_HONGKONG_MACAO_TAIWAN = ('香港特别行政区', '澳门特别行政区','台湾省')
+
 
 
 # 国籍信息
@@ -207,8 +210,157 @@ def replace_newline(data_info: str):
     return data_info
 
 
+class ZipInfo:
+    """表示行政区划和邮编的一行数据。
+
+    Attributes:
+        province (str): 省份名称。
+        city (str): 城市名称。
+        county (str): 区县名称。
+        post_code (str): 邮政编码。
+        area_code (str): 区号。
+    """
+
+    def __init__(self, province: str, city: str, county: str, post_code: str, area_code: str):
+        """
+        初始化 ZipInfo 实例。
+
+        :param province: (str)省份名称。
+        :param city: (str)城市名称。
+        :param county: (str)区县名称。
+        :param post_code: (str)邮政编码。
+        :param area_code: (str)区号。
+
+        :return:
+        """
+        self.province = province
+        self.city = city
+        self.county = county
+        self.post_code = post_code
+        self.area_code = area_code
+        self.address = f"{province}{city}{county}"
+
+    def __repr__(self) -> str:
+        """返回对象的字符串表示形式。
+
+        :return: str: 对象的字符串表示。
+        """
+        return (f"ZipInfo(province='{self.province}', city='{self.city}', "
+                f"county='{self.county}', post_code='{self.post_code}', "
+                f"area_code='{self.area_code}')")
+
+    def __str__(self):
+        """
+
+        :return: str: 对象的字符串表示。
+        """
+        return (f"ZipInfo(province='{self.province}', city='{self.city}', "
+                f"county='{self.county}', post_code='{self.post_code}', "
+                f"area_code='{self.area_code}')")
+
+
+class ZipCodeStore:
+    """用于存储和查询行政区划数据的类。
+
+    Attributes:
+        records (List[ZipInfo]): 所有行政区划记录的列表。
+        province_index (Dict[str, List[ZipInfo]]): 按省份建立的索引。
+        county_index (Dict[str, List[ZipInfo]]): 按区县建立的索引。
+    """
+
+    def __init__(self):
+        """初始化 ZipCodeStore 实例。"""
+        self.records: List[ZipInfo] = []
+        self.province_index: Dict[str, List[ZipInfo]] = {}
+        self.county_index: Dict[str, List[ZipInfo]] = {}
+        self.zipcode_index: Dict[str, List[ZipInfo]] = {}
+
+    def add_record(self, record: ZipInfo) -> None:
+        """添加一条记录到数据存储中，并更新索引。
+
+        Args:
+            record (ZipInfo): 要添加的记录。
+        """
+        self.records.append(record)
+        # 更新省份索引
+        if record.province not in self.province_index:
+            self.province_index[record.province] = []
+        self.province_index[record.province].append(record)
+        # 更新区县索引
+        if record.county not in self.county_index:
+            self.county_index[record.county] = []
+        self.county_index[record.county].append(record)
+        # 添加邮编索引
+        if record.post_code not in self.zipcode_index:
+            self.zipcode_index[record.post_code] = []
+        self.zipcode_index[record.post_code].append(record)
+
+    def query_by_province(self, province: str) -> List[ZipInfo]:
+        """根据省份名称查询记录。
+
+        Args:
+            province (str): 省份名称。
+
+        Returns:
+            List[ZipInfo]: 匹配的记录列表。
+        """
+        return self.province_index.get(province, [])
+
+    def query_by_county(self, county: str) -> List[ZipInfo]:
+        """根据区县名称查询记录。
+
+        Args:
+            county (str): 区县名称。
+
+        Returns:
+            List[ZipInfo]: 匹配的记录列表。
+        """
+        return self.county_index.get(county, [])
+
+    def query_by_zipcode(self, zipcode: str) -> List[ZipInfo]:
+        """根据邮编查询记录。
+
+        Args:
+            zipcode (str): 邮编。
+
+        Returns:
+            List[ZipInfo]: 匹配的记录列表。
+        """
+        return self.zipcode_index.get(zipcode, [])
+
+
+def get_zipcode_info() -> ZipCodeStore:
+    zip_code_store = ZipCodeStore()
+    # 读取 CSV 文件并填充数据
+    zip_code_file = r"./resource/zipcode.csv"
+    zip_code_file = os.path.join(BASE_DIR, zip_code_file)
+    zip_code_file = os.path.normpath(zip_code_file)
+    try:
+        with open(zip_code_file, mode='r', encoding='utf-8') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                record = ZipInfo(
+                    province=row["province"],
+                    city=row["city"],
+                    county=row["county"],
+                    post_code=row["post_code"],
+                    area_code=row["area_code"]
+                )
+                zip_code_store.add_record(record)
+
+    except FileNotFoundError as e:
+        raise FileNotFoundError(f'邮政编码文件未找到:{e}')
+    except Exception as e:
+        raise Exception(f"{__name__}发生错误: {e}")
+    return zip_code_store
+
+
 get_nationality_info()
 get_province_code()
+ZipCodeStore = get_zipcode_info()
 
 if __name__ == '__main__':
-    print(administration_division_old)
+    #print(administration_division_old)
+    a = ZipCodeStore.query_by_province("天津市")
+    print(a)
+    pass
