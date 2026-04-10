@@ -610,7 +610,7 @@ class IDNOGenerator(ABC):
             适用证件类型,身份证和新版永居证
         """
         if 17 != len(str_number):
-            raise ValueError("输入代码不是17位")
+            raise ValueError(f"输入代码不是17位,输入值:{str_number}")
         sum_all = 0
         for i in range(0, 17):
             # 加权运算的和
@@ -1233,20 +1233,22 @@ Y：其他
     # 登记管理部门代码
     MANAGEMENT_DEPARTMENT_CODE = '9'
     # 机构类别代码
-    ORGANIZATION_CODE = '1'
+    ORGANIZATION_TYPE_CODE = '1'
 
     def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, begin_date: str = None):
         super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, begin_date=begin_date)
         self.__kind = IDType.BUSINESS_LICENSE.value
-        self.department_administration_division = get_province_city_county_code()
+        department_administration_division_info = get_province_city_county_code()
+        self.department_administration_division_code = department_administration_division_info[0]
+        self.department_administration_division_name = department_administration_division_info[1]
         self.organization_code = generate_organization_code()
         self.No_without_check_num = (
                     f"{self.MANAGEMENT_DEPARTMENT_CODE}"
-                    f"{self.department_administration_division}"
-                    f"{self.organization_code}"
+                    f"{self.department_administration_division_code}"
+                    f"{self.ORGANIZATION_TYPE_CODE}"
                     f"{self.organization_code.replace('-', '')}"
         )
-        self.check_num = IDNOGenerator.calculate_check_num_cls(self.No_without_check_num)
+        self.check_num = TypeYYZZ.calculate_check_num_cls(self.No_without_check_num)
         self.No = f"{self.No_without_check_num}{self.check_num}"
 
     def __str__(self):
@@ -1318,5 +1320,6 @@ if __name__ == '__main__':
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
     a = TypeSFZ(birthday='19120115',gender='男',sequence_code='282',county_code='430407')
+    abc = TypeYYZZ()
     #a = TypeYYZZ.calculate_check_num_cls('91934502THQ7F74W5')
     pass

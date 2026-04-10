@@ -1145,6 +1145,207 @@ class TWtxz(BaseCardFrame):
         self.phone_number.set(self.id_info.phone_number)
 
 
+class BusinessLicense(BaseCardFrame):
+    """营业执照的页面"""
+
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.master = master
+        # 证件信息
+        self.id_info: IdCardGenerator.TypeYYZZ = None
+
+        # 行号迭代器，注意next方法返回当前值
+        row_num = RowNumIterator(1)
+
+        # 创建企业名称标签和输入框
+        self.name_ch = WidgetGroup(self, name="企业名称:", row_num=next(row_num), bg=LABEL_BG)
+
+        # 创建统一社会信用代码标签和输入框
+        self.credit_code = WidgetGroup(self, name="统一信用代码:", row_num=next(row_num),
+                                       bg=LABEL_BG_NO,
+                                       bindings=[("<FocusOut>", self.credit_code_parse),
+                                                 ("<Return>", self.credit_code_parse)]
+                                       )
+
+        # 创建英文名称标签和输入框
+        self.name_en = WidgetGroup(self, name="英文名称:", row_num=next(row_num))
+
+        # 创建成立日期标签和输入框
+        self.birthday = WidgetGroup(self, name="成立日期:", row_num=next(row_num), bg=LABEL_BG)
+
+        # 证件有效期起始日期
+        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
+
+        # 证件有效期终止日期
+        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
+
+        # 联系电话
+        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
+
+        # 固定电话
+        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
+
+        # 传真号码
+        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
+
+        # 邮箱地址
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
+
+        # 邮政编码
+        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(row_num))
+
+        # 登记管理部门代码
+        self.dept_code = WidgetGroup(self, name="部门代码:", row_num=next(row_num), bg=LABEL_BG)
+
+        # 机构类别代码
+        self.org_type_code = WidgetGroup(self, name="机构类别:", row_num=next(row_num))
+
+        # 登记机关行政区划码
+        self.admin_division_code = WidgetGroup(self, name="行政区划码:", row_num=next(row_num), bg=LABEL_BG)
+
+        # 登记机关名称
+        self.admin_division_name = WidgetGroup(self, name="登记机关:", row_num=next(row_num))
+
+        # 组织机构代码
+        self.org_code = WidgetGroup(self, name="组织机构码:", row_num=next(row_num), bg=LABEL_BG)
+
+        # 校验码
+        self.check_code = WidgetGroup(self, name="校验码:", row_num=next(row_num))
+
+        # 注册地址
+        self.address = WidgetGroup(self, name="注册地址:", row_num=next(row_num))
+
+        # 清除信息按钮
+        self.button_clear = tk.Button(self, text="清除信息", command=self.clear_all_fields)
+        create_tooltip(self.button_clear, text="清除所有输入框中的信息")
+        self.button_clear.grid(row=row_num.current, column=0, sticky="e")
+
+        # 刷新按钮
+        self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
+        self.btn_refresh.grid(row=row_num.current, column=1)
+
+        # 自定义生成按钮
+        self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
+        create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
+        self.btn_generate.grid(row=next(row_num), column=0, sticky="e")
+
+        # 校验码计算
+        self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete,
+                                                    bg=LABEL_BG_NO)
+        create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
+        self.button_check_num_calculate.grid(row=row_num.current, column=1)
+
+        self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
+        self.button_quit.grid(row=row_num.current, column=2, sticky="w")
+
+        self.generate_default()
+
+    def generate_default(self):
+        self.id_info = IdCardGenerator.TypeYYZZ()
+        self.show_info()
+
+    def generate_by_input(self):
+        name_ch = self.name_ch.get() or None
+        name_en = self.name_en.get() or None
+        birthday = self.birthday.get() or None
+        begin_date = self.begin_date.get() or None
+        try:
+            self.id_info = IdCardGenerator.TypeYYZZ(name_ch=name_ch, name_en=name_en,
+                                                     birthday=birthday, begin_date=begin_date)
+            self.show_info()
+        except Exception as e:
+            messagebox.showinfo("提示", f"输入有误,错误信息为{e}")
+
+    def check_number_complete(self):
+        credit_code_src = self.credit_code.get()
+        if len(credit_code_src) < 17:
+            messagebox.showinfo("提示", "输入的统一社会信用代码不足17位")
+            return
+        credit_code_src = credit_code_src[0:17]
+        try:
+            complete_code = IdCardGenerator.TypeYYZZ.calculate_check_num_cls(credit_code_src)
+            self.credit_code.set(complete_code)
+        except ValueError as e:
+            messagebox.showinfo("提示", f"输入有误,{e}")
+
+    def clear_all_fields(self):
+        self.credit_code.set('')
+        self.name_ch.set('')
+        self.name_en.set('')
+        self.birthday.set('')
+        self.begin_date.set('')
+        self.end_date.set('')
+        self.phone_number.set('')
+        self.landline_number.set('')
+        self.email_address.set('')
+        self.fax_number.set('')
+        self.zipcode.set('')
+        self.dept_code.set('')
+        self.org_type_code.set('')
+        self.admin_division_code.set('')
+        self.admin_division_name.set('')
+        self.org_code.set('')
+        self.check_code.set('')
+        self.address.set('')
+
+    def show_info(self):
+        self.credit_code.set(self.id_info.No)
+        self.name_ch.set(self.id_info.name_ch)
+        self.name_en.set(self.id_info.name_en)
+        self.birthday.set(self.id_info.birthday)
+        self.begin_date.set(self.id_info.begin_date)
+        self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.email_address.set(self.id_info.email_address)
+        self.fax_number.set(self.id_info.fax_number)
+        self.zipcode.set(self.id_info.zipcode)
+        self.dept_code.set(self.id_info.MANAGEMENT_DEPARTMENT_CODE)
+        self.org_type_code.set(self.id_info.ORGANIZATION_TYPE_CODE)
+        self.admin_division_code.set(self.id_info.department_administration_division_code)
+        self.org_code.set(self.id_info.organization_code)
+        self.check_code.set(self.id_info.check_num)
+        self.admin_division_name.set(self.id_info.department_administration_division_name)
+        self.address.set(self.id_info.address if hasattr(self.id_info, 'address') else '')
+
+    def refresh_default(self):
+        self.generate_default()
+        return self
+
+    def credit_code_parse(self, event=None):
+        print(f"{event}事件触发的解析统一社会信用代码...")
+        try:
+            credit_code = self.credit_code.get()
+            if len(credit_code) != 18:
+                messagebox.showinfo("提示", f"输入的统一社会信用代码长度不正确: {len(credit_code)}位，应为18位")
+                return
+
+            # 解析各部分
+            dept_code = credit_code[0]
+            org_type_code = credit_code[1]
+            admin_division_code = credit_code[2:8]
+            org_code = credit_code[8:17]
+            check_code = credit_code[17]
+
+            self.dept_code.set(dept_code)
+            self.org_type_code.set(org_type_code)
+            self.admin_division_code.set(admin_division_code)
+            self.org_code.set(org_code)
+            self.check_code.set(check_code)
+
+            # 获取行政区划名称
+            admin_division_name = ''
+            if admin_division_code in Nationality.administration_division:
+                admin_division_name = Nationality.administration_division[admin_division_code]
+            elif admin_division_code + '00' in Nationality.administration_division:
+                admin_division_name = Nationality.administration_division[admin_division_code + '00']
+
+            self.admin_division_name.set(admin_division_name)
+
+        except Exception as e:
+            messagebox.showinfo("提示", f"统一信用代码解析出错,错误信息为:{e}")
+
+
 class ToolTip:
     """悬浮提示窗"""
 
@@ -1238,10 +1439,10 @@ class MainApplication(tk.Tk):
         # 创建不同的 Frame 缓存
         self.frame_cache: dict[str, BaseCardFrame] = {}
 
-        # 默认显示永居证页面
-        self.id_kind.set(IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value)
+        # 默认显示身份证页面
+        self.id_kind.set(IdCardGenerator.IDType.ID_CARD.value)
         self.create_frame(None)
-        self.show_frame(self.frame_cache.get(IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value))
+        self.show_frame(self.frame_cache.get(IdCardGenerator.IDType.ID_CARD.value))
 
     def show_frame(self, frame: BaseCardFrame = None):
         # 隐藏所有 Frame
@@ -1272,6 +1473,8 @@ class MainApplication(tk.Tk):
                     self.frame_cache[selected_id_kind] = TWtxz(self)
                 elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = Yjj2017(self)
+                elif IdCardGenerator.IDType.BUSINESS_LICENSE.value == selected_id_kind:
+                    self.frame_cache[selected_id_kind] = BusinessLicense(self)
                 else:
                     messagebox.showwarning("错误", f"当前输入的证件类型{selected_id_kind}不支持")
 
