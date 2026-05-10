@@ -38,6 +38,11 @@ class BaseCardFrame(tk.Frame, ABC):
         """展示信息的抽象方法"""
         pass
 
+    @abstractmethod
+    def clear_all_fields(self):
+        """清空所有字段"""
+        pass
+
     def refresh_default(self) -> tk.Frame:
         """刷新默认信息，并返回刷新后的frame"""
         self.generate_default()
@@ -214,7 +219,7 @@ class Sfz(BaseCardFrame):
 
         # 联系电话
         self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-        #固定电话
+        # 固定电话
         self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
         # 传真号码
         self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
@@ -433,6 +438,10 @@ class Yjj2023(BaseCardFrame):
         self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
         self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
         self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
+        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
+        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
+        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(row_num))
         self.province_code = WidgetGroup(self, name="办理地区码:", row_num=next(row_num), bg=LABEL_BG)
         self.province_name = WidgetGroup(self, name="办理省份:", row_num=next(row_num), bg=LABEL_BG)
         self.nationality_number = WidgetGroup(self, name="国籍编号:", row_num=next(row_num))
@@ -639,6 +648,11 @@ class Yjj2023(BaseCardFrame):
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
         self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.fax_number.set(self.id_info.fax_number)
+        self.zipcode.set(self.id_info.zipcode)
+        #self.address.set(self.id_info.address)
+        self.email_address.set(self.id_info.email_address)
         self.province_code.set(self.id_info.province_code)
         self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(self.id_info.province_code), '未知'))
         self.nationality_number.set(self.id_info.nationality_number)
@@ -666,6 +680,10 @@ class Yjj2023(BaseCardFrame):
         self.begin_date.set("")
         self.end_date.set("")
         self.phone_number.set("")
+        self.landline_number.set("")
+        self.fax_number.set("")
+        self.email_address.set("")
+        self.zipcode.set("")
         self.province_code.set("")
         self.province_name.set("")
         self.nationality_number.set("")
@@ -681,7 +699,7 @@ class Yjj2023(BaseCardFrame):
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
         self.ID_No.set(ID_No_src)
-        # print(type(self), event)
+        # print(__type(self), event)
 
 
 class Yjj2017(Yjj2023):
@@ -761,7 +779,6 @@ class Yjj2017(Yjj2023):
         参数:
         card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
         """
-
         self.ID_No.set(self.id_info.No)
         self.name_en.set(self.id_info.name_en)
         self.name_ch.set(self.id_info.name_ch)
@@ -770,6 +787,10 @@ class Yjj2017(Yjj2023):
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
         self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.fax_number.set(self.id_info.fax_number)
+        self.email_address.set(self.id_info.email_address)
+        self.zipcode.set(self.id_info.zipcode)
         self.city_code.set(self.id_info.city_code)
         province_code = self.id_info.city_code[0:2] + '0000'
         if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
@@ -845,13 +866,6 @@ class GATJzz(BaseCardFrame):
                                  bindings=[("<FocusOut>", self.id_no_parse),
                                            ("<Return>", self.id_no_parse)]
                                  )
-        # self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        # self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
-        # self.ID_No = tk.StringVar()
-        # self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        # self.entry_ID_No.grid(row=row_num.current, column=1)
-        # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
 
         # 创建英文名标签和输入框
         self.label_name_en = tk.Label(self, text="英文名:", bg=LABEL_BG)
@@ -886,6 +900,12 @@ class GATJzz(BaseCardFrame):
         self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
         # 联系电话
         self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
+        # 固定电话
+        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
+        # 传真号码
+        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
+        # 邮箱地址
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
         # 创建办理地区码标签和输入框
         self.label_province_code = tk.Label(self, text="地区码:")
         self.label_province_code.grid(row=row_num.current, column=0, sticky='e')
@@ -956,6 +976,9 @@ class GATJzz(BaseCardFrame):
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
         self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.fax_number.set(self.id_info.fax_number)
+        self.email_address.set(self.id_info.email_address)
         self.province_code.set(self.id_info.region_code)
         self.province_name.set(self.id_info.province_name)
 
@@ -977,6 +1000,9 @@ class GATJzz(BaseCardFrame):
         self.begin_date.set("")
         self.end_date.set("")
         self.phone_number.set("")
+        self.landline_number.set("")
+        self.fax_number.set("")
+        self.email_address.set("")
         self.province_code.set("")
         self.province_name.set("")
 
@@ -1056,6 +1082,12 @@ class GAtxz(BaseCardFrame):
 
         # 联系电话
         self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
+        # 固定电话
+        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
+        # 传真号码
+        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
+        # 邮箱地址
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
 
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=row_num.current, column=1)
@@ -1079,6 +1111,21 @@ class GAtxz(BaseCardFrame):
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
         self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.fax_number.set(self.id_info.fax_number)
+        self.email_address.set(self.id_info.email_address)
+
+    def clear_all_fields(self):
+        self.ID_No.set('')
+        self.name_ch.set('')
+        self.name_en.set('')
+        self.birthday.set('')
+        self.begin_date.set('')
+        self.end_date.set('')
+        self.phone_number.set('')
+        self.landline_number.set('')
+        self.fax_number.set('')
+        self.email_address.set('')
 
 
 class TWtxz(BaseCardFrame):
@@ -1096,7 +1143,14 @@ class TWtxz(BaseCardFrame):
         self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num))
         self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
         self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
+        # 联系电话
         self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
+        # 固定电话
+        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
+        # 传真号码
+        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
+        # 邮箱地址
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
         # self.label_name_ch = tk.Label(self, text="中文名:")
         # self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
         # self.name_ch = tk.StringVar()
@@ -1143,6 +1197,12 @@ class TWtxz(BaseCardFrame):
         self.begin_date.set(self.id_info.begin_date)
         self.end_date.set(self.id_info.end_date)
         self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.fax_number.set(self.id_info.fax_number)
+        self.email_address.set(self.id_info.email_address)
+
+    def clear_all_fields(self):
+        pass
 
 
 class BusinessLicense(BaseCardFrame):
@@ -1168,7 +1228,7 @@ class BusinessLicense(BaseCardFrame):
                                        )
 
         # 创建英文名称标签和输入框
-        self.name_en = WidgetGroup(self, name="英文名称:", row_num=next(row_num))
+        self.name_en = WidgetGroup(self, name="英文名称:", row_num=next(row_num), bg=LABEL_BG)
 
         # 创建成立日期标签和输入框
         self.birthday = WidgetGroup(self, name="成立日期:", row_num=next(row_num), bg=LABEL_BG)
@@ -1195,19 +1255,19 @@ class BusinessLicense(BaseCardFrame):
         self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(row_num))
 
         # 登记管理部门代码
-        self.dept_code = WidgetGroup(self, name="部门代码:", row_num=next(row_num), bg=LABEL_BG)
+        self.dept_code = WidgetGroup(self, name="部门代码:", row_num=next(row_num))
 
         # 机构类别代码
         self.org_type_code = WidgetGroup(self, name="机构类别:", row_num=next(row_num))
 
         # 登记机关行政区划码
-        self.admin_division_code = WidgetGroup(self, name="行政区划码:", row_num=next(row_num), bg=LABEL_BG)
+        self.admin_division_code = WidgetGroup(self, name="行政区划码:", row_num=next(row_num))
 
         # 登记机关名称
         self.admin_division_name = WidgetGroup(self, name="登记机关:", row_num=next(row_num))
 
         # 组织机构代码
-        self.org_code = WidgetGroup(self, name="组织机构码:", row_num=next(row_num), bg=LABEL_BG)
+        self.org_code = WidgetGroup(self, name="组织机构码:", row_num=next(row_num))
 
         # 校验码
         self.check_code = WidgetGroup(self, name="校验码:", row_num=next(row_num))
@@ -1222,13 +1282,12 @@ class BusinessLicense(BaseCardFrame):
 
         # 刷新按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh.grid(row=row_num.current, column=1)
+        self.btn_refresh.grid(row=next(row_num), column=1)
 
         # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
-        self.btn_generate.grid(row=next(row_num), column=0, sticky="e")
-
+        self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
         # 校验码计算
         self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete,
                                                     bg=LABEL_BG_NO)
@@ -1251,7 +1310,7 @@ class BusinessLicense(BaseCardFrame):
         begin_date = self.begin_date.get() or None
         try:
             self.id_info = IdCardGenerator.TypeYYZZ(name_ch=name_ch, name_en=name_en,
-                                                     birthday=birthday, begin_date=begin_date)
+                                                    birthday=birthday, begin_date=begin_date)
             self.show_info()
         except Exception as e:
             messagebox.showinfo("提示", f"输入有误,错误信息为{e}")
@@ -1264,7 +1323,8 @@ class BusinessLicense(BaseCardFrame):
         credit_code_src = credit_code_src[0:17]
         try:
             complete_code = IdCardGenerator.TypeYYZZ.calculate_check_num_cls(credit_code_src)
-            self.credit_code.set(complete_code)
+            self.credit_code.set(credit_code_src + complete_code)
+            self.check_code.set(complete_code)
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
 
@@ -1302,10 +1362,10 @@ class BusinessLicense(BaseCardFrame):
         self.zipcode.set(self.id_info.zipcode)
         self.dept_code.set(self.id_info.MANAGEMENT_DEPARTMENT_CODE)
         self.org_type_code.set(self.id_info.ORGANIZATION_TYPE_CODE)
-        self.admin_division_code.set(self.id_info.department_administration_division_code)
+        self.admin_division_code.set(self.id_info.county_code)
         self.org_code.set(self.id_info.organization_code)
         self.check_code.set(self.id_info.check_num)
-        self.admin_division_name.set(self.id_info.department_administration_division_name)
+        self.admin_division_name.set(self.id_info.county_name)
         self.address.set(self.id_info.address if hasattr(self.id_info, 'address') else '')
 
     def refresh_default(self):
@@ -1316,6 +1376,9 @@ class BusinessLicense(BaseCardFrame):
         print(f"{event}事件触发的解析统一社会信用代码...")
         try:
             credit_code = self.credit_code.get()
+            # 输入17位的时候可能要做校验位补全
+            if len(credit_code) == 17:
+                return
             if len(credit_code) != 18:
                 messagebox.showinfo("提示", f"输入的统一社会信用代码长度不正确: {len(credit_code)}位，应为18位")
                 return
@@ -1440,9 +1503,9 @@ class MainApplication(tk.Tk):
         self.frame_cache: dict[str, BaseCardFrame] = {}
 
         # 默认显示身份证页面
-        self.id_kind.set(IdCardGenerator.IDType.ID_CARD.value)
+        self.id_kind.set(IdCardGenerator.IDKind.ID_CARD.value)
         self.create_frame(None)
-        self.show_frame(self.frame_cache.get(IdCardGenerator.IDType.ID_CARD.value))
+        self.show_frame(self.frame_cache.get(IdCardGenerator.IDKind.ID_CARD.value))
 
     def show_frame(self, frame: BaseCardFrame = None):
         # 隐藏所有 Frame
@@ -1461,19 +1524,19 @@ class MainApplication(tk.Tk):
         try:
             selected_id_kind = str(self.id_kind.get())
             if selected_id_kind not in self.frame_cache.keys():
-                if IdCardGenerator.IDType.ID_CARD.value == selected_id_kind:
+                if IdCardGenerator.IDKind.ID_CARD.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = Sfz(self)
-                elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2023.value == selected_id_kind:
+                elif IdCardGenerator.IDKind.FOREIGN_PERMANENT_RESIDENT2023.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = Yjj2023(self)
-                elif IdCardGenerator.IDType.GAT_PERMANENT_RESIDENT.value == selected_id_kind:
+                elif IdCardGenerator.IDKind.GAT_PERMANENT_RESIDENT.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = GATJzz(self)
-                elif IdCardGenerator.IDType.HKG_MAC_PERMIT.value == selected_id_kind:
+                elif IdCardGenerator.IDKind.HKG_MAC_PERMIT.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = GAtxz(self)
-                elif IdCardGenerator.IDType.CTN_PERMIT.value == selected_id_kind:
+                elif IdCardGenerator.IDKind.CTN_PERMIT.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = TWtxz(self)
-                elif IdCardGenerator.IDType.FOREIGN_PERMANENT_RESIDENT2017.value == selected_id_kind:
+                elif IdCardGenerator.IDKind.FOREIGN_PERMANENT_RESIDENT2017.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = Yjj2017(self)
-                elif IdCardGenerator.IDType.BUSINESS_LICENSE.value == selected_id_kind:
+                elif IdCardGenerator.IDKind.BUSINESS_LICENSE.value == selected_id_kind:
                     self.frame_cache[selected_id_kind] = BusinessLicense(self)
                 else:
                     messagebox.showwarning("错误", f"当前输入的证件类型{selected_id_kind}不支持")
@@ -1492,7 +1555,7 @@ class MainApplication(tk.Tk):
 if __name__ == '__main__':
     # root = tk.Tk()
     # root.title("永居证生成器")
-    id_kinds_all = tuple(member.value for member in IdCardGenerator.IDType)
+    id_kinds_all = tuple(member.value for member in IdCardGenerator.IDKind)
     # id_kind = tk.StringVar()
     # label_id_kinds = tk.Label(root, text="证件类型:")
     # label_id_kinds.grid(row=0, column=0, sticky='e')
