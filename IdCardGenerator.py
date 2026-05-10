@@ -21,8 +21,8 @@ BASE_DIR = Nationality.BASE_DIR
 DATE_TODAY = datetime.date.today()
 
 
-# 证件类型枚举
-class IDType(Enum):
+# 证件类型枚举,kind级别.kind级别比type级别高
+class IDKind(Enum):
     ID_CARD = "居民身份证"
     FOREIGN_PERMANENT_RESIDENT2023 = "2023版外国人永久居留证"
     FOREIGN_PERMANENT_RESIDENT2017 = "2017版外国人永久居留证"
@@ -32,14 +32,14 @@ class IDType(Enum):
     BUSINESS_LICENSE = "营业执照"
 
 
-# 港澳台居民居住证枚举
+# 港澳台居民居住证枚举,type级别
 class GATPermanentResident(Enum):
     HKG_PERMANENT_RESIDENT = "香港居民居住证"
     MAC_PERMANENT_RESIDENT = "澳门居民居住证"
     CTN_PERMANENT_RESIDENT = "台湾居民居住证"
 
 
-# 港澳居民来往内地通行证枚举
+# 港澳居民来往内地通行证枚举,type级别
 class HkgMacPermit(Enum):
     HKG_PERMIT = "香港居民来往内地通行证"
     MAC_PERMIT = "澳门居民来往内地通行证"
@@ -110,6 +110,10 @@ def get_province_city_code() -> tuple:
 
 # 获取省市县代码
 def get_province_city_county_code() -> tuple:
+    """
+    获取省市县代码
+    :return: (tuple)省市县代码和名称
+    """
     items = list(Nationality.administration_division.items())
 
     while True:
@@ -123,7 +127,7 @@ def get_province_city_county_code() -> tuple:
     return code, name
 
 
-# 七三一算法
+# 七三一算法,目前用于2017版本永居证校验位生成
 def calculate_check_num_731(id_no: str) -> str:
     def cyclic_generator():
         values = [7, 3, 1]
@@ -321,6 +325,80 @@ def generate_organization_code():
     return ''.join(organ_code) + '-' + check_no
 
 
+class CategoryDescriptor:
+    """
+    证件类别描述符
+
+    用于管理和验证证件的类别属性，确保类别值的合法性和一致性。
+    支持自动从证件类型推导出证件类别。
+    """
+
+    def __init__(self, default=''):
+        """
+        初始化描述符
+
+        :param default: 默认值
+        """
+        self.default = default
+        self.data = {}
+
+    def __set_name__(self, owner, name):
+        """
+        获取属性名称
+
+        :param owner: 拥有该描述符的类
+        :param name: 属性名称
+        """
+        self.name = name
+
+    def __get__(self, instance, owner):
+        """
+        获取属性值
+
+        :param instance: 实例对象
+        :param owner: 所有者类
+        :return: 属性值
+        """
+        if instance is None:
+            return self
+        return self.data.get(id(instance), self.default)
+
+    def __set__(self, instance, value):
+        """
+        设置属性值，包含验证逻辑
+
+        :param instance: 实例对象
+        :param value: 要设置的值
+        """
+        if value is None:
+            value = self.default
+
+        if not isinstance(value, str):
+            raise TypeError(f"证件类别必须是字符串类型，当前类型: {type(value).__name__}")
+        # 港澳台证件类型
+        GAT_categories = [
+            IDKind.HKG_MAC_PERMIT.value,
+            IDKind.CTN_PERMIT.value,
+            IDKind.GAT_PERMANENT_RESIDENT.value
+        ]
+
+        if value and value in GAT_categories:
+            import warnings
+            warnings.warn(f"证件类别 '{value}' 不在标准类别列表中")
+            self.data[id(instance)] = 'GAT'
+
+        else:
+            self.data[id(instance)] = 'CHN'
+
+    def __delete__(self, instance):
+        """
+        删除属性值
+
+        :param instance: 实例对象
+        """
+        self.data.pop(id(instance), None)
+
+
 # 个人证件父类
 class IDNOGenerator(ABC):
     # 权重参数
@@ -338,10 +416,11 @@ class IDNOGenerator(ABC):
         "梅溪湖路7890号",
         "长江一路234号"
     )
+    category = CategoryDescriptor(default='')
 
     def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None,
                  gender: str = None, name_length: int = 3, sequence_code: str = None,
-                 begin_date: str = None, county_code: str = None):
+                 begin_date: str = None, county_code: str = None, id_kind: str | IDKind = None):
         """
         个人证件父类,生成基本的信息。
 
@@ -353,9 +432,11 @@ class IDNOGenerator(ABC):
         :param sequence_code: (str) 序列号,同时输入性别和序列号,以序列号为准
         :param begin_date: (str)证件有效期起始日期
         :param county_code: (str)行政区代码,到县一级
+        :param id_kind: (str | IDKind)IDType类或者类中的证件类型名称
         """
         # 证件类别
-        self.__type = ' '
+        # self.__kind = None
+        self.id_kind = id_kind
         # 姓名
         if name_ch is None:
             self.name_ch = generate_chinese_name(name_length)
@@ -484,7 +565,46 @@ class IDNOGenerator(ABC):
 
         self.fax_number = generate_china_fax_number(area_code=self.area_code)
         self.landline_number = generate_china_landline_number(area_code=self.area_code)
-        self.address = zipinfo.address
+        self.address = zipinfo.address + random.choice(self.ADDRESSES)
+
+    @property
+    def id_kind(self):
+        return self.__kind
+
+    @id_kind.setter
+    def id_kind(self, value):
+        if isinstance(value, IDKind):
+            self.__kind = value.value
+        elif isinstance(value, str):
+            self.__kind = value
+        else:
+            raise TypeError(f"证件类别必须是证件类型枚举类型或者字符串，当前类型: {type(value).__name__}")
+
+    @id_kind.deleter
+    def id_kind(self):
+        del self.__kind
+
+    @property
+    def category(self):
+        # 需要出入境核查的证件类型
+        eep_categories = [
+            IDKind.HKG_MAC_PERMIT.value,
+            IDKind.CTN_PERMIT.value,
+        ]
+
+        if self.__kind and self.__kind in eep_categories:
+            return 'eep_auth'
+
+        else:
+            return 'CHN'
+
+    @category.setter
+    def category(self, value):
+        pass
+
+    @category.deleter
+    def category(self):
+        pass
 
     def get_province_city_county_name(self, is_new=True):
         """
@@ -536,7 +656,8 @@ class IDNOGenerator(ABC):
                 # 将起始日期转换为日期对象,判断字符串是不是合法日期
                 begin_date_obj = datetime.datetime.strptime(begin_date, "%Y%m%d").date()
                 self.begin_date = begin_date
-                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date, begin_date=begin_date_obj)
+                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date, begin_date=begin_date_obj,
+                                                                 id_kind=self.id_kind)
                 if isinstance(end_date, datetime.date):
                     self.end_date = end_date.strftime("%Y%m%d")
                 else:
@@ -549,7 +670,8 @@ class IDNOGenerator(ABC):
                 days_between = (DATE_TODAY - birthday_date).days
                 random_days = random.randint(0, days_between)
                 begin_date_obj = birthday_date + datetime.timedelta(days=random_days)
-                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date, begin_date=begin_date_obj)
+                end_date = self.generate_valid_dates_by_birthday(birthday=birthday_date, begin_date=begin_date_obj,
+                                                                 id_kind=self.id_kind)
                 # print(end_date)
                 # 如果未输入起始日期，则终止日期要在今天之后
                 if isinstance(end_date, datetime.date) and end_date >= DATE_TODAY:
@@ -562,11 +684,13 @@ class IDNOGenerator(ABC):
                     break
 
     @staticmethod
-    def generate_valid_dates_by_birthday(birthday: datetime.date, begin_date: datetime.date) -> str | datetime.date:
+    def generate_valid_dates_by_birthday(birthday: datetime.date, begin_date: datetime.date,
+                                         id_kind) -> str | datetime.date:
         """
         根据生日和起始日期生成终止日期,起始日期在生日和当前日期之间,终止日期根据起始日期时年龄确定有效期。
         :param birthday: (datetime.date)生日,date对象
         :param begin_date: (datetime.date)证件有效期起始日期,date对象
+        :param id_kind:(str) 证件类型,不同的证件类型,有效期计算方式有所不同
         :returns:
             - 如果年龄大于等于 46 岁，返回固定字符串 "30001231"
             - 否则返回计算得到的终止日期(datetime.date)对象
@@ -575,15 +699,24 @@ class IDNOGenerator(ABC):
         # 计算从生日到起始日期的年龄（精确计算）
         age_at_begin_date = begin_date.year - birthday.year - (
                 (begin_date.month, begin_date.day) < (birthday.month, birthday.day))
-        # 根据领证年龄计算终止日期，身份证有效期的逻辑
-        if age_at_begin_date < 16:
+        if id_kind == IDKind.HKG_MAC_PERMIT.value:
+            # 港澳通行证,满18周岁的有效期为10年,未满18周岁的有效期5年
+            if age_at_begin_date >= 18:
+                valid_years = 10
+            else:
+                valid_years = 5
+        elif id_kind == IDKind.CTN_PERMIT.value:
             valid_years = 5
-        elif 16 <= age_at_begin_date < 26:
-            valid_years = 10
-        elif 26 <= age_at_begin_date < 46:
-            valid_years = 20
         else:
-            return "30001231"
+            # 根据领证年龄计算终止日期，身份证有效期的逻辑
+            if age_at_begin_date < 16:
+                valid_years = 5
+            elif 16 <= age_at_begin_date < 26:
+                valid_years = 10
+            elif 26 <= age_at_begin_date < 46:
+                valid_years = 20
+            else:
+                return "30001231"
         # 计算终止日期（处理闰年问题）
         try:
             end_date = begin_date.replace(year=begin_date.year + valid_years)
@@ -664,27 +797,8 @@ class TypeSFZ(IDNOGenerator):
         :param county_code: (str)到县一级的行政区代码
         :param begin_date: (str)证件有效期起始日期
         """
-        super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code, begin_date=begin_date,county_code=county_code)
-        self.type = IDType.ID_CARD.value
-        # 随机生成,这段逻辑已移动到父类中
-        # if not self.county_code:
-        #     self.county_code, self.county_name = get_province_city_county_code()
-        #     self.get_province_city_county_name()
-        # else:
-        #     # 新版行政区划，剔除市一级但是保留港澳台
-        #     if (county_name := Nationality.administration_division.get(county_code)) \
-        #             and ((county_code in Nationality.CODE_HONGKONG_MACAO_TAIWAN)
-        #                  or ('00' != county_code[-2:])):
-        #         self.county_code = county_code
-        #         self.county_name = county_name
-        #         self.get_province_city_county_name()
-        #     # 旧版行政区划，剔除市一级
-        #     elif (county_name := Nationality.administration_division_old.get(county_code)) and '00' != county_code[-2:]:
-        #         self.county_code = county_code
-        #         self.county_name = county_name
-        #         self.get_province_city_county_name(is_new=False)
-        #     else:
-        #         raise ValueError(f"输入的行政区代码{county_code}错误,需要输入县一级的行政区划代码")
+        super().__init__(name_ch, name_en, birthday, gender, sequence_code=sequence_code, begin_date=begin_date,
+                         county_code=county_code, id_kind=IDKind.ID_CARD)
         self.No = f"{self.county_code}{self.birthday}{self.sequence_code}"
         self.calculate_check_num()
         # 拼接上校验位
@@ -693,9 +807,7 @@ class TypeSFZ(IDNOGenerator):
             .replace('None', '')
 
     def __str__(self):
-        return self.type
-
-
+        return self.id_kind
 
     @classmethod
     def id_no_parse(cls, id_no):
@@ -762,8 +874,8 @@ class TypeYJZ(IDNOGenerator):
         :param sequence_code: (str)顺序码,仅在依据旧版信息生成新版永居证号码时有用
         :param begin_date: (str)证件有效期起始日期
         """
-        super().__init__(name_ch, name_en, birthday, gender, name_length, sequence_code, begin_date)
-        self.type = IDType.FOREIGN_PERMANENT_RESIDENT2023.value
+        super().__init__(name_ch, name_en, birthday, gender, name_length, sequence_code, begin_date,
+                         id_kind=IDKind.FOREIGN_PERMANENT_RESIDENT2023)
         # 地区码
         if province_name is None:
             self.province_code = IDNOGenerator.get_province_code()
@@ -912,7 +1024,7 @@ class TypeYJZ(IDNOGenerator):
 
     def __str__(self):
         return (
-            f"证件类型：{self.type}\n"
+            f"证件类型：{self.id_kind}\n"
             f"证件号码：{self.No}\n"
             f"中文名：{self.name_ch}\n"
             f"英文名：{self.name_en}\n"
@@ -972,8 +1084,8 @@ class TypeYJZ2017(IDNOGenerator):
         :param gender: (str)性别,输入性别时,随机生成顺序码
         :param sequence_code: (str)顺序码,同时输入性别和顺序码,以顺序码为准
         """
-        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, name_length=4)
-        self.type = IDType.FOREIGN_PERMANENT_RESIDENT2017.value
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, name_length=4,
+                         id_kind=IDKind.FOREIGN_PERMANENT_RESIDENT2017)
         if sequence_code:
             self.sequence_code = str(int(sequence_code) % 10)
         else:
@@ -1022,7 +1134,7 @@ class TypeYJZ2017(IDNOGenerator):
 
     def __str__(self):
         return (
-            f"证件类别：{self.type}\n"
+            f"证件类别：{self.id_kind}\n"
             f"证件号码：{self.No}\n"
             f"中文名：{self.name_ch}\n"
             f"英文名：{self.name_en}\n"
@@ -1083,8 +1195,8 @@ class TypeGATJZZ(IDNOGenerator):
 
     def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None,
                  gender: str = None, begin_date: str = None):
-        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, begin_date=begin_date)
-        self.__kind = IDType.GAT_PERMANENT_RESIDENT.value
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, begin_date=begin_date,
+                         id_kind=IDKind.GAT_PERMANENT_RESIDENT)
         self.__type = id_type
         if id_type == GATPermanentResident.HKG_PERMANENT_RESIDENT.value:
             self.region_code = '810000'
@@ -1104,7 +1216,7 @@ class TypeGATJZZ(IDNOGenerator):
 
     def __str__(self):
         return (
-            f"证件类别：{self.__kind}\n"
+            f"证件类别：{self.id_kind}\n"
             f"证件类型：{self.__type}\n"
             f"证件号码：{self.No}\n"
             f"生日：{self.birthday}\n"
@@ -1148,9 +1260,8 @@ class TypeGATJZZ(IDNOGenerator):
 # 港澳通行证
 class TypeGATXZ(IDNOGenerator):
     def __init__(self, id_type: str):
-        super().__init__()
-        self.__kind = IDType.HKG_MAC_PERMIT.value
-        self.type = id_type
+        super().__init__(id_kind=IDKind.HKG_MAC_PERMIT)
+        self.__type = id_type
         if id_type == HkgMacPermit.HKG_PERMIT.value:
             self.PREFIX_CODE = 'H'
         elif id_type == HkgMacPermit.MAC_PERMIT.value:
@@ -1165,8 +1276,8 @@ class TypeGATXZ(IDNOGenerator):
     # 字母加上八位数字
     def __str__(self):
         return (
-            f"证件类别：{self.__kind}\n"
-            f"证件类型：{self.type}\n"
+            f"证件类别：{self.id_kind}\n"
+            f"证件类型：{self.__type}\n"
             f"证件号码：{self.No}\n"
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
@@ -1175,10 +1286,9 @@ class TypeGATXZ(IDNOGenerator):
 
 # 台湾通行证
 class TypeTWTXZ(IDNOGenerator):
+    # 台湾居民来往内地通行证
     def __init__(self):
-        super(TypeTWTXZ, self).__init__()
-        # 台湾居民来往内地通行证
-        self.type = IDType.CTN_PERMIT.value
+        super(TypeTWTXZ, self).__init__(id_kind=IDKind.CTN_PERMIT)
         # 前半段
         self.sequence_code_forepart = str(random.randint(0, 99999)).zfill(5)
         # 证件号码
@@ -1187,7 +1297,7 @@ class TypeTWTXZ(IDNOGenerator):
     # 八位数字
     def __str__(self):
         return (
-            f"证件类型：{self.type}\n"
+            f"证件类型：{self.id_kind}\n"
             f"证件号码：{self.No}\n"
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
@@ -1236,17 +1346,18 @@ Y：其他
     ORGANIZATION_TYPE_CODE = '1'
 
     def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None, begin_date: str = None):
-        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, begin_date=begin_date)
-        self.__kind = IDType.BUSINESS_LICENSE.value
-        department_administration_division_info = get_province_city_county_code()
-        self.department_administration_division_code = department_administration_division_info[0]
-        self.department_administration_division_name = department_administration_division_info[1]
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, name_length=6, begin_date=begin_date,
+                         id_kind=IDKind.BUSINESS_LICENSE)
+        # department_administration_division_info = get_province_city_county_code()
+        self.name_ch += '有限公司'
+        # self.department_administration_division_code = department_administration_division_info[0]
+        # self.department_administration_division_name = department_administration_division_info[1]
         self.organization_code = generate_organization_code()
         self.No_without_check_num = (
-                    f"{self.MANAGEMENT_DEPARTMENT_CODE}"
-                    f"{self.department_administration_division_code}"
-                    f"{self.ORGANIZATION_TYPE_CODE}"
-                    f"{self.organization_code.replace('-', '')}"
+            f"{self.MANAGEMENT_DEPARTMENT_CODE}"
+            f"{self.county_code}"
+            f"{self.ORGANIZATION_TYPE_CODE}"
+            f"{self.organization_code.replace('-', '')}"
         )
         self.check_num = TypeYYZZ.calculate_check_num_cls(self.No_without_check_num)
         self.No = f"{self.No_without_check_num}{self.check_num}"
@@ -1262,8 +1373,8 @@ Y：其他
         :param str_number:(str)没有校验位的统一机构代码
         :return: (str)计算后的校验位
         """
-        if (id_withou_C18 := len(str_number)) != cls.ID_NO_LENGTH - 1:
-            raise ValueError(f"证件号码长度错误,号码{str_number}长度为:{id_withou_C18}")
+        if (id_without_C18 := len(str_number)) != cls.ID_NO_LENGTH - 1:
+            raise ValueError(f"证件号码长度错误,号码{str_number}长度为:{id_without_C18}")
         sum_y = 0
         for i in range(len(str_number)):
             # 判断是否为数字,如果是数字转换为int类型
@@ -1280,6 +1391,9 @@ Y：其他
             sum_y += single_num * cls.WEIGHT[i]
 
         C18 = 31 - sum_y % 31
+        # 结果为31‌，则校验码数值为0
+        C18 %= 31
+
         check_no = None
         for k, v in cls.CHAR_TO_VALUE.items():
             if C18 == v:
@@ -1291,9 +1405,6 @@ Y：其他
         return str(check_no)
 
 
-
-
-
 if __name__ == '__main__':
     # wgr = TypeYJZ(gender='男')
     # wgr = TypeYJZ()
@@ -1301,11 +1412,11 @@ if __name__ == '__main__':
     # print(wgr)
     # HKG_card = TypeGATJZZ(GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
     # print(HKG_card)
-    # MAC_card = TypeGATJZZ(IDType.MAC_PERMANENT_RESIDENT)
+    # MAC_card = TypeGATJZZ(IDKind.MAC_PERMANENT_RESIDENT)
     # print(MAC_card)
-    # HKG_pass_card = TypeGATXZ(IDType.HKG_PERMIT)
+    # HKG_pass_card = TypeGATXZ(IDKind.HKG_PERMIT)
     # print(HKG_pass_card)
-    # MAC_pass_card = TypeGATXZ(IDType.MAC_PERMIT)
+    # MAC_pass_card = TypeGATXZ(IDKind.MAC_PERMIT)
     # print(MAC_pass_card)
     # CTN_pass_card = TypeTWTXZ()
     # print(CTN_pass_card)
@@ -1319,7 +1430,8 @@ if __name__ == '__main__':
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
-    a = TypeSFZ(birthday='19120115',gender='男',sequence_code='282',county_code='430407')
-    abc = TypeYYZZ()
+    a = TypeSFZ(birthday='19120115', gender='男', sequence_code='282', county_code='430407')
+    print(a)
+    #abc = TypeYYZZ()
     #a = TypeYYZZ.calculate_check_num_cls('91934502THQ7F74W5')
     pass
