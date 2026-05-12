@@ -23,10 +23,37 @@ LABEL_BG_OLD_NO = '#90FFA7'
 class BaseCardFrame(tk.Frame, ABC):
     """抽象基类，定义 generate_default 方法"""
 
-    def __init__(self, master=None):
+    def __init__(self, master=None,start_row_num: int = 1):
+        """
+        初始化方法
+        :param master: (tk.Tk) 父组件
+        :param start_row_num: (int) 组件的起始行号
+        """
         super().__init__(master)
         self.master = master
         self.id_info = None
+        # 行号迭代器，注意next方法返回当前值
+        self.row_num_iterator = RowNumIterator(start_row_num)
+        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(self.row_num_iterator),
+                                 bg=LABEL_BG_NO,
+                                 bindings=[("<FocusOut>", self.id_no_parse),
+                                           ("<Return>", self.id_no_parse)]
+                                 )
+        self.name_en = WidgetGroup(self, name="英文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        self.birthday = WidgetGroup(self, name="生日:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        self.gender = GenderGroup(self, name="性别:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(self.row_num_iterator))
+        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(self.row_num_iterator))
+        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(self.row_num_iterator))
+        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(self.row_num_iterator))
+        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(self.row_num_iterator))
+        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(self.row_num_iterator))
+        self.id_address = WidgetGroup(self, name="证件地址:",row_num=next(self.row_num_iterator))
+
+        self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
+        self.button_quit.grid(row=self.row_num_iterator.current, column=2, sticky="w")
 
     @abstractmethod
     def generate_default(self):
@@ -88,6 +115,9 @@ class WidgetGroup:
 
     def set(self, value):
         self.__entry_value.set(value)
+
+    def clear_entry(self, value):
+        self.set("")
 
     def grid_forget(self):
         """
