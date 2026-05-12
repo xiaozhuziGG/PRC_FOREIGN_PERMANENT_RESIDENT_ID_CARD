@@ -23,7 +23,7 @@ LABEL_BG_OLD_NO = '#90FFA7'
 class BaseCardFrame(tk.Frame, ABC):
     """抽象基类，定义 generate_default 方法"""
 
-    def __init__(self, master=None,start_row_num: int = 1):
+    def __init__(self, master=None, start_row_num: int = 1):
         """
         初始化方法
         :param master: (tk.Tk) 父组件
@@ -33,27 +33,25 @@ class BaseCardFrame(tk.Frame, ABC):
         self.master = master
         self.id_info = None
         # 行号迭代器，注意next方法返回当前值
-        self.row_num_iterator = RowNumIterator(start_row_num)
-        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(self.row_num_iterator),
-                                 bg=LABEL_BG_NO,
-                                 bindings=[("<FocusOut>", self.id_no_parse),
-                                           ("<Return>", self.id_no_parse)]
-                                 )
-        self.name_en = WidgetGroup(self, name="英文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        self.birthday = WidgetGroup(self, name="生日:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        self.gender = GenderGroup(self, name="性别:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(self.row_num_iterator))
-        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(self.row_num_iterator))
-        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(self.row_num_iterator))
-        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(self.row_num_iterator))
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(self.row_num_iterator))
-        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(self.row_num_iterator))
-        self.id_address = WidgetGroup(self, name="证件地址:",row_num=next(self.row_num_iterator))
-
-        self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit.grid(row=self.row_num_iterator.current, column=2, sticky="w")
+        # self.row_num_iterator = RowNumIterator(start_row_num)
+        # self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        # self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(self.row_num_iterator),bg=LABEL_BG_NO)
+        # self.name_en = WidgetGroup(self, name="英文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        # self.birthday = WidgetGroup(self, name="生日:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        # self.gender = GenderGroup(self, name="性别:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        # self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
+        # self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(self.row_num_iterator))
+        # self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(self.row_num_iterator))
+        # self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(self.row_num_iterator))
+        # self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(self.row_num_iterator))
+        # self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(self.row_num_iterator))
+        # self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(self.row_num_iterator))
+        # self.id_address = WidgetGroup(self, name="证件地址:",row_num=next(self.row_num_iterator))
+        #
+        # self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
+        # self.button_quit.grid(row=self.row_num_iterator.current, column=2, sticky="w")
+        # self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
+        # self.btn_refresh_gat.grid(row=self.row_num_iterator.current, column=1)
 
     @abstractmethod
     def generate_default(self):
@@ -63,7 +61,19 @@ class BaseCardFrame(tk.Frame, ABC):
     @abstractmethod
     def show_info(self):
         """展示信息的抽象方法"""
-        pass
+        self.ID_No.set(self.id_info.ID_No)
+        self.name_ch.set(self.id_info.name_ch)
+        self.name_en.set(self.id_info.name_en)
+        self.birthday.set(self.id_info.birthday)
+        self.gender.set(self.id_info.gender)
+        self.begin_date.set(self.id_info.begin_date)
+        self.end_date.set(self.id_info.end_date)
+        self.phone_number.set(self.id_info.phone_number)
+        self.landline_number.set(self.id_info.landline_number)
+        self.fax_number.set(self.id_info.fax_number)
+        self.email_address.set(self.id_info.email_address)
+        self.zipcode.set(self.id_info.zipcode)
+        self.id_address.set(self.id_info.id_address)
 
     @abstractmethod
     def clear_all_fields(self):
@@ -111,13 +121,43 @@ class WidgetGroup:
         self.__widget_list.append(frame.btn_copy)
 
     def get(self):
+        """
+        获取输入框中的值
+        :return: (str) 输入框中的值
+        """
         return self.__entry_value.get()
 
     def set(self, value):
+        """
+        设置输入框中的值
+        :param value: (str) 输入框中的值
+        :return:
+        """
         self.__entry_value.set(value)
 
-    def clear_entry(self, value):
+    def clear_entry(self):
+        """
+        将输入框清空
+        :return:
+        """
         self.set("")
+
+    def label_configure(self, **kwargs):
+        """
+        配置label组件
+        :param kwargs: (dict) label组件的配置参数
+        :return:
+        """
+        self.label.configure(**kwargs)
+
+    def entry_bind(self, sequence, func):
+        """
+        为输入框绑定事件
+        :param sequence: (str) 事件序列
+        :param func: (callable) 回调函数
+        :return:
+        """
+        self.entry.bind(sequence, func)
 
     def grid_forget(self):
         """
