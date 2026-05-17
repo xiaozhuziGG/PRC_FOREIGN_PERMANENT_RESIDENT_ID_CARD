@@ -15,73 +15,185 @@ import Nationality
 import IdCardGenerator
 from abc import abstractmethod, ABC
 
+_SENTINEL = object()
 LABEL_BG = '#80FFFF'
 LABEL_BG_NO = '#1CE47A'
 LABEL_BG_OLD_NO = '#90FFA7'
 
 
+class WidgetGroupDescriptor:
+    """描述符：管理 WidgetGroup/GenderGroup 属性，实现子类赋值时更新而非覆盖"""
+
+    def __init__(self, attr_name: str):
+        """
+        初始化描述符
+
+        :param attr_name: 属性名，对应 instance.__dict__ 中的 key
+        """
+        self.attr_name = attr_name
+
+    def __get__(self, instance, owner):
+        """
+        获取属性值
+
+        :param instance: 拥有该属性的实例
+        :param owner: 拥有该描述符的类
+        :return: instance.__dict__ 中的 WidgetGroup/GenderGroup 或描述符自身
+        """
+        if instance is None:
+            return self
+        return instance.__dict__.get(self.attr_name)
+
+    def __set__(self, instance, value: 'WidgetGroup | GenderGroup'):
+        """
+        设置属性值：若已有同名组件则更新而非覆盖
+
+        :param instance: 拥有该属性的实例
+        :param value: 新的 WidgetGroup 或 GenderGroup；非组件类型直接存入 __dict__
+        """
+        if not isinstance(value, (WidgetGroup, GenderGroup)):
+            instance.__dict__[self.attr_name] = value
+            return
+        existing = instance.__dict__.get(self.attr_name)
+        if existing is not None:
+            # 仅传递子类显式提供的参数，更新已有组件
+            if isinstance(value, WidgetGroup):
+                kwargs = {}
+                if value._has_name:
+                    kwargs['name'] = value.name
+                if value._has_bg:
+                    kwargs['bg'] = value._bg
+                if value._has_bindings and value._bindings:
+                    kwargs['bindings'] = value._bindings
+                if kwargs:
+                    existing.configure(**kwargs)
+                if value._has_row_num:
+                    existing.row_num = value.row_num
+            elif isinstance(value, GenderGroup):
+                kwargs = {}
+                if value._has_name:
+                    kwargs['name'] = value.name
+                if value._has_bg:
+                    kwargs['bg'] = value._bg
+                if kwargs:
+                    existing.configure(**kwargs)
+                if value._has_row_num:
+                    existing.row_num = value.row_num
+            value.destroy()
+        else:
+            instance.__dict__[self.attr_name] = value
+
+    def __delete__(self, instance):
+        """
+        删除属性
+
+        :param instance: 拥有该属性的实例
+        """
+        if self.attr_name in instance.__dict__:
+            del instance.__dict__[self.attr_name]
+
+
 class BaseCardFrame(tk.Frame, ABC):
-    """抽象基类，定义 generate_default 方法"""
+    """抽象基类，用描述符管理 13 个公共字段，子类无需重复赋值"""
+
+    name_ch = WidgetGroupDescriptor('name_ch')
+    ID_No = WidgetGroupDescriptor('ID_No')
+    name_en = WidgetGroupDescriptor('name_en')
+    birthday = WidgetGroupDescriptor('birthday')
+    gender = WidgetGroupDescriptor('gender')
+    begin_date = WidgetGroupDescriptor('begin_date')
+    end_date = WidgetGroupDescriptor('end_date')
+    phone_number = WidgetGroupDescriptor('phone_number')
+    landline_number = WidgetGroupDescriptor('landline_number')
+    fax_number = WidgetGroupDescriptor('fax_number')
+    email_address = WidgetGroupDescriptor('email_address')
+    zipcode = WidgetGroupDescriptor('zipcode')
+    id_address = WidgetGroupDescriptor('id_address')
+
+    @staticmethod
+    def _common_field_names():
+        return [
+            'name_ch', 'ID_No', 'name_en', 'birthday', 'gender',
+            'begin_date', 'end_date', 'phone_number', 'landline_number',
+            'fax_number', 'email_address', 'zipcode', 'id_address'
+        ]
 
     def __init__(self, master=None, start_row_num: int = 1):
         """
-        初始化方法
-        :param master: (tk.Tk) 父组件
-        :param start_row_num: (int) 组件的起始行号
+        初始化抽象基类，预创建所有公共字段组件
+
+        :param master: 父级 tk 容器
+        :param start_row_num: 公共字段的起始行号，子类可在前面插入自有字段后传入更大值
         """
         super().__init__(master)
         self.master = master
         self.id_info = None
-        # 行号迭代器，注意next方法返回当前值
-        # self.row_num_iterator = RowNumIterator(start_row_num)
-        # self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        # self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(self.row_num_iterator),bg=LABEL_BG_NO)
-        # self.name_en = WidgetGroup(self, name="英文名:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        # self.birthday = WidgetGroup(self, name="生日:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        # self.gender = GenderGroup(self, name="性别:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        # self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(self.row_num_iterator), bg=LABEL_BG)
-        # self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(self.row_num_iterator))
-        # self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(self.row_num_iterator))
-        # self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(self.row_num_iterator))
-        # self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(self.row_num_iterator))
-        # self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(self.row_num_iterator))
-        # self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(self.row_num_iterator))
-        # self.id_address = WidgetGroup(self, name="证件地址:",row_num=next(self.row_num_iterator))
-        #
-        # self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        # self.button_quit.grid(row=self.row_num_iterator.current, column=2, sticky="w")
-        # self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        # self.btn_refresh_gat.grid(row=self.row_num_iterator.current, column=1)
+        self._init_common_widgets(start_row_num)
+
+    def _init_common_widgets(self, start_row_num: int):
+        """
+        预创建 13 个公共字段组件，行号由迭代器管理，调整顺序即可调整排布
+
+        :param start_row_num: 组件起始行号
+        """
+        r = RowNumIterator(start_row_num)
+        self.__dict__['name_ch'] = WidgetGroup(self, name="中文名:", row_num=next(r))
+        self.__dict__['ID_No'] = WidgetGroup(self, name="证件号码:", row_num=next(r))
+        self.__dict__['name_en'] = WidgetGroup(self, name="英文名:", row_num=next(r))
+        self.__dict__['birthday'] = WidgetGroup(self, name="生日:", row_num=next(r))
+        self.__dict__['gender'] = GenderGroup(self, name="性别:", row_num=next(r))
+        self.__dict__['begin_date'] = WidgetGroup(self, name="起始日期:", row_num=next(r))
+        self.__dict__['end_date'] = WidgetGroup(self, name="到期日期:", row_num=next(r))
+        self.__dict__['phone_number'] = WidgetGroup(self, name="联系电话:", row_num=next(r))
+        self.__dict__['landline_number'] = WidgetGroup(self, name="固定电话:", row_num=next(r))
+        self.__dict__['fax_number'] = WidgetGroup(self, name="传真号码:", row_num=next(r))
+        self.__dict__['email_address'] = WidgetGroup(self, name="电子邮箱:", row_num=next(r))
+        self.__dict__['zipcode'] = WidgetGroup(self, name="邮政编码:", row_num=next(r))
+        self.__dict__['id_address'] = WidgetGroup(self, name="证件地址:", row_num=next(r))
+        self._next_row = r.current
 
     @abstractmethod
     def generate_default(self):
-        """生成默认信息的抽象方法"""
+        """生成默认证件信息并填充到界面，子类必须实现"""
         self.show_info()
 
-    @abstractmethod
     def show_info(self):
-        """展示信息的抽象方法"""
-        self.ID_No.set(self.id_info.ID_No)
-        self.name_ch.set(self.id_info.name_ch)
-        self.name_en.set(self.id_info.name_en)
-        self.birthday.set(self.id_info.birthday)
-        self.gender.set(self.id_info.gender)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.fax_number.set(self.id_info.fax_number)
-        self.email_address.set(self.id_info.email_address)
-        self.zipcode.set(self.id_info.zipcode)
-        self.id_address.set(self.id_info.id_address)
+        """
+        将 self.id_info 中的公共字段数据填充到对应组件中
 
-    @abstractmethod
+        若 self.id_info 为 None 则直接返回
+        """
+        if not self.id_info:
+            return
+        info = self.id_info
+        d = self.__dict__
+        _set_if = lambda name, val: d[name].set(val) if d.get(name) else None
+        _set_if('name_ch', info.name_ch)
+        _set_if('ID_No', info.No)
+        _set_if('name_en', info.name_en)
+        _set_if('birthday', info.birthday)
+        _set_if('gender', info.gender)
+        _set_if('begin_date', info.begin_date)
+        _set_if('end_date', info.end_date)
+        _set_if('phone_number', info.phone_number)
+        _set_if('landline_number', info.landline_number)
+        _set_if('fax_number', info.fax_number)
+        _set_if('email_address', info.email_address)
+        _set_if('zipcode', info.zipcode)
+        _set_if('id_address', getattr(info, 'address', ''))
+
     def clear_all_fields(self):
-        """清空所有字段"""
-        pass
+        """清空所有 WidgetGroup 和 GenderGroup 字段（含子类特有字段）"""
+        for widget in self.__dict__.values():
+            if isinstance(widget, (WidgetGroup, GenderGroup)):
+                widget.set('')
 
     def refresh_default(self) -> tk.Frame:
-        """刷新默认信息，并返回刷新后的frame"""
+        """
+        重新生成默认信息并返回自身 Frame
+
+        :return: 当前 BaseCardFrame 实例
+        """
         self.generate_default()
         return self
 
@@ -89,37 +201,37 @@ class BaseCardFrame(tk.Frame, ABC):
 class WidgetGroup:
     """自定义组件的组合，定义 get 和 set 方法"""
 
-    def __init__(self, frame: BaseCardFrame, name: str, row_num: int, bg: str = None,
-                 bindings: list[tuple[str, callable]] = None):
-        """
-        自定义控件的组合,Label+Entry+Button
+    def __init__(self, frame: BaseCardFrame, name=_SENTINEL, row_num=_SENTINEL,
+                 bg=_SENTINEL, bindings=_SENTINEL):
+        self._has_name = name is not _SENTINEL
+        self._has_row_num = row_num is not _SENTINEL
+        self._has_bg = bg is not _SENTINEL
+        self._has_bindings = bindings is not _SENTINEL
+        self.name = name if self._has_name else None
+        self.row_num = row_num if self._has_row_num else 0
+        self._bg = bg if self._has_bg else None
+        self._bindings = bindings if self._has_bindings else None
 
-        :param frame: (BaseCardFrame) tk.frame对象
-        :param name: (str) 字段名,也是label中的值
-        :param row_num: (int) 行号
-        :param bg: (str) label组件的背景颜色
-        :param bindings: (list[tuple[str, callable]]) 事件绑定列表，每个元素为(事件序列, 回调函数)
-        """
         self.__widget_list: list[tk.Widget] = []
-        self.name = name
-        self.row_num = row_num
-        self._bg = bg
-        self._bindings = bindings
-        # 字段名label组件
-        self._label = tk.Label(frame, text=name, anchor="e", bg=bg)
-        self._label.grid(row=row_num, column=0, sticky='e')
-        self.__widget_list.append(self._label)
-        # 输入框组件entry和输入框中的值
-        self.__entry_value = tk.StringVar()
-        self._entry = tk.Entry(frame, textvariable=self.__entry_value)
-        if bindings:
-            for sequence, func in bindings:
-                self._entry.bind(sequence, func)
-        self._entry.grid(row=row_num, column=1)
-        self.__widget_list.append(self._entry)
-        self._btn_copy = tk.Button(frame, text="复制", command=lambda: pyperclip.copy(self.get()))
-        self._btn_copy.grid(row=row_num, column=2, sticky="w")
-        self.__widget_list.append(self._btn_copy)
+        if self._has_name and self._has_row_num:
+            self._label = tk.Label(frame, text=name, anchor="e", bg=bg if self._has_bg else None)
+            self._label.grid(row=row_num, column=0, sticky='e')
+            self.__widget_list.append(self._label)
+            self.__entry_value = tk.StringVar()
+            self._entry = tk.Entry(frame, textvariable=self.__entry_value)
+            if bindings is not _SENTINEL and bindings:
+                for sequence, func in bindings:
+                    self._entry.bind(sequence, func)
+            self._entry.grid(row=row_num, column=1)
+            self.__widget_list.append(self._entry)
+            self._btn_copy = tk.Button(frame, text="复制", command=lambda: pyperclip.copy(self.get()))
+            self._btn_copy.grid(row=row_num, column=2, sticky="w")
+            self.__widget_list.append(self._btn_copy)
+        else:
+            self._label = None
+            self.__entry_value = None
+            self._entry = None
+            self._btn_copy = None
 
     def get(self):
         """
@@ -153,23 +265,32 @@ class WidgetGroup:
 
     def entry_bind(self, sequence, func):
         """
-        销毁控件组中的所有子组件
-        :return: - (int)控件组在frame组件中所在行
+        绑定 Entry 输入框的事件
+
+        :param sequence: 事件序列字符串，如 "<FocusOut>"
+        :param func: 事件回调函数
         """
         self._entry.bind(sequence, func)
 
     def configure(self, **kwargs):
-        """依据入参更新已有 WidgetGroup，不销毁重建。"""
+        """
+        依据入参更新已有 WidgetGroup，不销毁重建
+
+        :keyword name: (str) 新的字段名
+        :keyword bg: (str) label 背景色，None 表示清除
+        :keyword bindings: (list[tuple[str, callable]]) 事件绑定列表
+        """
         if 'name' in kwargs:
             self.name = kwargs['name']
             self._label.configure(text=kwargs['name'])
-        if 'bg' in kwargs and kwargs['bg'] is not None:
+        if 'bg' in kwargs:
             self._bg = kwargs['bg']
-            self._label.configure(bg=kwargs['bg'])
+            self._label.configure(bg=kwargs['bg'] if kwargs['bg'] else 'SystemButtonFace')
         if 'bindings' in kwargs:
             self._bindings = kwargs['bindings']
-            for sequence, func in kwargs['bindings']:
-                self._entry.bind(sequence, func)
+            if kwargs['bindings']:
+                for sequence, func in kwargs['bindings']:
+                    self._entry.bind(sequence, func)
 
     def grid_forget(self):
         """
@@ -196,130 +317,174 @@ class WidgetGroup:
         """
         return {'name': self.name, 'row_num': self.row_num}
 
+    def grid_at(self, row_num: int):
+        """
+        将组件重新定位到指定行
+
+        :param row_num: 目标行号
+        """
+        self.row_num = row_num
+        self._label.grid(row=row_num, column=0, sticky='e')
+        self._entry.grid(row=row_num, column=1)
+        self._btn_copy.grid(row=row_num, column=2, sticky='w')
+
 
 class GenderGroup:
     """性别选择组件"""
 
-    def __init__(self, frame: BaseCardFrame, name: str, row_num: int, bg: str = None):
-        # 创建性别标签和输入框
-        frame.label_gender = tk.Label(frame, text=name, bg=bg)
-        frame.label_gender.grid(row=row_num, column=0, sticky='e')
-        self.__gender = tk.StringVar()
-        frame.entry_gender_M = tk.Radiobutton(frame, text='男', value='男', variable=self.__gender)
-        frame.entry_gender_F = tk.Radiobutton(frame, text='女', value='女', variable=self.__gender)
-        frame.entry_gender_M.grid(row=row_num, column=1)
-        frame.entry_gender_F.grid(row=row_num, column=2, sticky="w")
+    def __init__(self, frame: BaseCardFrame, name=_SENTINEL, row_num=_SENTINEL, bg=_SENTINEL):
+        """
+        性别选择组件（Label + 两个 Radiobutton）
+
+        :param frame: 父级 tk 容器
+        :param name: 字段名（如 "性别:"），仅描述符更新时可不传
+        :param row_num: 所在行号，仅描述符更新时可不传
+        :param bg: label 背景色
+        """
+        self._has_name = name is not _SENTINEL
+        self._has_row_num = row_num is not _SENTINEL
+        self._has_bg = bg is not _SENTINEL
+        self.name = name if self._has_name else None
+        self.row_num = row_num if self._has_row_num else 0
+        self._bg = bg if self._has_bg else None
+
+        if self._has_name and self._has_row_num:
+            self._label = tk.Label(frame, text=name, bg=bg if self._has_bg else None)
+            self._label.grid(row=row_num, column=0, sticky='e')
+            self.__gender = tk.StringVar()
+            self._radio_m = tk.Radiobutton(frame, text='男', value='男', variable=self.__gender)
+            self._radio_f = tk.Radiobutton(frame, text='女', value='女', variable=self.__gender)
+            self._radio_m.grid(row=row_num, column=1)
+            self._radio_f.grid(row=row_num, column=2, sticky="w")
+            self.__widget_list = [self._label, self._radio_m, self._radio_f]
+        else:
+            self._label = None
+            self.__gender = None
+            self._radio_m = None
+            self._radio_f = None
+            self.__widget_list = []
 
     def get(self):
+        """
+        获取当前选中的性别值
+
+        :return: (str) 选中的性别 -- "男" 或 "女"
+        """
         return self.__gender.get()
 
     def set(self, value):
+        """
+        设置性别选中值
+
+        :param value: (str) "男" 或 "女"
+        """
         self.__gender.set(value)
+
+    def configure(self, name=_SENTINEL, bg=_SENTINEL):
+        """
+        更新已有 GenderGroup 的配置，仅更新显式传入的参数
+
+        :param name: 新的字段名
+        :param bg: label 背景色，None 表示清除
+        """
+        if name is not _SENTINEL:
+            self.name = name
+            self._label.configure(text=name)
+        if bg is not _SENTINEL:
+            self._bg = bg
+            self._label.configure(bg=bg if bg else 'SystemButtonFace')
+
+    def destroy(self):
+        """
+        销毁控件组中的所有子组件
+
+        :return: (int) 控件组在 frame 中所在行号
+        """
+        for widget in self.__widget_list:
+            widget.destroy()
+        return self.row_num
+
+    def grid_forget(self):
+        """
+        隐藏控件组中的所有子组件
+
+        :return: (int) 控件组在 frame 中所在行号
+        """
+        for widget in self.__widget_list:
+            widget.grid_forget()
+        return self.row_num
+
+    def grid_info(self):
+        """
+        获取组件的基本信息
+
+        :return: (dict) 包含 name 和 row_num 的字典
+        """
+        return {'name': self.name, 'row_num': self.row_num}
+
+    def grid_at(self, row_num: int):
+        """
+        将组件重新定位到指定行
+
+        :param row_num: 目标行号
+        """
+        self.row_num = row_num
+        self._label.grid(row=row_num, column=0, sticky='e')
+        self._radio_m.grid(row=row_num, column=1)
+        self._radio_f.grid(row=row_num, column=2, sticky='w')
 
 
 class Sfz(BaseCardFrame):
     """身份证的页面"""
 
     def __init__(self, master=None):
+        """
+        初始化身份证页面，创建特有字段和按钮
+
+        :param master: 父级 tk 容器
+        """
         super().__init__(master)
-        self.master = master
-        # 证件信息,IDGener.TypeSFZ类型
         self.id_info: IdCardGenerator.TypeSFZ = None
 
-        # 行号迭代器，注意next方法返回当前值
-        row_num = RowNumIterator(1)
-
-        # 创建中文名标签和输入框
-        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 创建证件号码标签和输入框
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
-                                 bg=LABEL_BG_NO,
+        # 通过描述符仅传入需要更新的参数
+        self.name_ch = WidgetGroup(self, bg=LABEL_BG)
+        self.ID_No = WidgetGroup(self, bg=LABEL_BG_NO,
                                  bindings=[("<FocusOut>", self.id_no_parse),
-                                           ("<Return>", self.id_no_parse)]
-                                 )
-        # self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        # self.label_ID_No.grid(row=row_num.current, column=0, sticky='e')
-        # self.ID_No = tk.StringVar()
-        # self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        # self.entry_ID_No.grid(row=row_num.current, column=1)
-        # # 添加复制按钮
-        # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
+                                           ("<Return>", self.id_no_parse)])
+        self.birthday = WidgetGroup(self, bg=LABEL_BG)
+        self.gender = GenderGroup(self, bg=LABEL_BG)
+        self.begin_date = WidgetGroup(self, bg=LABEL_BG)
 
-        # 创建英文名标签和输入框
-        self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num))
+        # 子类特有字段，从 _next_row(14) 开始
+        r = RowNumIterator(self._next_row)
+        self.administration_code = WidgetGroup(self, name="行政区代码:", row_num=next(r), bg=LABEL_BG)
+        self.province_name = WidgetGroup(self, name="省:", row_num=next(r))
+        self.city_name = WidgetGroup(self, name="市:", row_num=next(r))
+        self.county_name = WidgetGroup(self, name="县:", row_num=next(r))
+        self.ID_No_old = WidgetGroup(self, name="旧版号码:", row_num=next(r), bg=LABEL_BG_OLD_NO)
 
-        # 创建生日标签和输入框
-        self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 创建性别标签和输入框
-        self.label_gender = tk.Label(self, text="性别:", bg=LABEL_BG)
-        self.label_gender.grid(row=row_num.current, column=0, sticky='e')
-        self.gender = tk.StringVar()
-        self.gender.set("")
-        self.entry_gender_M = tk.Radiobutton(self, text='男', value='男', variable=self.gender)
-        self.entry_gender_F = tk.Radiobutton(self, text='女', value='女', variable=self.gender)
-        self.entry_gender_M.grid(row=row_num.current, column=1)
-        self.entry_gender_F.grid(row=next(row_num), column=2, sticky="w")
-
-        # 证件有效期起始日期
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 证件有效期终止日期
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
-
-        # 联系电话
-        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-        # 固定电话
-        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
-        # 传真号码
-        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
-        # 邮箱地址
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
-        # 邮政编码
-        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(row_num))
-        # 创建办理地区码标签和输入框
-        self.administration_code = WidgetGroup(self, name="行政区代码:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 创建办理省份标签和输入框
-        self.province_name = WidgetGroup(self, name="省:", row_num=next(row_num))
-
-        # 创建市标签和输入框
-        self.city_name = WidgetGroup(self, name="市:", row_num=next(row_num))
-
-        # 创建县标签和输入框
-        self.county_name = WidgetGroup(self, name="县:", row_num=next(row_num))
-        # 地址
-        self.address = WidgetGroup(self, name="证件地址:", row_num=next(row_num))
-        # 旧版号码,一代身份证号码
-        self.ID_No_old = WidgetGroup(self, name="旧版号码:", row_num=next(row_num), bg=LABEL_BG_OLD_NO)
-
-        # 刷新按钮
+        # 按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh.grid(row=row_num.current, column=1)
-        # 身份证升位按钮
+        self.btn_refresh.grid(row=r.current, column=1)
         self.button_upgrade = tk.Button(self, text="升位", command=self.upgrade_ID_number, bg=LABEL_BG_OLD_NO)
         create_tooltip(self.button_upgrade, text="15位号码升位为18位")
-        self.button_upgrade.grid(row=row_num.current, column=2, sticky="w")
+        self.button_upgrade.grid(row=r.current, column=2, sticky="w")
 
         self.button_check = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.button_check, text="清除所有输入框中的信息")
-        self.button_check.grid(row=next(row_num), column=0, sticky="e")
+        self.button_check.grid(row=next(r), column=0, sticky="e")
 
-        # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
-        self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
+        self.btn_generate.grid(row=r.current, column=0, sticky="e")
 
-        # 校验码计算
         self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete,
                                                     bg=LABEL_BG_NO)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
-        self.button_check_num_calculate.grid(row=row_num.current, column=1)
+        self.button_check_num_calculate.grid(row=r.current, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit.grid(row=next(row_num), column=2, sticky="w")
+        self.button_quit.grid(row=next(r), column=2, sticky="w")
 
         self.generate_default()
 
@@ -368,44 +533,13 @@ class Sfz(BaseCardFrame):
             messagebox.showinfo("提示", f"输入有误,{e}")
         self.ID_No.set(ID_No_src)
 
-    def clear_all_fields(self):
-        self.ID_No.set('')
-        self.name_ch.set('')
-        self.name_en.set('')
-        self.birthday.set('')
-        self.gender.set('')
-        self.begin_date.set('')
-        self.end_date.set('')
-        self.phone_number.set('')
-        self.landline_number.set('')
-        self.email_address.set('')
-        self.fax_number.set('')
-        self.zipcode.set('')
-        self.administration_code.set('')
-        self.province_name.set('')
-        self.city_name.set('')
-        self.county_name.set('')
-        self.address.set('')
-        self.ID_No_old.set('')
-
     def show_info(self):
-        self.ID_No.set(self.id_info.No)
-        self.name_ch.set(self.id_info.name_ch)
-        self.name_en.set(self.id_info.name_en)
-        self.birthday.set(self.id_info.birthday)
-        self.gender.set(self.id_info.gender)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.email_address.set(self.id_info.email_address)
-        self.fax_number.set(self.id_info.fax_number)
-        self.zipcode.set(self.id_info.zipcode)
+        super().show_info()
         self.administration_code.set(self.id_info.county_code)
         self.province_name.set(self.id_info.province_name)
         self.city_name.set(self.id_info.city_name)
         self.county_name.set(self.id_info.county_name)
-        self.address.set(self.id_info.address)
+        self.id_address.set(self.id_info.address)
         self.ID_No_old.set(self.id_info.No[0:6] + self.id_info.No[8:-1])
 
     def refresh_default(self):
@@ -413,6 +547,11 @@ class Sfz(BaseCardFrame):
         return self
 
     def id_no_parse(self, event=None):
+        """
+        解析身份证号码并填充到对应字段
+
+        :param event: tk 事件对象（失焦或回车事件的 Event，可为 None）
+        """
         print(f"{event}事件触发的解析身份证号码...")
         try:
             id_no = self.ID_No.get()
@@ -423,7 +562,7 @@ class Sfz(BaseCardFrame):
             self.province_name.set(id_info.get('province_name', ''))
             self.city_name.set(id_info.get('city_name', ''))
             self.county_name.set(id_info.get('county_name', ''))
-            self.address.set(id_info.get('address', ''))
+            self.id_address.set(id_info.get('address', ''))
             self.ID_No_old.set(id_no[0:6] + id_no[8:-1])
         except Exception as e:
             messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
@@ -433,178 +572,63 @@ class Yjj2023(BaseCardFrame):
     """2023年版永居证的页面"""
 
     def __init__(self, master=None):
+        """
+        初始化 2023 版永居证页面，创建特有字段和按钮
+
+        :param master: 父级 tk 容器
+        """
         super().__init__(master)
-        self.master = master
-        # 行号迭代器，注意next方法返回当前值
-        row_num = RowNumIterator(1)
-
-        # 证件信息
         self.id_info = None
-        # 创建证件号码标签和输入框
-        # self.label_ID_No = tk.Label(self, text="证件号码:", anchor="e")
-        # self.label_ID_No.grid(row=1, column=0, sticky='e')
-        # self.ID_No = tk.StringVar()
-        # self.entry_ID_No = tk.Entry(self, textvariable=self.ID_No)
-        # self.entry_ID_No.bind("<FocusOut>", self.id_no_parse)
-        # self.entry_ID_No.grid(row=1, column=1)
-        # # 添加复制按钮
-        # self.btn_copy_ID_No = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No.get()))
-        # self.btn_copy_ID_No.grid(row=next(row_num), column=2, sticky="w")
-        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num), bg=LABEL_BG)
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
-                                 bg=LABEL_BG_NO,
+
+        # 通过描述符仅传入需要更新的参数
+        self.name_ch = WidgetGroup(self, bg=LABEL_BG)
+        self.ID_No = WidgetGroup(self, bg=LABEL_BG_NO,
                                  bindings=[("<FocusOut>", self.id_no_parse),
-                                           ("<Return>", self.id_no_parse)]
-                                 )
-        self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num), bg=LABEL_BG)
-        self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num), bg=LABEL_BG)
-        self.gender = GenderGroup(self, name="性别:", row_num=next(row_num), bg=LABEL_BG)
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
-        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
-        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
-        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(row_num))
-        self.province_code = WidgetGroup(self, name="办理地区码:", row_num=next(row_num), bg=LABEL_BG)
-        self.province_name = WidgetGroup(self, name="办理省份:", row_num=next(row_num), bg=LABEL_BG)
-        self.nationality_number = WidgetGroup(self, name="国籍编号:", row_num=next(row_num))
-        self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(row_num), bg=LABEL_BG)
-        self.nationality_name_cn = WidgetGroup(self, name="国家简称:", row_num=next(row_num))
-        self.ID_No_other = WidgetGroup(self, name="旧版号码:", row_num=next(row_num))
+                                           ("<Return>", self.id_no_parse)])
+        self.name_en = WidgetGroup(self, bg=LABEL_BG)
+        self.birthday = WidgetGroup(self, bg=LABEL_BG)
+        self.gender = GenderGroup(self, bg=LABEL_BG)
+        self.begin_date = WidgetGroup(self, bg=LABEL_BG)
+        # 子类特有字段，从 _next_row(14) 开始
+        r = RowNumIterator(self._next_row)
+        self.province_code = WidgetGroup(self, name="办理地区码:", row_num=next(r), bg=LABEL_BG)
+        self.province_name = WidgetGroup(self, name="办理省份:", row_num=next(r), bg=LABEL_BG)
+        self.nationality_number = WidgetGroup(self, name="国籍编号:", row_num=next(r))
+        self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(r), bg=LABEL_BG)
+        self.nationality_name_cn = WidgetGroup(self, name="国家简称:", row_num=next(r))
+        self.ID_No_other = WidgetGroup(self, name="旧版号码:", row_num=next(r))
 
-        # # 创建中文名标签和输入框
-        # self.label_name_ch = tk.Label(self, text="中文名:", bg=LABEL_BG)
-        # self.label_name_ch.grid(row=2, column=0, sticky='e')
-        # self.name_ch = tk.StringVar()
-        # self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        # self.entry_name_ch.grid(row=2, column=1)
-        # self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        # self.btn_copy_name_ch.grid(row=2, column=2, sticky="w")
-        #
-        # # 创建英文名标签和输入框
-        # self.label_name_en = tk.Label(self, text="英文名:", bg=LABEL_BG)
-        # self.label_name_en.grid(row=3, column=0, sticky='e')
-        # self.name_en = tk.StringVar()
-        # self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
-        # self.entry_name_en.grid(row=3, column=1)
-        # self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
-        # self.btn_copy_name_en.grid(row=3, column=2, sticky="w")
-        #
-        # # 创建生日标签和输入框
-        # self.label_birthday = tk.Label(self, text="生日:", anchor="e", bg=LABEL_BG)
-        # self.label_birthday.grid(row=4, column=0, sticky='e')
-        # self.birthday = tk.StringVar()
-        # self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
-        # self.entry_birthday.grid(row=4, column=1)
-        # self.btn_copy_birthday = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.birthday.get()))
-        # self.btn_copy_birthday.grid(row=4, column=2, sticky="w")
-        #
-        # # 创建性别标签和输入框
-        # self.label_gender = tk.Label(self, text="性别:", bg=LABEL_BG)
-        # self.label_gender.grid(row=5, column=0, sticky='e')
-        # self.gender = tk.StringVar()
-        # self.gender.set("")
-        # self.entry_gender_M = tk.Radiobutton(self, text='男', value='男', variable=self.gender)
-        # self.entry_gender_F = tk.Radiobutton(self, text='女', value='女', variable=self.gender)
-        # self.entry_gender_M.grid(row=5, column=1)
-        # self.entry_gender_F.grid(row=5, column=2, sticky="w")
-        #
-        # # 创建办理地区码标签和输入框
-        # self.label_province_code = tk.Label(self, text="办理地区码:", bg=LABEL_BG)
-        # self.label_province_code.grid(row=6, column=0, sticky='e')
-        # self.province_code = tk.StringVar()
-        # self.entry_province_code = tk.Entry(self, textvariable=self.province_code)
-        # self.entry_province_code.grid(row=6, column=1)
-        # self.btn_copy_province_code = tk.Button(self, text="复制",
-        #                                         command=lambda: pyperclip.copy(self.province_code.get()))
-        # self.btn_copy_province_code.grid(row=6, column=2, sticky="w")
-        #
-        # # 创建办理省份标签和输入框
-        # self.label_province_name = tk.Label(self, text="办理省份:", bg=LABEL_BG)
-        # self.label_province_name.grid(row=7, column=0, sticky='e')
-        # self.province_name = tk.StringVar()
-        # self.entry_province_name = tk.Entry(self, textvariable=self.province_name)
-        # self.entry_province_name.grid(row=7, column=1)
-        # self.btn_copy_province_name = tk.Button(self, text="复制",
-        #                                         command=lambda: pyperclip.copy(self.province_name.get()))
-        # self.btn_copy_province_name.grid(row=7, column=2, sticky="w")
-        #
-        # # 创建国籍代码标签和输入框
-        # self.label_nationality_number = tk.Label(self, text="国籍编号:")
-        # self.label_nationality_number.grid(row=8, column=0, sticky='e')
-        # self.nationality_number = tk.StringVar()
-        # self.entry_nationality_number = tk.Entry(self, textvariable=self.nationality_number)
-        # self.entry_nationality_number.grid(row=8, column=1)
-        # self.btn_copy_nationality_number = tk.Button(self, text="复制",
-        #                                              command=lambda: pyperclip.copy(self.nationality_number.get()))
-        # self.btn_copy_nationality_number.grid(row=8, column=2, sticky="w")
-        #
-        # # 创建国籍代码标签和输入框
-        # self.label_nationality_code = tk.Label(self, text="国籍代码:", bg=LABEL_BG)
-        # self.label_nationality_code.grid(row=9, column=0, sticky='e')
-        # self.nationality_code = tk.StringVar()
-        # self.entry_nationality_code = tk.Entry(self, textvariable=self.nationality_code)
-        # self.entry_nationality_code.grid(row=9, column=1)
-        # self.btn_copy_nationality_code = tk.Button(self, text="复制",
-        #                                            command=lambda: pyperclip.copy(self.nationality_code.get()))
-        # self.btn_copy_nationality_code.grid(row=9, column=2, sticky="w")
-        #
-        # # 创建国家简称标签和输入框
-        # self.label_nationality_name_cn = tk.Label(self, text="国家简称:")
-        # self.label_nationality_name_cn.grid(row=10, column=0, sticky='e')
-        # self.nationality_name_cn = tk.StringVar()
-        # self.entry_nationality_name_cn = tk.Entry(self, textvariable=self.nationality_name_cn)
-        # self.entry_nationality_name_cn.grid(row=10, column=1)
-        # self.btn_copy_nationality_name_cn = tk.Button(self, text="复制",
-        #                                               command=lambda: pyperclip.copy(self.nationality_name_cn.get()))
-        # self.btn_copy_nationality_name_cn.grid(row=10, column=2, sticky="w")
-        #
-        # # 对应其他版本永居证的号码
-        # self.label_ID_No_other = tk.Label(self, text="旧版号码:", anchor="e")
-        # self.label_ID_No_other.grid(row=11, column=0, sticky='e')
-        # self.ID_No_other = tk.StringVar()
-        # self.entry_ID_No_other = tk.Entry(self, textvariable=self.ID_No_other)
-        # self.entry_ID_No_other.grid(row=11, column=1)
-        #
-        # # 添加复制按钮
-        # self.btn_copy_ID_No_other = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.ID_No_other.get()))
-        # self.btn_copy_ID_No_other.grid(row=11, column=2, sticky="w")
-
-        # 清除信息按钮
+        # 按钮
         self.button_clear = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.button_clear, text="清除所有输入框中的信息")
-        self.button_clear.grid(row=row_num.current, column=0, sticky="e")
-        # 刷新按钮
+        self.button_clear.grid(row=r.current, column=0, sticky="e")
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh.grid(row=row_num.current, column=1)
+        self.btn_refresh.grid(row=r.current, column=1)
 
-        # 合成图像按钮
         self.btn_generate_image = tk.Button(self, text="合成图像", anchor="e", command=self.generate_image)
-        self.btn_generate_image.grid(row=next(row_num), column=2, sticky="w")
+        self.btn_generate_image.grid(row=next(r), column=2, sticky="w")
 
-        # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
-        self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
+        self.btn_generate.grid(row=r.current, column=0, sticky="e")
 
-        # 校验码计算
         self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete,
                                                     bg=LABEL_BG_NO)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
-        self.button_check_num_calculate.grid(row=row_num.current, column=1)
+        self.button_check_num_calculate.grid(row=r.current, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit.grid(row=row_num.current, column=2, sticky="w")
+        self.button_quit.grid(row=r.current, column=2, sticky="w")
 
-        '''
-        只有本类型的页面需要调用生成号码的逻辑,否则子类在使用super调用的时候会报错,因为子类会调用子类自己的generate_default()方法
-        generate_default()中在show_info()时,此时子类并未完成初始化,会报错提示子类无某个属性
-        '''
         if type(self) is Yjj2023:
             self.generate_default()
 
     def generate_by_input(self, event=None):
+        """
+        依据变色字段的输入值生成证件信息
+
+        :param event: tk 事件对象（可为 None）
+        """
         # 依据自定义输入,需要同步修改其他文件的内容
         name_ch = self.name_ch.get() or None
         name_en = self.name_en.get() or None
@@ -636,11 +660,21 @@ class Yjj2023(BaseCardFrame):
         except Exception as e:
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
-    def generate_default(self, event=None):  # event就是点击事件
+    def generate_default(self, event=None):
+        """
+        随机生成新版永居证信息并填充到界面
+
+        :param event: tk 事件对象（可为 None）
+        """
         self.id_info = IdCardGenerator.TypeYJZ()
         self.show_info()
 
     def id_no_parse(self, event=None):
+        """
+        解析永居证号码并填充到对应字段
+
+        :param event: tk 事件对象（可为 None）
+        """
         print(f"{event}事件触发的解析新版永居证号码...")
         try:
             id_no = self.ID_No.get()
@@ -656,27 +690,7 @@ class Yjj2023(BaseCardFrame):
             messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
 
     def show_info(self):
-        """
-        显示卡片信息。
-
-        为所有标签绑定的变量实现赋值，以在界面上展示证件持有者的相关信息。
-
-        参数:
-        card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
-        """
-        self.ID_No.set(self.id_info.No)
-        self.name_en.set(self.id_info.name_en)
-        self.name_ch.set(self.id_info.name_ch)
-        self.birthday.set(self.id_info.birthday)
-        self.gender.set(self.id_info.gender)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.fax_number.set(self.id_info.fax_number)
-        self.zipcode.set(self.id_info.zipcode)
-        #self.address.set(self.id_info.address)
-        self.email_address.set(self.id_info.email_address)
+        super().show_info()
         self.province_code.set(self.id_info.province_code)
         self.province_name.set(Nationality.CODE_PROVINCE_DATA.get(int(self.id_info.province_code), '未知'))
         self.nationality_number.set(self.id_info.nationality_number)
@@ -691,29 +705,6 @@ class Yjj2023(BaseCardFrame):
             messagebox.showinfo("提示", f"生成证件图片并复制路径到剪切板:{file_path}")
         except Exception as e:
             messagebox.showinfo("提示", f"生成证件图片出错,错误信息为:{e}")
-
-    def clear_all_fields(self):
-        """
-        清除所有标签组件的值
-        """
-        self.ID_No.set("")
-        self.name_ch.set("")
-        self.name_en.set("")
-        self.birthday.set("")
-        self.gender.set("")
-        self.begin_date.set("")
-        self.end_date.set("")
-        self.phone_number.set("")
-        self.landline_number.set("")
-        self.fax_number.set("")
-        self.email_address.set("")
-        self.zipcode.set("")
-        self.province_code.set("")
-        self.province_name.set("")
-        self.nationality_number.set("")
-        self.nationality_code.set("")
-        self.nationality_name_cn.set("")
-        self.ID_No_other.set("")
 
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -730,25 +721,22 @@ class Yjj2017(Yjj2023):
     """2017年版永居证的页面"""
 
     def __init__(self, master=None):
+        """
+        初始化 2017 版永居证页面，隐藏办理省份字段并创建办理省市字段
+
+        :param master: 父级 tk 容器
+        """
         super().__init__(master)
 
-        # 取消显示办理地区码
+        # 隐藏不需要的字段，在相同位置创建替代字段；清除不使用的背景色
         num1 = self.province_code.grid_forget()
-        # self.entry_province_code.grid_forget()
-        # self.btn_copy_province_code.grid_forget()
         num2 = self.province_name.grid_forget()
-        # self.entry_province_name.grid_forget()
-        # self.btn_copy_province_name.grid_forget()
-
-        # 创建办理地区码标签和输入框
         self.city_code = WidgetGroup(self, name="办理省市码:", row_num=num1, bg=LABEL_BG)
-
-        # 创建办理省份标签和输入框
         self.city_name = WidgetGroup(self, name="办理省市:", row_num=num2)
-        # 对应其他版本永居证的号码
-        num3 = self.ID_No_other.destroy()
-        self.ID_No_other = WidgetGroup(self, name="新版号码:", row_num=num3)
-        # 不显示合成图像按钮
+
+        # 描述符自动检测已有 ID_No_other，调用 configure 更新名称
+        self.ID_No_other = WidgetGroup(self, name="新版号码:", row_num=self.ID_No_other.row_num)
+
         self.btn_generate_image.grid_forget()
 
         self.generate_default()
@@ -781,26 +769,7 @@ class Yjj2017(Yjj2023):
             messagebox.showinfo("提示", f"自定义生成出错,错误信息为:{e}")
 
     def show_info(self):
-        """
-        显示卡片信息。
-
-        为所有标签绑定的变量实现赋值，以在界面上展示证件持有者的相关信息。
-
-        参数:
-        card_info (IDGener.TypeYJZ): 外国人永久居留证对象。
-        """
-        self.ID_No.set(self.id_info.No)
-        self.name_en.set(self.id_info.name_en)
-        self.name_ch.set(self.id_info.name_ch)
-        self.birthday.set(self.id_info.birthday)
-        self.gender.set(self.id_info.gender)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.fax_number.set(self.id_info.fax_number)
-        self.email_address.set(self.id_info.email_address)
-        self.zipcode.set(self.id_info.zipcode)
+        BaseCardFrame.show_info(self)
         self.city_code.set(self.id_info.city_code)
         province_code = self.id_info.city_code[0:2] + '0000'
         if province_code not in Nationality.CODE_HONGKONG_MACAO_TAIWAN:
@@ -812,11 +781,6 @@ class Yjj2017(Yjj2023):
         self.nationality_code.set(self.id_info.nationality_code)
         self.nationality_name_cn.set(self.id_info.nationality_name_ch)
         self.ID_No_other.set(self.id_info.No_2023)
-
-    def clear_all_fields(self):
-        super().clear_all_fields()
-        self.city_code.set("")
-        self.city_name.set("")
 
     def check_number_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -849,81 +813,52 @@ class GATJzz(BaseCardFrame):
     """港澳台居民居住证的页面"""
 
     def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
-        # 行号迭代器，注意next方法返回当前值
-        row_num = RowNumIterator(1)
+        """
+        初始化港澳台居住证页面，在公共字段前插入证件类别下拉框
 
-        # 创建港澳台页面的组件
+        :param master: 父级 tk 容器
+        """
+        super().__init__(master, start_row_num=3)
+        r = RowNumIterator(1)
+
+        # 子类特有：证件类别下拉框（公共字段之前）
         self.id_type = tk.StringVar()
         self.label_id_type = tk.Label(self, text="证件类别:")
-        self.label_id_type.grid(row=row_num.current, column=0, sticky='e')
+        self.label_id_type.grid(row=r.current, column=0, sticky='e')
         gat_id_type = tuple(member.value for member in IdCardGenerator.GATPermanentResident)
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=gat_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
-        self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
+        self.combobox_id_type.grid(row=next(r), column=1, sticky='w')
 
-        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num), bg=LABEL_BG)
-
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num),
-                                 bg=LABEL_BG_NO,
+        # 通过描述符仅传入需要更新的参数
+        self.name_ch = WidgetGroup(self, bg=LABEL_BG)
+        self.ID_No = WidgetGroup(self, bg=LABEL_BG_NO,
                                  bindings=[("<FocusOut>", self.id_no_parse),
-                                           ("<Return>", self.id_no_parse)]
-                                 )
+                                           ("<Return>", self.id_no_parse)])
+        self.name_en = WidgetGroup(self, bg=LABEL_BG)
+        self.birthday = WidgetGroup(self, bg=LABEL_BG)
+        self.gender = GenderGroup(self, bg=LABEL_BG)
+        self.begin_date = WidgetGroup(self, bg=LABEL_BG)
+        # 子类特有字段，从 _next_row(16) 开始
+        r2 = RowNumIterator(self._next_row)
+        self.province_code = WidgetGroup(self, name="地区码:", row_num=next(r2))
+        self.province_name = WidgetGroup(self, name="地区:", row_num=next(r2))
 
-        # 创建英文名标签和输入框
-        self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 创建生日标签和输入框
-        self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 创建性别标签和输入框
-        self.label_gender = tk.Label(self, text="性别:", bg=LABEL_BG)
-        self.label_gender.grid(row=row_num.current, column=0, sticky='e')
-        self.gender = tk.StringVar()
-        self.gender.set('')
-        self.entry_gender_M = tk.Radiobutton(self, text='男', value='男', variable=self.gender)
-        self.entry_gender_F = tk.Radiobutton(self, text='女', value='女', variable=self.gender)
-        self.entry_gender_M.grid(row=row_num.current, column=1)
-        self.entry_gender_F.grid(row=next(row_num), column=2, sticky="w")
-
-        # 证件有效期
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
-        # 联系电话
-        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-        # 固定电话
-        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
-        # 传真号码
-        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
-        # 邮箱地址
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
-        # 创建办理地区码标签和输入框
-        self.province_code = WidgetGroup(self, name="地区码:", row_num=next(row_num))
-
-        # 创建办理省份标签和输入框
-        self.province_name = WidgetGroup(self, name="地区:", row_num=next(row_num))
-
-        # 清理按钮
+        # 按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
-        self.btn_clear_gat.grid(row=row_num.current, column=0, sticky="e")
-        # 刷新按钮
+        self.btn_clear_gat.grid(row=r2.current, column=0, sticky="e")
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=next(row_num), column=1)
+        self.btn_refresh_gat.grid(row=next(r2), column=1)
 
-        # 生成按钮
         self.btn_generate_gat = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate_gat, text="依据变色字段输入进行生成")
-        self.btn_generate_gat.grid(row=row_num.current, column=0, sticky="e")
-        # 校验位补全按钮
+        self.btn_generate_gat.grid(row=r2.current, column=0, sticky="e")
         self.button_check_gat = tk.Button(self, text="校验位补全", command=self.check_num_complete, bg=LABEL_BG_NO)
-        self.button_check_gat.grid(row=row_num.current, column=1)
-        # 退出按钮
+        self.button_check_gat.grid(row=r2.current, column=1)
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit_gat.grid(row=next(row_num), column=2, sticky="w")
+        self.button_quit_gat.grid(row=next(r2), column=2, sticky="w")
 
-        # 默认显示香港居住证
         self.id_type.set(IdCardGenerator.GATPermanentResident.HKG_PERMANENT_RESIDENT.value)
         self.generate_default()
 
@@ -946,17 +881,7 @@ class GATJzz(BaseCardFrame):
         self.show_info()
 
     def show_info(self):
-        self.ID_No.set(self.id_info.No)
-        self.name_ch.set(self.id_info.name_ch)
-        self.name_en.set(self.id_info.name_en)
-        self.birthday.set(self.id_info.birthday)
-        self.gender.set(self.id_info.gender)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.fax_number.set(self.id_info.fax_number)
-        self.email_address.set(self.id_info.email_address)
+        super().show_info()
         self.province_code.set(self.id_info.region_code)
         self.province_name.set(self.id_info.province_name)
 
@@ -968,21 +893,6 @@ class GATJzz(BaseCardFrame):
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
         self.ID_No.set(ID_No_src)
-
-    def clear_all_fields(self, event=None):
-        self.ID_No.set("")
-        self.name_ch.set("")
-        self.name_en.set("")
-        self.birthday.set("")
-        self.gender.set("")
-        self.begin_date.set("")
-        self.end_date.set("")
-        self.phone_number.set("")
-        self.landline_number.set("")
-        self.fax_number.set("")
-        self.email_address.set("")
-        self.province_code.set("")
-        self.province_name.set("")
 
     def id_no_parse(self, event=None):
         print(f"{event}事件触发的解析港澳台居住证号码...")
@@ -1003,54 +913,31 @@ class GAtxz(BaseCardFrame):
     """港澳居民来往内地通行证"""
 
     def __init__(self, master=None):
-        super().__init__(master)
-        self.master = master
+        """
+        初始化港澳通行证页面，在公共字段前插入证件类别下拉框
 
-        # 行号迭代器，注意next方法返回当前值
-        row_num = RowNumIterator(1)
+        :param master: 父级 tk 容器
+        """
+        super().__init__(master, start_row_num=3)
+        r = RowNumIterator(1)
 
-        # 创建港澳台页面的组件
+        # 子类特有：证件类别下拉框（公共字段之前）
         self.id_type = tk.StringVar()
         self.label_id_type = tk.Label(self, text="证件类别:")
-        self.label_id_type.grid(row=row_num.current, column=0, sticky='e')
-        ga_id_type = tuple(member.value for member in IdCardGenerator.HkgMacPermit)
+        self.label_id_type.grid(row=r.current, column=0, sticky='e')
+        ga_id_type = tuple(member.value for member in IdCardGenerator.HKGMacPermit)
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=ga_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
-        self.combobox_id_type.grid(row=next(row_num), column=1, sticky='w')
+        self.combobox_id_type.grid(row=next(r), column=1, sticky='w')
 
-        # 中文名
-        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num))
-
-        # 证件号码
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num))
-
-        # 创建英文名标签和输入框
-        self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num))
-
-        # 创建生日标签和输入框
-        self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num))
-
-        # 证件有效期
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
-
-        # 联系电话
-        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-        # 固定电话
-        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
-        # 传真号码
-        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
-        # 邮箱地址
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
-
+        # 按钮
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=row_num.current, column=1)
+        self.btn_refresh_gat.grid(row=self._next_row, column=1)
 
-        self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_refresh_gat.grid(row=row_num.current, column=2, sticky="w")
+        self.btn_quit = tk.Button(self, text="退出", command=self.master.destroy)
+        self.btn_quit.grid(row=self._next_row, column=2, sticky="w")
 
-        # 默认显示香港通行证
-        self.id_type.set(IdCardGenerator.HkgMacPermit.HKG_PERMIT.value)
+        self.id_type.set(IdCardGenerator.HKGMacPermit.HKG_PERMIT.value)
         self.generate_default()
 
     def generate_default(self, event=None):
@@ -1058,84 +945,26 @@ class GAtxz(BaseCardFrame):
         self.show_info()
 
     def show_info(self):
-        self.ID_No.set(self.id_info.No)
-        self.name_ch.set(self.id_info.name_ch)
-        self.name_en.set(self.id_info.name_en)
-        self.birthday.set(self.id_info.birthday)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.fax_number.set(self.id_info.fax_number)
-        self.email_address.set(self.id_info.email_address)
-
-    def clear_all_fields(self):
-        self.ID_No.set('')
-        self.name_ch.set('')
-        self.name_en.set('')
-        self.birthday.set('')
-        self.begin_date.set('')
-        self.end_date.set('')
-        self.phone_number.set('')
-        self.landline_number.set('')
-        self.fax_number.set('')
-        self.email_address.set('')
+        super().show_info()
 
 
 class TWtxz(BaseCardFrame):
     """台湾居民来往内地通行证"""
 
     def __init__(self, master=None):
+        """
+        初始化台湾通行证页面，无需额外子类字段
+
+        :param master: 父级 tk 容器
+        """
         super().__init__(master)
-        self.master = master
-        # 行号迭代器，注意next方法返回当前值
-        row_num = RowNumIterator(1)
 
-        self.name_ch = WidgetGroup(self, name="中文名:", row_num=next(row_num))
-        self.ID_No = WidgetGroup(self, name="证件号码:", row_num=next(row_num))
-        self.name_en = WidgetGroup(self, name="英文名:", row_num=next(row_num))
-        self.birthday = WidgetGroup(self, name="生日:", row_num=next(row_num))
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num))
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
-        # 联系电话
-        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-        # 固定电话
-        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
-        # 传真号码
-        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
-        # 邮箱地址
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
-        # self.label_name_ch = tk.Label(self, text="中文名:")
-        # self.label_name_ch.grid(row=row_num.current, column=0, sticky='e')
-        # self.name_ch = tk.StringVar()
-        # self.entry_name_ch = tk.Entry(self, textvariable=self.name_ch)
-        # self.entry_name_ch.grid(row=row_num.current, column=1)
-        # self.btn_copy_name_ch = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_ch.get()))
-        # self.btn_copy_name_ch.grid(row=next(row_num), column=2, sticky="w")
-        #
-        # # 创建英文名标签和输入框
-        # self.label_name_en = tk.Label(self, text="英文名:")
-        # self.label_name_en.grid(row=row_num.current, column=0, sticky='e')
-        # self.name_en = tk.StringVar()
-        # self.entry_name_en = tk.Entry(self, textvariable=self.name_en)
-        # self.entry_name_en.grid(row=row_num.current, column=1)
-        # self.btn_copy_name_en = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.name_en.get()))
-        # self.btn_copy_name_en.grid(row=next(row_num), column=2, sticky="w")
-        #
-        # # 创建生日标签和输入框
-        # self.label_birthday = tk.Label(self, text="生日:")
-        # self.label_birthday.grid(row=row_num.current, column=0, sticky='e')
-        # self.birthday = tk.StringVar()
-        # self.entry_birthday = tk.Entry(self, textvariable=self.birthday)
-        # self.entry_birthday.grid(row=row_num.current, column=1)
-        # self.btn_copy_birthday = tk.Button(self, text="复制", command=lambda: pyperclip.copy(self.birthday.get()))
-        # self.btn_copy_birthday.grid(row=next(row_num), column=2, sticky="w")
-
+        # 按钮
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=row_num.current, column=1)
+        self.btn_refresh_gat.grid(row=self._next_row, column=1)
 
-        self.btn_refresh_gat = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_refresh_gat.grid(row=row_num.current, column=2, sticky="w")
+        self.btn_quit = tk.Button(self, text="退出", command=self.master.destroy)
+        self.btn_quit.grid(row=self._next_row, column=2, sticky="w")
 
         self.generate_default()
 
@@ -1144,112 +973,63 @@ class TWtxz(BaseCardFrame):
         self.show_info()
 
     def show_info(self):
-        self.ID_No.set(self.id_info.No)
-        self.name_ch.set(self.id_info.name_ch)
-        self.name_en.set(self.id_info.name_en)
-        self.birthday.set(self.id_info.birthday)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.fax_number.set(self.id_info.fax_number)
-        self.email_address.set(self.id_info.email_address)
-
-    def clear_all_fields(self):
-        pass
+        super().show_info()
 
 
 class BusinessLicense(BaseCardFrame):
     """营业执照的页面"""
 
     def __init__(self, master=None):
+        """
+        初始化营业执照页面，重命名字段并创建统一信用代码等特有字段
+
+        :param master: 父级 tk 容器
+        """
         super().__init__(master)
-        self.master = master
-        # 证件信息
         self.id_info: IdCardGenerator.TypeYYZZ = None
 
-        # 行号迭代器，注意next方法返回当前值
-        row_num = RowNumIterator(1)
+        # 通过描述符仅传入需要更新的参数（name 需要传是因为要改名）
+        self.name_ch = WidgetGroup(self, name="企业名称:", bg=LABEL_BG)
+        self.name_en = WidgetGroup(self, name="英文名称:", bg=LABEL_BG)
+        self.birthday = WidgetGroup(self, name="成立日期:", bg=LABEL_BG)
+        self.begin_date = WidgetGroup(self, bg=LABEL_BG)
 
-        # 创建企业名称标签和输入框
-        self.name_ch = WidgetGroup(self, name="企业名称:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 创建统一社会信用代码标签和输入框
-        self.credit_code = WidgetGroup(self, name="统一信用代码:", row_num=next(row_num),
+        # 子类特有字段（与公共字段共存）
+        self.credit_code = WidgetGroup(self, name="统一信用代码:", row_num=2,
                                        bg=LABEL_BG_NO,
                                        bindings=[("<FocusOut>", self.credit_code_parse),
-                                                 ("<Return>", self.credit_code_parse)]
-                                       )
+                                                 ("<Return>", self.credit_code_parse)])
 
-        # 创建英文名称标签和输入框
-        self.name_en = WidgetGroup(self, name="英文名称:", row_num=next(row_num), bg=LABEL_BG)
+        # 子类特有字段，从 _next_row(14) 开始
+        r = RowNumIterator(self._next_row)
+        self.dept_code = WidgetGroup(self, name="部门代码:", row_num=next(r))
+        self.org_type_code = WidgetGroup(self, name="机构类别:", row_num=next(r))
+        self.admin_division_code = WidgetGroup(self, name="行政区划码:", row_num=next(r))
+        self.admin_division_name = WidgetGroup(self, name="登记机关:", row_num=next(r))
+        self.org_code = WidgetGroup(self, name="组织机构码:", row_num=next(r))
+        self.check_code = WidgetGroup(self, name="校验码:", row_num=next(r))
 
-        # 创建成立日期标签和输入框
-        self.birthday = WidgetGroup(self, name="成立日期:", row_num=next(row_num), bg=LABEL_BG)
+        # 营业执照不需要性别
+        self.gender.grid_forget()
 
-        # 证件有效期起始日期
-        self.begin_date = WidgetGroup(self, name="起始日期:", row_num=next(row_num), bg=LABEL_BG)
-
-        # 证件有效期终止日期
-        self.end_date = WidgetGroup(self, name="到期日期:", row_num=next(row_num))
-
-        # 联系电话
-        self.phone_number = WidgetGroup(self, name="联系电话:", row_num=next(row_num))
-
-        # 固定电话
-        self.landline_number = WidgetGroup(self, name="固定电话:", row_num=next(row_num))
-
-        # 传真号码
-        self.fax_number = WidgetGroup(self, name="传真号码:", row_num=next(row_num))
-
-        # 邮箱地址
-        self.email_address = WidgetGroup(self, name="电子邮箱:", row_num=next(row_num))
-
-        # 邮政编码
-        self.zipcode = WidgetGroup(self, name="邮政编码:", row_num=next(row_num))
-
-        # 登记管理部门代码
-        self.dept_code = WidgetGroup(self, name="部门代码:", row_num=next(row_num))
-
-        # 机构类别代码
-        self.org_type_code = WidgetGroup(self, name="机构类别:", row_num=next(row_num))
-
-        # 登记机关行政区划码
-        self.admin_division_code = WidgetGroup(self, name="行政区划码:", row_num=next(row_num))
-
-        # 登记机关名称
-        self.admin_division_name = WidgetGroup(self, name="登记机关:", row_num=next(row_num))
-
-        # 组织机构代码
-        self.org_code = WidgetGroup(self, name="组织机构码:", row_num=next(row_num))
-
-        # 校验码
-        self.check_code = WidgetGroup(self, name="校验码:", row_num=next(row_num))
-
-        # 注册地址
-        self.address = WidgetGroup(self, name="注册地址:", row_num=next(row_num))
-
-        # 清除信息按钮
+        # 按钮
         self.button_clear = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.button_clear, text="清除所有输入框中的信息")
-        self.button_clear.grid(row=row_num.current, column=0, sticky="e")
+        self.button_clear.grid(row=r.current, column=0, sticky="e")
 
-        # 刷新按钮
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh.grid(row=next(row_num), column=1)
+        self.btn_refresh.grid(row=next(r), column=1)
 
-        # 自定义生成按钮
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
-        self.btn_generate.grid(row=row_num.current, column=0, sticky="e")
-        # 校验码计算
+        self.btn_generate.grid(row=r.current, column=0, sticky="e")
         self.button_check_num_calculate = tk.Button(self, text="校验位补全", command=self.check_number_complete,
                                                     bg=LABEL_BG_NO)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
-        self.button_check_num_calculate.grid(row=row_num.current, column=1)
+        self.button_check_num_calculate.grid(row=r.current, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit.grid(row=row_num.current, column=2, sticky="w")
+        self.button_quit.grid(row=r.current, column=2, sticky="w")
 
         self.generate_default()
 
@@ -1282,45 +1062,15 @@ class BusinessLicense(BaseCardFrame):
         except ValueError as e:
             messagebox.showinfo("提示", f"输入有误,{e}")
 
-    def clear_all_fields(self):
-        self.credit_code.set('')
-        self.name_ch.set('')
-        self.name_en.set('')
-        self.birthday.set('')
-        self.begin_date.set('')
-        self.end_date.set('')
-        self.phone_number.set('')
-        self.landline_number.set('')
-        self.email_address.set('')
-        self.fax_number.set('')
-        self.zipcode.set('')
-        self.dept_code.set('')
-        self.org_type_code.set('')
-        self.admin_division_code.set('')
-        self.admin_division_name.set('')
-        self.org_code.set('')
-        self.check_code.set('')
-        self.address.set('')
-
     def show_info(self):
+        super().show_info()
         self.credit_code.set(self.id_info.No)
-        self.name_ch.set(self.id_info.name_ch)
-        self.name_en.set(self.id_info.name_en)
-        self.birthday.set(self.id_info.birthday)
-        self.begin_date.set(self.id_info.begin_date)
-        self.end_date.set(self.id_info.end_date)
-        self.phone_number.set(self.id_info.phone_number)
-        self.landline_number.set(self.id_info.landline_number)
-        self.email_address.set(self.id_info.email_address)
-        self.fax_number.set(self.id_info.fax_number)
-        self.zipcode.set(self.id_info.zipcode)
         self.dept_code.set(self.id_info.MANAGEMENT_DEPARTMENT_CODE)
         self.org_type_code.set(self.id_info.ORGANIZATION_TYPE_CODE)
         self.admin_division_code.set(self.id_info.county_code)
         self.org_code.set(self.id_info.organization_code)
         self.check_code.set(self.id_info.check_num)
         self.admin_division_name.set(self.id_info.county_name)
-        self.address.set(self.id_info.address if hasattr(self.id_info, 'address') else '')
 
     def refresh_default(self):
         self.generate_default()
@@ -1428,21 +1178,45 @@ def create_tooltip(widget, text):
 
 # 行号迭代器
 class RowNumIterator:
+    """
+    行号迭代器，调用 next() 返回当前行号后自增
+
+    >>> r = RowNumIterator(1)
+    >>> next(r)  # 返回 1
+    >>> next(r)  # 返回 2
+    """
+
     def __init__(self, start=0):
+        """
+        初始化迭代器
+
+        :param start: 起始行号
+        """
         self.current = start
 
     def __iter__(self):
         return self
 
-    # 注意，返回的是当前值，是为了在循环中，每次都是从头迭代
     def __next__(self):
+        """
+        返回当前行号并自增
+
+        :return: (int) 当前行号
+        """
         value = self.current
         self.current += 1
         return value
 
 
 class MainApplication(tk.Tk):
-    def __init__(self, id_kinds, ):
+    """主应用程序窗口，包含证件类型选择下拉框和缓存的 Frame 页面"""
+
+    def __init__(self, id_kinds):
+        """
+        初始化主窗口
+
+        :param id_kinds: 证件类型列表，用于下拉框
+        """
         super().__init__()
         self.title("号码生成器")
         self.id_kind = tk.StringVar()
@@ -1462,6 +1236,11 @@ class MainApplication(tk.Tk):
         self.show_frame(self.frame_cache.get(IdCardGenerator.IDKind.ID_CARD.value))
 
     def show_frame(self, frame: BaseCardFrame = None):
+        """
+        隐藏当前 Frame 并显示指定 Frame
+
+        :param frame: 要显示的 BaseCardFrame 实例，为 None 则隐藏所有
+        """
         # 隐藏所有 Frame
         for widget in self.winfo_children():
             if isinstance(widget, tk.Frame):
@@ -1474,6 +1253,11 @@ class MainApplication(tk.Tk):
             self.geometry(f"{self.winfo_reqwidth()}x{self.winfo_reqheight()}+{self.winfo_x()}+{self.winfo_y()}")
 
     def create_frame(self, event):
+        """
+        根据选中的证件类型创建或切换 Frame 页面（使用缓存避免重复创建）
+
+        :param event: Combobox 选择事件（可为 None）
+        """
         # 如果缓存中没有该 Frame，则创建并添加到缓存中
         try:
             selected_id_kind = str(self.id_kind.get())
