@@ -925,7 +925,7 @@ class GAtxz(BaseCardFrame):
         self.id_type = tk.StringVar()
         self.label_id_type = tk.Label(self, text="证件类别:")
         self.label_id_type.grid(row=r.current, column=0, sticky='e')
-        ga_id_type = tuple(member.value for member in IdCardGenerator.HKGMacPermit)
+        ga_id_type = tuple(member.value for member in IdCardGenerator.HkgMacPermit)
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=ga_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(r), column=1, sticky='w')
@@ -937,7 +937,7 @@ class GAtxz(BaseCardFrame):
         self.btn_quit = tk.Button(self, text="退出", command=self.master.destroy)
         self.btn_quit.grid(row=self._next_row, column=2, sticky="w")
 
-        self.id_type.set(IdCardGenerator.HKGMacPermit.HKG_PERMIT.value)
+        self.id_type.set(IdCardGenerator.HkgMacPermit.HKG_PERMIT.value)
         self.generate_default()
 
     def generate_default(self, event=None):
