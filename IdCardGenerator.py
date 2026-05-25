@@ -399,7 +399,7 @@ class CategoryDescriptor:
         self.data.pop(id(instance), None)
 
 
-# 个人证件父类
+# 证件父类
 class IDNOGenerator(ABC):
     # 权重参数
     WEIGHT = (7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2)
@@ -1363,7 +1363,15 @@ Y：其他
         self.No = f"{self.No_without_check_num}{self.check_num}"
 
     def __str__(self):
-        pass
+        return (
+            f"证件类型：{self.id_kind}\n"
+            f"统一信用代码：{self.No}\n"
+            f"组织机构代码：{self.organization_code}\n"
+            f"企业中文名称：{self.name_ch}\n"
+            f"主体英文名称：{self.name_en}\n"
+            f"登记管理部门代码：{self.MANAGEMENT_DEPARTMENT_CODE}\n"
+            f"机构类别代码：{self.ORGANIZATION_TYPE_CODE}\n"
+        )
 
     @classmethod
     def calculate_check_num_cls(cls, str_number: str) -> str:
