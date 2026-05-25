@@ -197,6 +197,13 @@ class BaseCardFrame(tk.Frame, ABC):
         self.generate_default()
         return self
 
+    def show_id_info_by_sql(self):
+        """将证件信息格式化为sql语句"""
+        if self.id_info:
+            show_sql(self.id_info)
+        else:
+            messagebox.showinfo("提示", "当前没有证件信息")
+
 
 class WidgetGroup:
     """自定义组件的组合，定义 get 和 set 方法"""
@@ -483,6 +490,9 @@ class Sfz(BaseCardFrame):
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
         self.button_check_num_calculate.grid(row=r.current, column=1)
 
+        self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
+        self.button_insert_database_sql.grid(row=next(r), column=2)
+
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
         self.button_quit.grid(row=next(r), column=2, sticky="w")
 
@@ -616,6 +626,9 @@ class Yjj2023(BaseCardFrame):
                                                     bg=LABEL_BG_NO)
         create_tooltip(self.button_check_num_calculate, text="只做校验位计算并补全")
         self.button_check_num_calculate.grid(row=r.current, column=1)
+
+        self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
+        self.button_insert_database_sql.grid(row=next(r), column=2)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
         self.button_quit.grid(row=r.current, column=2, sticky="w")
@@ -818,7 +831,7 @@ class GATJzz(BaseCardFrame):
 
         :param master: 父级 tk 容器
         """
-        super().__init__(master, start_row_num=3)
+        super().__init__(master, start_row_num=2)
         r = RowNumIterator(1)
 
         # 子类特有：证件类别下拉框（公共字段之前）
@@ -849,13 +862,16 @@ class GATJzz(BaseCardFrame):
         create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
         self.btn_clear_gat.grid(row=r2.current, column=0, sticky="e")
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=next(r2), column=1)
+        self.btn_refresh_gat.grid(row=r2.current, column=1)
+        self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
+        self.button_insert_database_sql.grid(row=next(r2), column=2)
 
         self.btn_generate_gat = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate_gat, text="依据变色字段输入进行生成")
         self.btn_generate_gat.grid(row=r2.current, column=0, sticky="e")
         self.button_check_gat = tk.Button(self, text="校验位补全", command=self.check_num_complete, bg=LABEL_BG_NO)
         self.button_check_gat.grid(row=r2.current, column=1)
+
         self.button_quit_gat = tk.Button(self, text="退出", command=self.master.destroy)
         self.button_quit_gat.grid(row=next(r2), column=2, sticky="w")
 
@@ -918,7 +934,7 @@ class GAtxz(BaseCardFrame):
 
         :param master: 父级 tk 容器
         """
-        super().__init__(master, start_row_num=3)
+        super().__init__(master, start_row_num=2)
         r = RowNumIterator(1)
 
         # 子类特有：证件类别下拉框（公共字段之前）
@@ -931,6 +947,9 @@ class GAtxz(BaseCardFrame):
         self.combobox_id_type.grid(row=next(r), column=1, sticky='w')
 
         # 按钮
+        self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
+        self.button_insert_database_sql.grid(row=self._next_row, column=0)
+
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=self._next_row, column=1)
 
@@ -960,6 +979,9 @@ class TWtxz(BaseCardFrame):
         super().__init__(master)
 
         # 按钮
+        self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
+        self.button_insert_database_sql.grid(row=self._next_row, column=0)
+
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
         self.btn_refresh_gat.grid(row=self._next_row, column=1)
 
@@ -1018,7 +1040,10 @@ class BusinessLicense(BaseCardFrame):
         self.button_clear.grid(row=r.current, column=0, sticky="e")
 
         self.btn_refresh = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh.grid(row=next(r), column=1)
+        self.btn_refresh.grid(row=r.current, column=1)
+
+        self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
+        self.button_insert_database_sql.grid(row=next(r), column=2)
 
         self.btn_generate = tk.Button(self, text="自定义生成", command=self.generate_by_input, bg=LABEL_BG)
         create_tooltip(self.btn_generate, text="依据变色字段输入进行生成")
@@ -1176,6 +1201,97 @@ def create_tooltip(widget, text):
     widget.bind('<Leave>', leave)
 
 
+def show_sql(idinfo):
+    """
+    弹出一个窗口显示插入数据库的sql语句
+
+    :param idinfo: 要显示的ID信息对象或字典
+    """
+    # 创建顶层窗口
+    dialog = tk.Toplevel()
+    dialog.title("插入福研数据库的语句")
+    dialog.geometry("600x300")
+    dialog.transient()  # 设置为临时窗口
+    dialog.grab_set()  # 模态窗口
+
+    # 配置窗口的行权重，让文本框可以扩展
+    dialog.grid_rowconfigure(0, weight=1)
+    dialog.grid_columnconfigure(0, weight=1)
+
+    # 创建文本框框架
+    text_frame = tk.Frame(dialog)
+    text_frame.grid(row=0, column=0, sticky='nsew', padx=10, pady=(10, 5))
+
+    # 配置text_frame的行权重
+    text_frame.grid_rowconfigure(0, weight=1)
+    text_frame.grid_columnconfigure(0, weight=1)
+
+    # 创建滚动条
+    scrollbar = tk.Scrollbar(text_frame)
+    scrollbar.grid(row=0, column=1, sticky='ns')
+
+    # 创建文本框
+    text_widget = tk.Text(text_frame, wrap=tk.WORD, yscrollcommand=scrollbar.set,
+                          font=("Microsoft YaHei", 10), padx=5, pady=5)
+    text_widget.grid(row=0, column=0, sticky='nsew')
+
+    # 配置滚动条
+    scrollbar.config(command=text_widget.yview)
+
+    # 格式化显示ID信息
+    if isinstance(idinfo, dict):
+        info_text = ""
+        for key, value in idinfo.items():
+            info_text += f"{key}: {value}\n"
+    else:
+        # 假设是对象，使用其字符串表示
+        try:
+            info_text = str(idinfo)
+        except Exception as e:
+            print(e)
+            info_text = "无法显示的信息格式"
+
+    # 插入文本
+    text_widget.insert(tk.END, info_text)
+
+    # 设置文本框为只读
+    text_widget.config(state=tk.DISABLED)
+
+    # 创建按钮框架
+    button_frame = tk.Frame(dialog)
+    button_frame.grid(row=1, column=0, pady=(5, 10))
+
+    # 确认并复制按钮的回调函数
+    def confirm_and_copy():
+        try:
+            # 获取文本内容
+            content = text_widget.get(1.0, tk.END).strip()
+            # 复制到剪贴板
+            pyperclip.copy(content)
+            messagebox.showinfo("成功", "信息已复制到剪贴板！", parent=dialog)
+        except Exception as e:
+            messagebox.showerror("错误", f"复制失败: {str(e)}", parent=dialog)
+
+    # 关闭按钮的回调函数
+    def close_window():
+        dialog.destroy()
+
+    # 创建按钮
+    confirm_button = tk.Button(button_frame, text="确认并复制", command=confirm_and_copy,
+                               width=12, height=1)
+    confirm_button.pack(side=tk.LEFT, padx=10)
+
+    close_button = tk.Button(button_frame, text="关闭", command=close_window,
+                             width=12, height=1)
+    close_button.pack(side=tk.LEFT, padx=10)
+
+    # 绑定ESC键关闭窗口
+    dialog.bind('<Escape>', lambda event: close_window())
+
+    # 等待窗口关闭
+    dialog.wait_window()
+
+
 # 行号迭代器
 class RowNumIterator:
     """
@@ -1183,7 +1299,9 @@ class RowNumIterator:
 
     >>> r = RowNumIterator(1)
     >>> next(r)  # 返回 1
+    1
     >>> next(r)  # 返回 2
+    2
     """
 
     def __init__(self, start=0):
