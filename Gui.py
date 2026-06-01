@@ -20,6 +20,27 @@ LABEL_BG = '#80FFFF'
 LABEL_BG_NO = '#1CE47A'
 LABEL_BG_OLD_NO = '#90FFA7'
 
+IDKIND_TO_CSDC_ID_KIND = {
+    IdCardGenerator.IDKind.ID_CARD.value:'01',
+    IdCardGenerator.IDKind.FOREIGN_PERMANENT_RESIDENT2017.value:'09',
+    IdCardGenerator.IDKind.FOREIGN_PERMANENT_RESIDENT2023.value:'-9',
+    IdCardGenerator.IDKind.HKG_MAC_PERMIT.value:'07',
+    IdCardGenerator.IDKind.CTN_PERMIT.value:'08',
+    IdCardGenerator.IDKind.GAT_PERMANENT_RESIDENT.value:'15',
+    IdCardGenerator.IDKind.BUSINESS_LICENSE.value:'02',        
+}
+
+GENDER_TO_CSDC_GENDER ={
+    '男':'1',
+    '女':'2',
+    '非自然人':'3'
+}
+
+GENDER_TO_BOP_GENDER ={
+    '男':'0',
+    '女':'1',
+    '非自然人':'2'
+}
 
 class WidgetGroupDescriptor:
     """描述符：管理 WidgetGroup/GenderGroup 属性，实现子类赋值时更新而非覆盖"""
@@ -127,7 +148,7 @@ class BaseCardFrame(tk.Frame, ABC):
         """
         super().__init__(master)
         self.master = master
-        self.id_info = None
+        self.id_info:IdCardGenerator.IDNOGenerator = None
         self._init_common_widgets(start_row_num)
 
     def _init_common_widgets(self, start_row_num: int):
@@ -200,7 +221,19 @@ class BaseCardFrame(tk.Frame, ABC):
     def show_id_info_by_sql(self):
         """将证件信息格式化为sql语句"""
         if self.id_info:
-            show_sql(self.id_info)
+            CSDC_ID_NO = self.id_info.No
+            CSDC_ID_BEGINDATE = self.id_info.begin_date
+            CSDC_ID_ENDDATE = self.id_info.end_date
+            CSDC_FULL_NAME = self.id_info.name_ch
+            CSDC_BIRTHDAY = self.id_info.birthday
+            CSDC_MOBILEPHONE = self.id_info.phone_number
+            CSDC_NATIONALITY = self.id_info.nationality_code
+            CSDC_ID_KIND = IDKIND_TO_CSDC_ID_KIND.get(self.id_info.id_kind, ' ')
+            CSDC_CLIENT_GENDER = GENDER_TO_CSDC_GENDER.get(self.id_info.gender, ' ')
+            insert_sql = f"""insert into hs_tstp.tpidinfo (BRANCH_NO, CSDC_ID_KIND, CSDC_ID_NO, CSDC_ID_BEGINDATE, CSDC_ID_ENDDATE, CSDC_FULL_NAME, CSDC_NATIONALITY, CSDC_CLIENT_GENDER, CSDC_BIRTHDAY, CSDC_OPENORGAN_CODE, CSDC_OPENNET_CODE, CSDC_MOBILEPHONE, CSDC_QUERY_FLAG, CSDC_FILE_NAME, CSDC_FILE_LENGTH, CSDC_RESERVE1, CSDC_RESERVE2, REVIEW_FLAG)
+    values (1111, '{CSDC_ID_KIND}', '{CSDC_ID_NO}', {CSDC_ID_BEGINDATE}, {CSDC_ID_ENDDATE}, '{CSDC_FULL_NAME}', '{CSDC_NATIONALITY}', '{CSDC_CLIENT_GENDER}', {CSDC_BIRTHDAY}, ' ', ' ', '{CSDC_MOBILEPHONE}', '0', ' ', ' ', ' ', ' ', '1');
+    """
+            show_sql(insert_sql)
         else:
             messagebox.showinfo("提示", "当前没有证件信息")
 
@@ -856,7 +889,7 @@ class GATJzz(BaseCardFrame):
         r2 = RowNumIterator(self._next_row)
         self.province_code = WidgetGroup(self, name="地区码:", row_num=next(r2))
         self.province_name = WidgetGroup(self, name="地区:", row_num=next(r2))
-
+        self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(r2))
         # 按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
@@ -900,6 +933,7 @@ class GATJzz(BaseCardFrame):
         super().show_info()
         self.province_code.set(self.id_info.region_code)
         self.province_name.set(self.id_info.province_name)
+        self.nationality_code.set(self.id_info.nationality_code)        
 
     def check_num_complete(self, event=None):
         ID_No_src = self.ID_No.get()
@@ -945,17 +979,18 @@ class GAtxz(BaseCardFrame):
         self.combobox_id_type = ttk.Combobox(self, textvariable=self.id_type, values=ga_id_type)
         self.combobox_id_type.bind("<<ComboboxSelected>>", self.generate_default)
         self.combobox_id_type.grid(row=next(r), column=1, sticky='w')
-
+        r2 = RowNumIterator(self._next_row)
+        self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(r2))
         # 按钮
         self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
-        self.button_insert_database_sql.grid(row=self._next_row, column=0)
+        self.button_insert_database_sql.grid(row=r2.current, column=0)
 
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=self._next_row, column=1)
+        self.btn_refresh_gat.grid(row=r2.current, column=1)
 
         self.btn_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_quit.grid(row=self._next_row, column=2, sticky="w")
-
+        self.btn_quit.grid(row=next(r2), column=2, sticky="w")
+        self._next_row = r2.current
         self.id_type.set(IdCardGenerator.HkgMacPermit.HKG_PERMIT.value)
         self.generate_default()
 
@@ -965,6 +1000,7 @@ class GAtxz(BaseCardFrame):
 
     def show_info(self):
         super().show_info()
+        self.nationality_code.set(self.id_info.nationality_code)        
 
 
 class TWtxz(BaseCardFrame):
@@ -978,15 +1014,17 @@ class TWtxz(BaseCardFrame):
         """
         super().__init__(master)
 
+        r2 = RowNumIterator(self._next_row)
+        self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(r2))
         # 按钮
         self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
-        self.button_insert_database_sql.grid(row=self._next_row, column=0)
+        self.button_insert_database_sql.grid(row=r2.current, column=0)
 
         self.btn_refresh_gat = tk.Button(self, text="重新随机生成", command=self.generate_default)
-        self.btn_refresh_gat.grid(row=self._next_row, column=1)
+        self.btn_refresh_gat.grid(row=r2.current, column=1)
 
         self.btn_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.btn_quit.grid(row=self._next_row, column=2, sticky="w")
+        self.btn_quit.grid(row=next(r2), column=2, sticky="w")
 
         self.generate_default()
 
@@ -996,7 +1034,7 @@ class TWtxz(BaseCardFrame):
 
     def show_info(self):
         super().show_info()
-
+        self.nationality_code.set(self.id_info.nationality_code)
 
 class BusinessLicense(BaseCardFrame):
     """营业执照的页面"""
@@ -1201,11 +1239,11 @@ def create_tooltip(widget, text):
     widget.bind('<Leave>', leave)
 
 
-def show_sql(idinfo):
+def show_sql(sql_text:str):
     """
     弹出一个窗口显示插入数据库的sql语句
 
-    :param idinfo: 要显示的ID信息对象或字典
+    :param sql_text: 要显示的ID信息对象或字典
     """
     # 创建顶层窗口
     dialog = tk.Toplevel()
@@ -1237,22 +1275,8 @@ def show_sql(idinfo):
 
     # 配置滚动条
     scrollbar.config(command=text_widget.yview)
-
-    # 格式化显示ID信息
-    if isinstance(idinfo, dict):
-        info_text = ""
-        for key, value in idinfo.items():
-            info_text += f"{key}: {value}\n"
-    else:
-        # 假设是对象，使用其字符串表示
-        try:
-            info_text = str(idinfo)
-        except Exception as e:
-            print(e)
-            info_text = "无法显示的信息格式"
-
     # 插入文本
-    text_widget.insert(tk.END, info_text)
+    text_widget.insert(tk.END, sql_text)
 
     # 设置文本框为只读
     text_widget.config(state=tk.DISABLED)
