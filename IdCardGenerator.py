@@ -566,6 +566,8 @@ class IDNOGenerator(ABC):
         self.fax_number = generate_china_fax_number(area_code=self.area_code)
         self.landline_number = generate_china_landline_number(area_code=self.area_code)
         self.address = zipinfo.address + random.choice(self.ADDRESSES)
+        # 拉丁字母国籍码,默认为中国
+        self.nationality_code = 'CHN'
 
     @property
     def id_kind(self):
@@ -1201,12 +1203,15 @@ class TypeGATJZZ(IDNOGenerator):
         if id_type == GATPermanentResident.HKG_PERMANENT_RESIDENT.value:
             self.region_code = '810000'
             self.province_name = '香港'
+            self.nationality_code = 'HKG'
         elif id_type == GATPermanentResident.MAC_PERMANENT_RESIDENT.value:
             self.region_code = '820000'
             self.province_name = '澳门'
+            self.nationality_code = 'MAC'
         elif id_type == GATPermanentResident.CTN_PERMANENT_RESIDENT.value:
             self.region_code = '830000'
             self.province_name = '台湾'
+            self.nationality_code = 'CTN'
         else:
             raise ValueError("输入证件类型错误,输入证件类型不为港澳台居住证")
         self.No = f"{str(self.region_code)}{self.birthday}{self.sequence_code}"
@@ -1264,8 +1269,10 @@ class TypeGATXZ(IDNOGenerator):
         self.__type = id_type
         if id_type == HkgMacPermit.HKG_PERMIT.value:
             self.PREFIX_CODE = 'H'
+            self.nationality_code = 'HKG'
         elif id_type == HkgMacPermit.MAC_PERMIT.value:
             self.PREFIX_CODE = 'M'
+            self.nationality_code = 'MAC'
         else:
             raise ValueError("输入证件类型错误,输入证件类型不为香港或者澳门通行证")
         # 前半段
@@ -1289,6 +1296,7 @@ class TypeTWTXZ(IDNOGenerator):
     # 台湾居民来往内地通行证
     def __init__(self):
         super(TypeTWTXZ, self).__init__(id_kind=IDKind.CTN_PERMIT)
+        self.nationality_code = 'CTN'
         # 前半段
         self.sequence_code_forepart = str(random.randint(0, 99999)).zfill(5)
         # 证件号码
@@ -1350,8 +1358,7 @@ Y：其他
                          id_kind=IDKind.BUSINESS_LICENSE)
         # department_administration_division_info = get_province_city_county_code()
         self.name_ch += '有限公司'
-        # self.department_administration_division_code = department_administration_division_info[0]
-        # self.department_administration_division_name = department_administration_division_info[1]
+        self.gender = '非自然人'
         self.organization_code = generate_organization_code()
         self.No_without_check_num = (
             f"{self.MANAGEMENT_DEPARTMENT_CODE}"
