@@ -708,6 +708,10 @@ class IDNOGenerator(ABC):
             else:
                 valid_years = 5
         elif id_kind == IDKind.CTN_PERMIT.value:
+            # 台湾通行证有效期为5年
+            valid_years = 5
+        elif id_kind == IDKind.GAT_PERMANENT_RESIDENT.value:
+            # 港澳台居民居住证的有效期限为五年
             valid_years = 5
         else:
             # 根据领证年龄计算终止日期，身份证有效期的逻辑
