@@ -262,6 +262,9 @@ def generate_china_fax_number(area_code=None, length=8):
 
     if area_code is None:
         area_code = '010'
+    # 区号太长BOP会报错
+    elif len(area_code) > 4:
+        area_code = area_code[-4:]
     # 生成后面的号码
     if length < 7 or length > 8:
         raise ValueError("传真号码段长度必须在7-8之间")
@@ -280,6 +283,9 @@ def generate_china_landline_number(area_code=None, length=8):
     """
     if area_code is None:
         area_code = '010'
+    # 区号太长BOP会报错
+    elif len(area_code) > 4:
+        area_code = area_code[-4:]
     # 号码段的数字（固定电话为5-8位）
     if length < 5 or length > 8:
         raise ValueError("固定电话号码段长度必须在5-8之间")
