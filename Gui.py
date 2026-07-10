@@ -14,33 +14,16 @@ import pyperclip
 import Nationality
 import IdCardGenerator
 from abc import abstractmethod, ABC
+from FieldMapping import ID_KIND_TO_CSDC_ID_KIND,GENDER_TO_CSDC_GENDER
+import EditOpenExcelMolde
 
 _SENTINEL = object()
 LABEL_BG = '#80FFFF'
 LABEL_BG_NO = '#1CE47A'
 LABEL_BG_OLD_NO = '#90FFA7'
 
-IDKIND_TO_CSDC_ID_KIND = {
-    IdCardGenerator.IDKind.ID_CARD.value:'01',
-    IdCardGenerator.IDKind.FOREIGN_PERMANENT_RESIDENT2017.value:'09',
-    IdCardGenerator.IDKind.FOREIGN_PERMANENT_RESIDENT2023.value:'-9',
-    IdCardGenerator.IDKind.HKG_MAC_PERMIT.value:'07',
-    IdCardGenerator.IDKind.CTN_PERMIT.value:'08',
-    IdCardGenerator.IDKind.GAT_PERMANENT_RESIDENT.value:'15',
-    IdCardGenerator.IDKind.BUSINESS_LICENSE.value:'02',        
-}
 
-GENDER_TO_CSDC_GENDER ={
-    '男':'1',
-    '女':'2',
-    '非自然人':'3'
-}
 
-GENDER_TO_BOP_GENDER ={
-    '男':'0',
-    '女':'1',
-    '非自然人':'2'
-}
 
 class WidgetGroupDescriptor:
     """描述符：管理 WidgetGroup/GenderGroup 属性，实现子类赋值时更新而非覆盖"""
@@ -228,7 +211,7 @@ class BaseCardFrame(tk.Frame, ABC):
             CSDC_BIRTHDAY = self.id_info.birthday
             CSDC_MOBILEPHONE = self.id_info.phone_number
             CSDC_NATIONALITY = self.id_info.nationality_code
-            CSDC_ID_KIND = IDKIND_TO_CSDC_ID_KIND.get(self.id_info.id_kind, ' ')
+            CSDC_ID_KIND = ID_KIND_TO_CSDC_ID_KIND.get(self.id_info.id_kind, ' ')
             CSDC_CLIENT_GENDER = GENDER_TO_CSDC_GENDER.get(self.id_info.gender, ' ')
             insert_sql = f"""insert into hs_tstp.tpidinfo (BRANCH_NO, CSDC_ID_KIND, CSDC_ID_NO, CSDC_ID_BEGINDATE, CSDC_ID_ENDDATE, CSDC_FULL_NAME, CSDC_NATIONALITY, CSDC_CLIENT_GENDER, CSDC_BIRTHDAY, CSDC_OPENORGAN_CODE, CSDC_OPENNET_CODE, CSDC_MOBILEPHONE, CSDC_QUERY_FLAG, CSDC_FILE_NAME, CSDC_FILE_LENGTH, CSDC_RESERVE1, CSDC_RESERVE2, REVIEW_FLAG)
     values (1111, '{CSDC_ID_KIND}', '{CSDC_ID_NO}', {CSDC_ID_BEGINDATE}, {CSDC_ID_ENDDATE}, '{CSDC_FULL_NAME}', '{CSDC_NATIONALITY}', '{CSDC_CLIENT_GENDER}', {CSDC_BIRTHDAY}, ' ', ' ', '{CSDC_MOBILEPHONE}', '0', ' ', ' ', ' ', ' ', '1');
@@ -1361,6 +1344,22 @@ class MainApplication(tk.Tk):
         """
         super().__init__()
         self.title("号码生成器")
+
+        # 创建菜单栏
+        menubar = tk.Menu(self)
+        self.config(menu=menubar)
+
+        # 创建“窗口”菜单
+        window_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="机构/产品开户", menu=window_menu)
+        # 在“窗口”菜单中添加“填充开户模板文件”项
+        window_menu.add_command(label="填充开户模板文件", command=lambda: EditOpenExcelMolde.main(self))
+
+        # 也可以添加分隔线或其他选项
+        window_menu.add_separator()
+        window_menu.add_command(label="退出", command=self.quit)
+
+        # 单类型号码生成页面
         self.id_kind = tk.StringVar()
         self.label_id_kinds = tk.Label(self, text="证件类型:")
         self.label_id_kinds.grid(row=0, column=0, sticky='e')
