@@ -2,7 +2,7 @@
 # @Time     : 2024/2/27 14:31
 # @Author   : wanggz38530
 # @File     : 18位外国人永久居留证.py
-# @Software :
+# @Software : PRC_FOREIGN_PERMANENT_RESIDENT_ID_CARD
 """
 # -*- coding: utf-8 -*-
 # !/usr/bin/python3.6/
@@ -680,6 +680,7 @@ class IDNOGenerator(ABC):
                     self.begin_date = begin_date_obj.strftime("%Y%m%d")
                     self.end_date = end_date.strftime("%Y%m%d")
                     break
+                # 长期有效的情况
                 elif isinstance(end_date, str):
                     self.begin_date = begin_date_obj.strftime("%Y%m%d")
                     self.end_date = end_date
