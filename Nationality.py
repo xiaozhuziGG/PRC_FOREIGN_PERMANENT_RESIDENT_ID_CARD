@@ -4,7 +4,7 @@
 # @Time     : 2024/9/28 下午4:01
 # @Author   : Admin
 # @File     : Nationality.py
-# @Software : Nationality.py
+# @Software : PRC_FOREIGN_PERMANENT_RESIDENT_ID_CARD
 # @实现功能  : 存储国籍信息
 """
 import csv
