@@ -7,6 +7,7 @@
 # @Software : PRC_FOREIGN_PERMANENT_RESIDENT_ID_CARD
 # @实现功能  :
 """
+import os
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
@@ -1349,13 +1350,15 @@ class MainApplication(tk.Tk):
         menubar = tk.Menu(self)
         self.config(menu=menubar)
 
-        # 创建“窗口”菜单
+        # 创建“机构/产品开户”菜单
         window_menu = tk.Menu(menubar, tearoff=0)
         menubar.add_cascade(label="机构/产品开户", menu=window_menu)
         # 在“窗口”菜单中添加“填充开户模板文件”项
         window_menu.add_command(label="填充开户模板文件", command=lambda: EditOpenExcelMolde.main(self))
 
         # 也可以添加分隔线或其他选项
+        window_menu.add_separator()
+        window_menu.add_command(label="打开工作目录", command=lambda: os.startfile(Nationality.BASE_DIR))
         window_menu.add_separator()
         window_menu.add_command(label="退出", command=self.quit)
 
