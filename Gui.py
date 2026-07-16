@@ -99,7 +99,7 @@ class WidgetGroupDescriptor:
 
 
 class BaseCardFrame(tk.Frame, ABC):
-    """抽象基类，用描述符管理 13 个公共字段，子类无需重复赋值"""
+    """抽象基类，用描述符管理 14 个公共字段，子类无需重复赋值"""
 
     name_ch = WidgetGroupDescriptor('name_ch')
     ID_No = WidgetGroupDescriptor('ID_No')
@@ -114,13 +114,14 @@ class BaseCardFrame(tk.Frame, ABC):
     email_address = WidgetGroupDescriptor('email_address')
     zipcode = WidgetGroupDescriptor('zipcode')
     id_address = WidgetGroupDescriptor('id_address')
+    issued_depart = WidgetGroupDescriptor('issued_depart')
 
     @staticmethod
     def _common_field_names():
         return [
             'name_ch', 'ID_No', 'name_en', 'birthday', 'gender',
             'begin_date', 'end_date', 'phone_number', 'landline_number',
-            'fax_number', 'email_address', 'zipcode', 'id_address'
+            'fax_number', 'email_address', 'zipcode', 'id_address', 'issued_depart'
         ]
 
     def __init__(self, master=None, start_row_num: int = 1):
@@ -137,7 +138,7 @@ class BaseCardFrame(tk.Frame, ABC):
 
     def _init_common_widgets(self, start_row_num: int):
         """
-        预创建 13 个公共字段组件，行号由迭代器管理，调整顺序即可调整排布
+        预创建 14 个公共字段组件，行号由迭代器管理，调整顺序即可调整排布
 
         :param start_row_num: 组件起始行号
         """
@@ -155,6 +156,7 @@ class BaseCardFrame(tk.Frame, ABC):
         self.__dict__['email_address'] = WidgetGroup(self, name="电子邮箱:", row_num=next(r))
         self.__dict__['zipcode'] = WidgetGroup(self, name="邮政编码:", row_num=next(r))
         self.__dict__['id_address'] = WidgetGroup(self, name="证件地址:", row_num=next(r))
+        self.__dict__['issued_depart'] = WidgetGroup(self, name="签发机关:", row_num=next(r))
         self._next_row = r.current
 
     @abstractmethod
@@ -186,6 +188,7 @@ class BaseCardFrame(tk.Frame, ABC):
         _set_if('email_address', info.email_address)
         _set_if('zipcode', info.zipcode)
         _set_if('id_address', getattr(info, 'address', ''))
+        _set_if('issued_depart', getattr(info, 'issued_depart', ''))
 
     def clear_all_fields(self):
         """清空所有 WidgetGroup 和 GenderGroup 字段（含子类特有字段）"""
