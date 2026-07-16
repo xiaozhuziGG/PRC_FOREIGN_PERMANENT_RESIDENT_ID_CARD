@@ -1,0 +1,256 @@
+# 机构开户模板范例
+sheets:
+    - sheet: 
+        - 
+            sheet_name: 机构户详细信息
+        - 
+            organrelated_type: 客户主体
+            证件类型-id_kind: id_kind
+            证件号码-id_no: "No"
+            证件有效期开始时间-id_begindate_new: begin_date
+            证件有效期截止时间-id_enddate: end_date
+            成立日期-establishment_date: birthday
+            证件年审日期-business_audit_date: begin_date
+            机构简称-client_name_new: name_ch
+            机构全称-full_name: name_ch
+            机构英文名称-organ_name_english: name_en
+            证件地址-id_address: address
+            注册地址-organ_register_address: address
+            经营地址-business_address: address
+            国籍/地区-nationality: nationality_code
+            签发机关-issued_depart: address
+            组织机构代码-organ_code: organization_code
+            组织机构代码有效期起始日期-organ_code_begindate: begin_date
+            组织机构代码有效期截止日期-organ_code_enddate: end_date
+            机构移动电话-Mobile: phone_number
+            机构移动电话-mobile: phone_number
+            单位电话-office_tel: phone_number
+            电子邮箱-e_mail_new: email_address
+            邮政编码-zipcode: zipcode
+            传真号码-fax: fax_number
+            联系地址-address: address
+        - 
+            受益人-benefit_person: name_ch
+        - 
+            客户经理名称-cust_manager_name: name_ch
+            客户经理邮箱-cust_manager_email: email_address
+            客户经理手机-cust_manager_mobile: phone_number
+        - 
+            投资顾问名称-investadv_gw_name: name_ch
+            投资顾问邮箱-investadv_gw_email: email_address
+            投资顾问手机-investadv_gw_mobile: phone_number
+        - 
+            organrelated_type: 经办人
+            经办人证件类别-contact_id_kind: id_kind
+            经办人证件号码-contact_id_no: "No"
+            经办人证件有效期起始日期-contact_id_begindate: begin_date
+            经办人证件有效期截止日期-contact_id_enddate: end_date
+            经办人姓名-contact_name: name_ch
+            经办人联系电话-contact_tel: phone_number
+            经办人移动电话-contact_mobile: phone_number
+            经办人电子邮箱-contact_e_mail: email_address
+            经办人国籍/地区-contact_nationality: nationality_code
+            经办人出生日期-contact_birthday: birthday
+            经办人性别-contact_gender: gender
+            经办人邮编-contact_zipcode: zipcode
+            经办人联系地址-contact_address: address
+        - 
+            organrelated_type: 代理人
+            代理人证件类型-deputy_id_kind_new: id_kind
+            代理人证件号码-deputy_id_no_new: "No"
+            代理人证件有效期起始日期-deputy_id_begindate: begin_date
+            代理人证件有效期截止日期-deputy_id_enddate: end_date
+            代理人姓名-deputy_name_new: name_ch
+            代理人性别-deputy_gender: gender
+            代理人出生日期-deputy_birthday: birthday
+            代理人国籍/地区-deputy_nationality: nationality_code
+            代理人联系电话-deputy_telno: phone_number
+            代理人邮编-deputy_zipcode: zipcode
+            代理人联系地址-deputy_address: address
+            代理人代理期限-deputy_end_date: end_date
+            代理人移动电话-deputy_mobino_new: phone_number
+            代理人传真号码-deputy_faxno: fax_number
+            代理人电子邮箱-deputy_email: email_address
+            代理人英文名称-deputy_name_eng: name_en
+            代理人别名-deputy_alias_name: name_ch
+            代理人居住国家/地区-deputy_res_nationality: nationality_code
+            代理人单位电话-deputy_office_tel: landline_number
+        - 
+            organrelated_type: 法定代表人
+            法定代表人姓名-instrepr_name: name_ch
+            法定代表人证件类别-instrepr_id_kind: id_kind
+            法定代表人证件号码-instrepr_id_no: "No"
+            法定代表人证件有效期起始日期-instrepr_id_begindate: begin_date
+            法定代表人证件有效期截止日期-instrepr_id_enddate: end_date
+            法定代表人联系电话-instrepr_tel: phone_number
+            法定代表人电子邮箱-instrepr_e_mail: email_address
+            法定代表人邮编-instrepr_zipcode: zipcode
+            法定代表人联系地址-instrepr_address: address
+            法定代表人证件签发机关-corporate_card_issuer: address
+            法定代表人英文名称-instrepr_name_eng: name_en
+            法定代表人性别-instrepr_gender: gender
+            法定代表人别名-instrepr_alias_name: name_ch
+            法定代表人国籍/地区-instrepr_nationality: nationality_code
+            法定代表人居住国家/地区-instrepr_res_nationality: nationality_code
+            法定代表人生日-instrepr_birthday: birthday
+        - 
+            organrelated_type: 负责人
+            负责人姓名-duty_name: name_ch
+            负责人证件类别-duty_id_kind: id_kind
+            负责人证件号码-duty_id_no: "No"
+            负责人证件有效期起始日期-duty_id_begindate: begin_date
+            负责人证件有效期截止日期-duty_id_enddate: end_date
+            负责人联系电话-duty_tel: phone_number
+            负责人国籍/地区-duty_nationality: nationality_code
+            负责人性别-duty_gender: gender
+            负责人出生日期-duty_birthday: birthday
+        - 
+            organrelated_type: 联系人
+            联系人姓名-relation_name: name_ch
+            联系人证件类别-relation_id_kind: id_kind
+            联系人证件号码-relation_id_no: "No"
+            联系人证件有效期起始日期-relation_id_begindate: begin_date
+            联系人证件有效期截止日期-relation_id_enddate: end_date
+            联系电话-relation_tel: phone_number
+            联系人地址-realtion_address: address
+            联系人英文名称-relation_name_eng: name_en
+            联系人性别-relation_gender: gender
+            联系人别名-relation_alias_name: name_ch
+            联系人国籍/地区-relation_nationality: nationality_code
+            联系人居住国家/地区-relation_res_nationality: nationality_code
+            联系人生日-relation_birthday: birthday
+            联系人邮编-relation_zipcode: zipcode
+            联系人固定电话-relation_office_tel: landline_number
+            联系人电子邮箱-relation_e_mail: email_address
+            联系人传真-relation_fax: fax_number
+        - 
+            organrelated_type: 控股股东
+            控股股东姓名-control_holder: name_ch
+            控股股东证件类别-control_id_kind: id_kind
+            控股股东证件号码-control_id_no: "No"
+            控股股东联系人证件有效期起始日期-control_id_begindate: begin_date
+            控股股东联系人证件有效期截止日期-control_id_enddate: end_date
+            控股股东联系电话-control_tel: phone_number
+            控股股东电子邮箱-control_e_mail: email_address
+            控股股东英文名称-control_name_eng: name_en
+            控股股东性别-control_gender: gender
+            控股股东生日-control_birthday: birthday
+            控股股东国籍/地区-control_nationality: nationality_code
+    - sheet: 
+        - 
+            sheet_name: 受益所有人信息
+        - 
+            organrelated_type: 受益所有人
+            受益所有人姓名-benefit_person: name_ch
+            证件类别-benefit_id_kind: id_kind
+            证件号码-benefit_id_no: "No"
+            证件有效期开始时间-benefit_id_begindate: begin_date
+            证件有效期截止时间-benefit_id_enddate: end_date
+            联系电话-benefit_telephone: phone_number
+            证件地址-benefit_id_address: address
+            联系地址-benefit_address: address
+            经常居住地址-benefit_usual_address: address
+            受益所有人英文名称-benefit_name_eng: name_en
+            受益所有人性别-benefit_gender: gender
+            受益所有人别名-benefit_alias_name: name_ch
+            受益所有人生日-benefit_birthday: birthday
+            受益所有人出生国家/地区-benefit_birth_nationality: nationality_code
+            受益所有权关系类型形成日期-beneficiary_type_formdate: begin_date
+            受益所有权关系类型终止日期-beneficiary_type_enddate: end_date
+
+    - sheet: 
+        - 
+            sheet_name: 重要股东信息
+        - 
+            organrelated_type: 重要股东
+            股东名称-impt_holder_full_name: name_ch
+            股东证件类别-impt_holder_id_kind: id_kind
+            股东证件号码-impt_holder_id_no: "No"
+            股东证件有效期开始时间-impt_holder_id_begindate: begin_date
+            股东证件有效期截止时间-impt_holder_id_enddate: end_date
+    - sheet: 
+        - 
+            sheet_name: 重要人士信息
+        -
+            重要人士名称-impt_person_full_name: name_ch
+    - sheet: 
+        - 
+            sheet_name: 合伙人信息
+        - 
+            organrelated_type: 重要股东
+            合伙人姓名-partner_name: name_ch
+            证件类别-partner_id_kind: id_kind
+            证件号码-partner_id_no: "No"
+            证件有效期开始时间-partner_id_begindate: begin_date
+            证件有效期截止时间-partner_id_enddate: end_date
+            国籍/地区代码-partner_nationality: nationality_code
+    - sheet: 
+        - 
+            sheet_name: 执行事务合伙人信息
+        - 
+            organrelated_type: 执行事务合伙人
+            执行事务合伙人姓名-partner_name: name_ch
+            执行事务合伙人证件类别-partner_id_kind: id_kind
+            执行事务合伙人证件号码-partner_id_no: "No"
+            执行事务合伙人证件有效期起始日期-partner_id_begindate: begin_date
+            执行事务合伙人证件有效期截止日期-partner_id_enddate: end_date
+            执行事务合伙人联系电话-partner_tel: phone_number
+            执行事务合伙人电子邮箱-partner_e_mail: email_address
+            执行事务合伙人邮编-partner_zipcode: zipcode
+            执行事务合伙人联系地址-partner_address: address
+            执行事务合伙人证件签发机关-partner_issued_depart: address
+            执行事务合伙人英文名称-partner_name_eng: name_en
+            执行事务合伙人性别-partner_gender: gender
+            执行事务合伙人别名-partner_alias_name: name_ch
+            执行事务合伙人国籍/地区-partner_nationality: nationality_code
+            执行事务合伙人居住国家/地区-partner_res_nationality: nationality_code
+            执行事务合伙人生日-partner_birthday: birthday
+        - 
+            organrelated_type: 委派代表
+            委派代表姓名-consigner_name: name_ch
+            委派代表证件类别-consigner_id_kind: id_kind
+            委派代表证件号码-consigner_id_no: "No"
+            委派代表证件有效期起始日期-consigner_id_begindate: begin_date
+            委派代表证件有效期截止日期-consigner_id_enddate: end_date
+            委派代表联系电话-consigner_tel: phone_number
+            委派代表电子邮箱-consigner_e_mail: email_address
+            委派代表邮编-consigner_zipcode: zipcode
+            委派代表联系地址-consigner_address: address
+            委派代表国籍/地区-consigner_nationality: nationality_code
+    - sheet: 
+        - 
+            sheet_name: 涉税信息
+    - sheet: 
+        - 
+            sheet_name: 控制人信息
+    - sheet: 
+        - 
+            sheet_name: 扩展信息
+        - 
+            organrelated_type: 实际受益人
+            实际受益人-clientinfox_gf_isexist_benefit: name_ch
+            受益所有人证件类型-clientinfox_beneficiary_id_kind: id_kind
+            受益人证件号码-clientinfox_beneficiary_id_no: "No"
+            机构受益人证件号码-clientinfox_beneficiary_id_no: "No"
+            受益人联系电话-clientinfox_benefit_person_tel: phone_number
+            受益人证件起始日期-clientinfox_beneficiary_id_begindate: begin_date
+            受益人证件截止日期-clientinfox_beneficiary_id_enddate: end_date
+            受益人截止日期-clientinfox_beneficiary_id_enddate: end_date
+            国籍/地区代码-benefit_nationality: nationality_code
+            受益人国籍-clientinfox_beneficiary_nationality: nationality_code
+        - 
+            organrelated_type: 实际控制人
+            控制人名称-clientinfox_clientinfox_control_person: name_ch
+            实际控制投资者-clientinfox_control_person: name_ch
+            控制人证件号码-clientinfox_controller_id_no: "No"
+            控制人证件类别-clientinfox_controller_id_kind: id_kind
+            控制人证件起始日期-clientinfox_controller_id_begindate: begin_date
+            控制人证件结束日期-clientinfox_controller_id_enddate: end_date
+            实际控制人开始日期-clientinfox_controller_id_begindate: begin_date
+            实际控制人截止日期-clientinfox_controller_id_enddate: end_date
+            实际控制人联系电话-clientinfox_controller_tel: phone_number
+            控制人证件地址-clientinfox_controller_id_address: address
+            控制人现居地址-clientinfox_nonresident_ctrl_addr: address
+            控制人出生日期-clientinfox_birthday: birthday
+            实际控制人联系电话-clientinfox_control_person_tel: phone_number
+            实际控制人电话-clientinfox_controller_tel: phone_number
