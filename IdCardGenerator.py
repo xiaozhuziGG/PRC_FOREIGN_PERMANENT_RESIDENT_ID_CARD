@@ -572,6 +572,13 @@ class IDNOGenerator(ABC):
         self.fax_number = generate_china_fax_number(area_code=self.area_code)
         self.landline_number = generate_china_landline_number(area_code=self.area_code)
         self.address = zipinfo.address + random.choice(self.ADDRESSES)
+        # 签发机关
+        if self.county_name:
+            self.issued_depart = f"{self.county_name}公安局"
+        elif self.city_name:
+            self.issued_depart = f"{self.city_name}公安局"
+        else:
+            self.issued_depart = f"{self.province_name}公安局"
         # 拉丁字母国籍码,默认为中国
         self.nationality_code = 'CHN'
 
@@ -923,6 +930,8 @@ class TypeYJZ(IDNOGenerator):
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
+        # 签发机关为固定值
+        self.issued_depart = "中华人民共和国国家移民管理局"
         # 既往版本外国人永久居留证件号码关联项，前两位为市代码，后一位为顺序号
         self.related_item = None
         self.No_2017 = None
@@ -962,10 +971,10 @@ class TypeYJZ(IDNOGenerator):
         # 英文名 横向：35:428 竖向19:90
         # 中文名
         # 性别 横向：35:428 竖向23.9：54
-        # 出生日期 横线 26:54 竖向：23.9：54
-        # 国籍  横线：35:428  竖向31.7：54
-        # 有效期 横线：35:428  竖向39.8：54
-        # 证件号 横线：26:85.6  竖向44.6：54
+        # 出生日期 横向 26:54 竖向：23.9：54
+        # 国籍  横向：35:428  竖向31.7：54
+        # 有效期 横向：35:428  竖向39.8：54
+        # 证件号 横向：26:85.6  竖向44.6：54
 
         # 创建一个透明的图层用于绘制水印，也可以不创建，直接在原图上绘制
         watermark = Image.new('RGBA', image.size, (0, 0, 0, 0))
