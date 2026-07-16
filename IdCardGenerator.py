@@ -782,7 +782,7 @@ class IDNOGenerator(ABC):
         """
         pinyin_list = word_to_pinyin(name_ch)
         if len(pinyin_list) > 2:
-            pinyin_str = "".join(pinyin_list[0:-2]) + ", " + "".join(pinyin_list[-2:])
+            pinyin_str = "".join(pinyin_list[0:-2]) + "， " + "".join(pinyin_list[-2:])
         else:
             pinyin_str = "".join(pinyin_list)
         return pinyin_str.upper()
@@ -954,7 +954,9 @@ class TypeYJZ(IDNOGenerator):
         except FileNotFoundError:
             raise FileNotFoundError(f"输入的底稿文件不存在")
         color = (0, 0, 0)  # 文字颜色为黑色，RGB 格式
-        type_face = "simhei.ttf"  # 字体为黑体
+        #type_face = "msyh.ttc" # 字体微软雅黑常规
+        type_face = "msyhl.ttc" # 字体微软雅黑细体
+        #type_face = "simhei.ttf"  # 字体为黑体
         font = ImageFont.truetype(type_face, 76)  # 字体类型和大小
         # 尺寸是2024 * 1280 ,一毫米对应24像素 ,每次上下端会留15个像素的边
         # 英文名 横向：35:428 竖向19:90
@@ -992,14 +994,14 @@ class TypeYJZ(IDNOGenerator):
         # 英文名 横向：35:428 竖向19:90 9P黑体
         draw.text((166, 230), self.name_en, font=font, fill=color)
         # 中文名 9P黑体
-        draw.text((166, 345), self.name_ch, font=font, fill=color)
+        draw.text((166, 345), ' '.join(self.name_ch), font=font, fill=color)
         # 性别 横向：35:428 竖向23.9：54 8P黑体
         font = ImageFont.truetype(type_face, 68)
         if self.gender == '男':
-            gender = '男/M'
+            gender = '男 / M'
             head_portrait = Image.open(path.join(path_src, "male.png")).convert("RGBA")
         else:
-            gender = '女/F'
+            gender = '女 / F'
             head_portrait = Image.open(path.join(path_src, "female.png")).convert("RGBA")
         draw.text((166, 560), gender, font=font, fill=color)
         # 出生日期 横线 26:85.6 竖向：23.9：54  8P黑体
