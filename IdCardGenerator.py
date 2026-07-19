@@ -789,7 +789,7 @@ class IDNOGenerator(ABC):
         """
         pinyin_list = word_to_pinyin(name_ch)
         if len(pinyin_list) > 2:
-            pinyin_str = "".join(pinyin_list[0:-2]) + "， " + "".join(pinyin_list[-2:])
+            pinyin_str = "".join(pinyin_list[0:-2]) + ", " + "".join(pinyin_list[-2:])
         else:
             pinyin_str = "".join(pinyin_list)
         return pinyin_str.upper()
@@ -942,8 +942,21 @@ class TypeYJZ(IDNOGenerator):
         yjz_old = TypeYJZ2017()
         self.No_2017 = yjz_old.No
 
-    # 根据证件信息生成证件图像
     def generate_image(self, image_src: str = None, image_dest: str = None):
+        """
+        根据证件信息生成证件图像。
+
+        加载底稿模板图像，依次添加水印、英文姓名、中文姓名、性别、出生日期、
+        国籍、有效期、证件号码及头像，最终压缩保存为 JPEG 格式。
+
+        :param image_src: 底稿模板图像的路径，默认为 ``resource/YJJ_IDInfo.jpg``。
+        :type image_src: str, optional
+        :param image_dest: 生成图像的保存目录路径，默认为 ``result/``。
+        :type image_dest: str, optional
+        :returns: 保存文件的绝对路径。
+        :rtype: str
+        :raises FileNotFoundError: 当指定的底稿模板图像文件不存在时抛出。
+        """
         from PIL import Image, ImageDraw, ImageFont
         # 打开png
         # image = Image.open(image_path).convert("RGBA")
