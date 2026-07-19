@@ -979,6 +979,7 @@ class TypeSFZ(IDNOGenerator):
             resized_image.save(image_dest, format='JPEG', optimize=True, quality=20)
             # 显示
             # watermarked_image.show()
+            return image_dest
 
         def draw_back_image():
             """
@@ -1008,9 +1009,11 @@ class TypeSFZ(IDNOGenerator):
             # 保存前转换下格式
             resized_image = resized_image.convert("RGB")
             resized_image.save(image_dest, format='JPEG', optimize=True, quality=20)
+            return image_dest
 
-        draw_front_image()
-        draw_back_image()
+        image_dest_front = draw_front_image()
+        image_dest_baock = draw_back_image()
+        return image_dest_front, image_dest_baock
 
 
 # 23新版外国人永久居留证
