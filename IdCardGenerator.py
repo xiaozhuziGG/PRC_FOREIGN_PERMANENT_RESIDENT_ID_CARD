@@ -665,7 +665,7 @@ class IDNOGenerator(ABC):
         """
 
         # 生日字符串转换为日期对象
-        birthday_date = datetime.datetime.strptime(self.birthday, "%Y%m%d").date()
+        birthday_date: datetime.datetime = datetime.datetime.strptime(self.birthday, "%Y%m%d").date()
         if begin_date:
             try:
                 # 将起始日期转换为日期对象,判断字符串是不是合法日期
@@ -870,6 +870,148 @@ class TypeSFZ(IDNOGenerator):
         else:
             raise ValueError(f"证件号码{id_no}长度错误,长度为:{len(id_no)}")
 
+    def generate_image(self, face_image: str = None, image_dest: str = None):
+        """
+
+        :param face_image: 头像文件
+        :param image_dest:
+        :return:
+        """
+        from PIL import Image, ImageDraw, ImageFont
+        # 打开png
+        # image = Image.open(image_path).convert("RGBA")
+        # 打开jpeg
+        path_src = r"./resource"
+        path_src = path.join(BASE_DIR, path_src)
+        path_src = path.normpath(path_src)
+        path_result = r"./result/"
+        path_result = path.join(BASE_DIR, path_result)
+        path_result = path.normpath(path_result)
+        if not path.exists(path_result):
+            makedirs(path_result)
+        image_src_front = path.join(path_src, "SFZ_empty_front.jpg")
+        image_src_back = path.join(path_src, "SFZ_empty_back.jpg")
+        watermark_font = ImageFont.truetype('simhei.ttf', 60)
+        name_font = ImageFont.truetype(path.join(path_src, 'hei.ttf'), 72)
+        other_font = ImageFont.truetype(path.join(path_src, 'hei.ttf'), 60)
+        birthday_font = ImageFont.truetype(path.join(path_src, 'fzhei.ttf'), 60)
+        id_font = ImageFont.truetype(path.join(path_src, 'OCR-B 10 BT.ttf'), 72)
+        back_issued_font = ImageFont.truetype('msyhl.ttc', 65)
+        back_date_font = ImageFont.truetype('msyhl.ttc', 60)
+
+        def draw_watermark(image: Image.Image) -> Image.Image:
+            """
+            为图像添加水印
+            :param image:
+            :return:
+            """
+            # 创建一个透明的图层用于绘制水印，也可以不创建，直接在原图上绘制
+            watermark = Image.new('RGBA', image.size, (0, 0, 0, 0))
+            draw_watermark = ImageDraw.Draw(watermark, 'RGBA')
+
+            # 水印文本
+            watermark_text = "OCR测试使用"
+            # 水印颜色和透明度
+            watermark_color = (127, 127, 127, 60)  # 中性灰，25% 透明度
+
+            # 计算水印位置
+            bbox = draw_watermark.textbbox((0, 0), watermark_text, font=watermark_font, align="left")
+            position1 = (10, 10)  # 左上角
+            position2 = (image.width - bbox[2] - 10, image.height - bbox[3] - 10)  # 右下角
+
+            # 绘制水印
+            draw_watermark.text(position1, watermark_text, font=watermark_font, fill=watermark_color)
+            draw_watermark.text(position2, watermark_text, font=watermark_font, fill=watermark_color)
+            # watermark.show()
+            # 将水印图层与原图合并
+            watermarked_image = Image.alpha_composite(image, watermark)
+            return watermarked_image
+
+        def draw_front_image():
+            """
+            渲染身份证个人信息面图像
+
+            :return:
+            """
+            image_name = f"{self.name_ch}-{self.No}-front.jpg"
+            image_dest = path.join(path_result, image_name)
+            image = Image.open(image_src_front).convert("RGBA")
+            watermarked_image = draw_watermark(image)
+            # 继续绘制其他信息
+            draw = ImageDraw.Draw(watermarked_image, "RGBA")
+            # 绘制中文姓名
+            draw.text((360, 215), self.name_ch, font=name_font, fill=(0, 0, 0))
+            # 性别
+            draw.text((360, 350), self.gender, font=other_font, fill=(0, 0, 0))
+            # 民族
+            draw.text((760, 350), '汉', font=other_font, fill=(0, 0, 0))
+            # 生日
+            birthday_date: datetime.datetime = datetime.datetime.strptime(self.birthday, "%Y%m%d").date()
+            draw.text((360, 490), str(birthday_date.year), font=birthday_font, fill=(0, 0, 0))
+            draw.text((670, 490), str(birthday_date.month), font=birthday_font, fill=(0, 0, 0))
+            draw.text((850, 490), str(birthday_date.day), font=birthday_font, fill=(0, 0, 0))
+
+            # 住址
+            address_list = [self.address[i:i+13] for i in range(0, len(self.address), 13)]
+            y_posintion = 635
+            for text in address_list:
+                draw.text((360, y_posintion), text, font=other_font, fill=(0, 0, 0))
+                y_posintion += 70
+
+            # 号码
+            draw.text((560, 990), self.No, font=id_font, fill=(0, 0, 0))
+            # 头像
+            if self.gender == '男':
+                head_portrait = Image.open(path.join(path_src, "male.png")).convert("RGBA")
+            else:
+                head_portrait = Image.open(path.join(path_src, "female.png")).convert("RGBA")
+            watermarked_image.paste(head_portrait, (1200, 150,), head_portrait)
+
+            # 设置新的分辨率（例如，将图像缩小到原来的一半）
+            new_width = int(watermarked_image.width / 2)
+            new_height = int(watermarked_image.height / 2)
+
+            # 调整图像大小
+            resized_image = watermarked_image.resize((new_width, new_height), Image.Resampling.BILINEAR)
+            # 保存前要转换下格式
+            resized_image = resized_image.convert("RGB")
+            # 保存
+            resized_image.save(image_dest, format='JPEG', optimize=True, quality=20)
+            # 显示
+            # watermarked_image.show()
+
+        def draw_back_image():
+            """
+            渲染身份证国徽面图像
+
+            :return:
+            """
+            image_name = f"{self.name_ch}-{self.No}-back.jpg"
+            image_dest = path.join(path_result, image_name)
+            image = Image.open(image_src_back).convert("RGBA")
+            watermarked_image = draw_watermark(image)
+            # 继续绘制其他信息
+            draw = ImageDraw.Draw(watermarked_image, "RGBA")
+            begin_date_obj = datetime.datetime.strptime(self.begin_date, "%Y%m%d")
+            formatted_begin_date = begin_date_obj.strftime("%Y.%m.%d")
+            end_date_obj = datetime.datetime.strptime(self.end_date, "%Y%m%d")
+            formatted_end_date = end_date_obj.strftime("%Y.%m.%d")
+            draw.text((860, 830), self.issued_depart, font=back_issued_font, fill=(0, 0, 0))
+            draw.text((860, 980), f"{formatted_begin_date}-{formatted_end_date}", font=back_date_font, fill=(0, 0, 0))
+
+            # 设置新的分辨率（例如，将图像缩小到原来的一半）
+            new_width = int(watermarked_image.width / 2)
+            new_height = int(watermarked_image.height / 2)
+
+            # 调整图像大小
+            resized_image = watermarked_image.resize((new_width, new_height), Image.Resampling.BILINEAR)
+            # 保存前转换下格式
+            resized_image = resized_image.convert("RGB")
+            resized_image.save(image_dest, format='JPEG', optimize=True, quality=20)
+
+        draw_front_image()
+        draw_back_image()
+
 
 # 23新版外国人永久居留证
 class TypeYJZ(IDNOGenerator):
@@ -977,7 +1119,7 @@ class TypeYJZ(IDNOGenerator):
             raise FileNotFoundError(f"输入的底稿文件不存在")
         color = (0, 0, 0)  # 文字颜色为黑色，RGB 格式
         #type_face = "msyh.ttc" # 字体微软雅黑常规
-        type_face = "msyhl.ttc" # 字体微软雅黑细体
+        type_face = "msyhl.ttc"  # 字体微软雅黑细体
         #type_face = "simhei.ttf"  # 字体为黑体
         font = ImageFont.truetype(type_face, 76)  # 字体类型和大小
         # 尺寸是2024 * 1280 ,一毫米对应24像素 ,每次上下端会留15个像素的边
@@ -1480,7 +1622,9 @@ if __name__ == '__main__':
     # pinyin = word_to_pinyin(name)
     # print(pinyin)
     # print(IDNOGenerator.calculate_check_num_cls('11011519980811051'))
-    a = TypeSFZ(birthday='19120115', gender='男', sequence_code='282', county_code='430407')
+    # a = TypeSFZ(birthday='19120115', gender='男', sequence_code='282', county_code='430407')
+    a = TypeSFZ()
+    a.generate_image()
     print(a)
     #abc = TypeYYZZ()
     #a = TypeYYZZ.calculate_check_num_cls('91934502THQ7F74W5')
