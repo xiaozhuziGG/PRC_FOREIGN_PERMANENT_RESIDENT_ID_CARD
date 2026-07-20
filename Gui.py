@@ -514,10 +514,10 @@ class Sfz(BaseCardFrame):
         self.button_insert_database_sql.grid(row=next(r), column=2)
 
         self.btn_generate_image = tk.Button(self, text="合成图像", anchor="e", command=self.generate_image)
-        self.btn_generate_image.grid(row=next(r), column=2, sticky="w")
+        self.btn_generate_image.grid(row=r.current, column=1)
 
         self.button_quit = tk.Button(self, text="退出", command=self.master.destroy)
-        self.button_quit.grid(row=r.current, column=2, sticky="w")
+        self.button_quit.grid(row=next(r), column=2, sticky="w")
 
         self.generate_default()
 
@@ -603,9 +603,9 @@ class Sfz(BaseCardFrame):
     def generate_image(self, event=None):
         try:
             file_path = self.id_info.generate_image()
-            file_path = file_path[0] + file_path[1]
+            file_path = file_path[0] + '和' + file_path[1]
             pyperclip.copy(file_path)
-            messagebox.showinfo("提示", f"生成证件图片并复制路径到剪切板:{file_path}")
+            messagebox.showinfo("提示", f"生成证件图片并复制路径到了剪切板:{file_path}")
         except Exception as e:
             messagebox.showinfo("提示", f"生成证件图片出错,错误信息为:{e}")
 
