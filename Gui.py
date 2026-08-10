@@ -601,8 +601,16 @@ class Sfz(BaseCardFrame):
             messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
 
     def generate_image(self, event=None):
+        """
+        依据页面组件中的字段值调用静态方法generate_photo合成身份证照片。
+
+        :param event: tk 事件对象，可为 None
+        :return:
+        """
         try:
-            file_path = self.id_info.generate_image()
+            file_path = self.id_info.generate_photo(
+                self.name_ch.get(), self.gender.get(), self.birthday.get(), self.id_address.get(),
+                self.ID_No.get(), self.begin_date.get(), self.end_date.get(), self.issued_depart.get())
             file_path = file_path[0] + '和' + file_path[1]
             pyperclip.copy(file_path)
             messagebox.showinfo("提示", f"生成证件图片并复制路径到了剪切板:{file_path}")

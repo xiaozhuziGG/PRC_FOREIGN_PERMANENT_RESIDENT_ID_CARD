@@ -870,12 +870,21 @@ class TypeSFZ(IDNOGenerator):
         else:
             raise ValueError(f"证件号码{id_no}长度错误,长度为:{len(id_no)}")
 
-    def generate_image(self, face_image: str = None, image_dest: str = None):
+    @staticmethod
+    def generate_photo(name_ch: str, gender: str, birthday: str, address: str, id_no: str,
+                       begin_date: str, end_date: str, issued_depart: str) -> tuple[str, str]:
         """
+        根据渲染字段的字符串值合成身份证照片(个人信息面和国徽面)。
 
-        :param face_image: 头像文件
-        :param image_dest:
-        :return:
+        :param name_ch: (str)中文姓名
+        :param gender: (str)性别,男或者女
+        :param birthday: (str)生日,格式为YYYYMMDD
+        :param address: (str)住址
+        :param id_no: (str)证件号码
+        :param begin_date: (str)证件有效期起始日期,格式为YYYYMMDD
+        :param end_date: (str)证件有效期终止日期,格式为YYYYMMDD
+        :param issued_depart: (str)签发机关
+        :return: (tuple[str, str])个人信息面和国徽面图像的保存路径
         """
         from PIL import Image, ImageDraw, ImageFont
         # 打开png
@@ -933,35 +942,35 @@ class TypeSFZ(IDNOGenerator):
 
             :return:
             """
-            image_name = f"{self.name_ch}-{self.No}-front.jpg"
+            image_name = f"{name_ch}-{id_no}-front.jpg"
             image_dest = path.join(path_result, image_name)
             image = Image.open(image_src_front).convert("RGBA")
             watermarked_image = draw_watermark(image)
             # 继续绘制其他信息
             draw = ImageDraw.Draw(watermarked_image, "RGBA")
             # 绘制中文姓名
-            draw.text((360, 215), self.name_ch, font=name_font, fill=(0, 0, 0))
+            draw.text((360, 215), name_ch, font=name_font, fill=(0, 0, 0))
             # 性别
-            draw.text((360, 350), self.gender, font=other_font, fill=(0, 0, 0))
+            draw.text((360, 350), gender, font=other_font, fill=(0, 0, 0))
             # 民族
             draw.text((760, 350), '汉', font=other_font, fill=(0, 0, 0))
             # 生日
-            birthday_date: datetime.datetime = datetime.datetime.strptime(self.birthday, "%Y%m%d").date()
+            birthday_date: datetime.datetime = datetime.datetime.strptime(birthday, "%Y%m%d").date()
             draw.text((360, 490), str(birthday_date.year), font=birthday_font, fill=(0, 0, 0))
             draw.text((670, 490), str(birthday_date.month), font=birthday_font, fill=(0, 0, 0))
             draw.text((850, 490), str(birthday_date.day), font=birthday_font, fill=(0, 0, 0))
 
             # 住址
-            address_list = [self.address[i:i+13] for i in range(0, len(self.address), 13)]
+            address_list = [address[i:i+13] for i in range(0, len(address), 13)]
             y_posintion = 635
             for text in address_list:
                 draw.text((360, y_posintion), text, font=other_font, fill=(0, 0, 0))
                 y_posintion += 70
 
             # 号码
-            draw.text((560, 990), self.No, font=id_font, fill=(0, 0, 0))
+            draw.text((560, 990), id_no, font=id_font, fill=(0, 0, 0))
             # 头像
-            if self.gender == '男':
+            if gender == '男':
                 head_portrait = Image.open(path.join(path_src, "male.png")).convert("RGBA")
             else:
                 head_portrait = Image.open(path.join(path_src, "female.png")).convert("RGBA")
@@ -987,17 +996,17 @@ class TypeSFZ(IDNOGenerator):
 
             :return:
             """
-            image_name = f"{self.name_ch}-{self.No}-back.jpg"
+            image_name = f"{name_ch}-{id_no}-back.jpg"
             image_dest = path.join(path_result, image_name)
             image = Image.open(image_src_back).convert("RGBA")
             watermarked_image = draw_watermark(image)
             # 继续绘制其他信息
             draw = ImageDraw.Draw(watermarked_image, "RGBA")
-            begin_date_obj = datetime.datetime.strptime(self.begin_date, "%Y%m%d")
+            begin_date_obj = datetime.datetime.strptime(begin_date, "%Y%m%d")
             formatted_begin_date = begin_date_obj.strftime("%Y.%m.%d")
-            end_date_obj = datetime.datetime.strptime(self.end_date, "%Y%m%d")
+            end_date_obj = datetime.datetime.strptime(end_date, "%Y%m%d")
             formatted_end_date = end_date_obj.strftime("%Y.%m.%d")
-            draw.text((860, 830), self.issued_depart, font=back_issued_font, fill=(0, 0, 0))
+            draw.text((860, 830), issued_depart, font=back_issued_font, fill=(0, 0, 0))
             draw.text((860, 980), f"{formatted_begin_date}-{formatted_end_date}", font=back_date_font, fill=(0, 0, 0))
 
             # 设置新的分辨率（例如，将图像缩小到原来的一半）
@@ -1014,6 +1023,17 @@ class TypeSFZ(IDNOGenerator):
         image_dest_front = draw_front_image()
         image_dest_baock = draw_back_image()
         return image_dest_front, image_dest_baock
+
+    def generate_image(self, face_image: str = None, image_dest: str = None):
+        """
+        根据实例字段调用静态方法generate_photo合成身份证照片。
+
+        :param face_image: 头像文件(保留参数,当前未使用)
+        :param image_dest: (保留参数,当前未使用)
+        :return: (tuple[str, str])个人信息面和国徽面图像的保存路径
+        """
+        return self.generate_photo(self.name_ch, self.gender, self.birthday, self.address, self.No,
+                                   self.begin_date, self.end_date, self.issued_depart)
 
 
 # 23新版外国人永久居留证
