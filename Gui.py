@@ -752,8 +752,16 @@ class Yjj2023(BaseCardFrame):
         self.ID_No_other.set('有需要在2017版页面中用校验位补全的方式生成')
 
     def generate_image(self, event=None):
+        """
+        依据页面组件中的字段值调用静态方法generate_photo合成永居证图像。
+
+        :param event: tk 事件对象，可为 None
+        :return:
+        """
         try:
-            file_path = self.id_info.generate_image()
+            file_path = self.id_info.generate_photo(
+                self.name_ch.get(), self.name_en.get(), self.gender.get(), self.birthday.get(),
+                self.nationality_name_cn.get(), self.nationality_code.get(), self.ID_No.get())
             pyperclip.copy(file_path)
             messagebox.showinfo("提示", f"生成证件图片并复制路径到剪切板:{file_path}")
         except Exception as e:

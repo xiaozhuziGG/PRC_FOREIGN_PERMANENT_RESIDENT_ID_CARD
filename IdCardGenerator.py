@@ -1107,19 +1107,26 @@ class TypeYJZ(IDNOGenerator):
         yjz_old = TypeYJZ2017()
         self.No_2017 = yjz_old.No
 
-    def generate_image(self, image_src: str = None, image_dest: str = None):
+    @staticmethod
+    def generate_photo(name_ch: str, name_en: str, gender: str, birthday: str,
+                       nationality_name_ch: str, nationality_code: str, id_no: str,
+                       image_src: str = None, image_dest: str = None) -> str:
         """
-        根据证件信息生成证件图像。
+        根据渲染字段的字符串值合成外国人永久居留证图像。
 
         加载底稿模板图像，依次添加水印、英文姓名、中文姓名、性别、出生日期、
         国籍、有效期、证件号码及头像，最终压缩保存为 JPEG 格式。
 
-        :param image_src: 底稿模板图像的路径，默认为 ``resource/YJJ_IDInfo.jpg``。
-        :type image_src: str, optional
-        :param image_dest: 生成图像的保存目录路径，默认为 ``result/``。
-        :type image_dest: str, optional
-        :returns: 保存文件的绝对路径。
-        :rtype: str
+        :param name_ch: (str)中文姓名
+        :param name_en: (str)英文姓名
+        :param gender: (str)性别,男或者女
+        :param birthday: (str)生日,格式为YYYYMMDD
+        :param nationality_name_ch: (str)国籍中文简称
+        :param nationality_code: (str)国籍代码
+        :param id_no: (str)证件号码
+        :param image_src: (str, optional)底稿模板图像的路径，默认为 ``resource/YJJ_IDInfo.jpg``。
+        :param image_dest: (str, optional)生成图像的保存目录路径，默认为 ``result/``。
+        :return: (str)保存文件的绝对路径
         :raises FileNotFoundError: 当指定的底稿模板图像文件不存在时抛出。
         """
         from PIL import Image, ImageDraw, ImageFont
@@ -1179,31 +1186,31 @@ class TypeYJZ(IDNOGenerator):
         draw = ImageDraw.Draw(watermarked_image, "RGBA")
         # draw = ImageDraw.Draw(image)
         # 英文名 横向：35:428 竖向19:90 9P黑体
-        draw.text((166, 230), self.name_en, font=font, fill=color)
+        draw.text((166, 230), name_en, font=font, fill=color)
         # 中文名 9P黑体
-        draw.text((166, 345), ' '.join(self.name_ch), font=font, fill=color)
+        draw.text((166, 345), ' '.join(name_ch), font=font, fill=color)
         # 性别 横向：35:428 竖向23.9：54 8P黑体
         font = ImageFont.truetype(type_face, 68)
-        if self.gender == '男':
-            gender = '男 / M'
+        if gender == '男':
+            gender_text = '男 / M'
             head_portrait = Image.open(path.join(path_src, "male.png")).convert("RGBA")
         else:
-            gender = '女 / F'
+            gender_text = '女 / F'
             head_portrait = Image.open(path.join(path_src, "female.png")).convert("RGBA")
-        draw.text((166, 560), gender, font=font, fill=color)
+        draw.text((166, 560), gender_text, font=font, fill=color)
         # 出生日期 横线 26:85.6 竖向：23.9：54  8P黑体
         font = ImageFont.truetype(type_face, 68)
-        draw.text((614, 560), f'{self.birthday[:4]}.{self.birthday[4:6]}.{self.birthday[6:8]}', font=font, fill=color)
+        draw.text((614, 560), f'{birthday[:4]}.{birthday[4:6]}.{birthday[6:8]}', font=font, fill=color)
         # 国籍 横线：35:428  竖向31.7：54  8P黑体
         font = ImageFont.truetype(type_face, 68)
-        draw.text((166, 745), f'{self.nationality_name_ch}/{self.nationality_code}', font=font, fill=color)
+        draw.text((166, 745), f'{nationality_name_ch}/{nationality_code}', font=font, fill=color)
         # 有效期 横线：35:428  竖向39.8：54  8P黑体
         font = ImageFont.truetype(type_face, 68)
         draw.text((166, 943), '2021.01.01 - 2031.01.01', font=font, fill=color)
         # 证件号码 横线：26:85.6  竖向44.6：54  12P OCR-B10 BT字体 纵坐标1057-1123
         font_path = path.join(path_src, 'OCR-B 10 BT.ttf')
         font = ImageFont.truetype(font_path, 102)
-        draw.text((614, 1050), self.No, font=font, fill=color)
+        draw.text((614, 1050), id_no, font=font, fill=color)
         # 写头像 头像大小为644*758
         # image.paste(head_portrait, (1314, 166,1929, 960)) #废弃原因，图像范围和图像大小不匹配
         watermarked_image.paste(head_portrait, (1314, 150,), head_portrait)
@@ -1218,11 +1225,26 @@ class TypeYJZ(IDNOGenerator):
         # 压缩保存
         if not path.exists(image_dest):
             makedirs(image_dest)
-        file_path = path.join(image_dest, '{}-{}.jpg'.format(self.name_ch, self.No))
+        file_path = path.join(image_dest, '{}-{}.jpg'.format(name_ch, id_no))
         resized_image = resized_image.convert("RGB")
         # resized_image.show()
         resized_image.save(file_path, format='JPEG', optimize=True, quality=20)
         return path.abspath(file_path)
+
+    def generate_image(self, image_src: str = None, image_dest: str = None):
+        """
+        根据实例字段调用静态方法generate_photo合成外国人永久居留证图像。
+
+        :param image_src: 底稿模板图像的路径，默认为 ``resource/YJJ_IDInfo.jpg``。
+        :type image_src: str, optional
+        :param image_dest: 生成图像的保存目录路径，默认为 ``result/``。
+        :type image_dest: str, optional
+        :returns: 保存文件的绝对路径。
+        :rtype: str
+        """
+        return self.generate_photo(self.name_ch, self.name_en, self.gender, self.birthday,
+                                   self.nationality_name_ch, self.nationality_code, self.No,
+                                   image_src, image_dest)
 
     def __str__(self):
         return (
