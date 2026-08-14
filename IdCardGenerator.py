@@ -902,11 +902,11 @@ class TypeSFZ(IDNOGenerator):
         image_src_back = path.join(path_src, "SFZ_empty_back.jpg")
         watermark_font = ImageFont.truetype('simhei.ttf', 60)
         name_font = ImageFont.truetype(path.join(path_src, 'hei.ttf'), 72)
-        other_font = ImageFont.truetype(path.join(path_src, 'hei.ttf'), 60)
-        birthday_font = ImageFont.truetype(path.join(path_src, 'fzhei.ttf'), 60)
+        other_font = ImageFont.truetype(path.join(path_src, 'msyhl.ttc'), 60)
+        birthday_font = ImageFont.truetype(path.join(path_src, 'msyhl.ttc'), 60)
         id_font = ImageFont.truetype(path.join(path_src, 'OCR-B 10 BT.ttf'), 72)
         back_issued_font = ImageFont.truetype('msyhl.ttc', 65)
-        back_date_font = ImageFont.truetype('msyhl.ttc', 60)
+        back_date_font = ImageFont.truetype('msyhl.ttc', 65)
 
         def draw_watermark(image: Image.Image) -> Image.Image:
             """
@@ -925,8 +925,8 @@ class TypeSFZ(IDNOGenerator):
 
             # 计算水印位置
             bbox = draw_watermark.textbbox((0, 0), watermark_text, font=watermark_font, align="left")
-            position1 = (10, 10)  # 左上角
-            position2 = (image.width - bbox[2] - 10, image.height - bbox[3] - 10)  # 右下角
+            position1 = (50, 50)  # 左上角
+            position2 = (image.width - bbox[2] - 50, image.height - bbox[3] - 50)  # 右下角
 
             # 绘制水印
             draw_watermark.text(position1, watermark_text, font=watermark_font, fill=watermark_color)
@@ -949,26 +949,26 @@ class TypeSFZ(IDNOGenerator):
             # 继续绘制其他信息
             draw = ImageDraw.Draw(watermarked_image, "RGBA")
             # 绘制中文姓名
-            draw.text((360, 215), name_ch, font=name_font, fill=(0, 0, 0))
+            draw.text((395, 240), name_ch, font=name_font, fill=(0, 0, 0))
             # 性别
-            draw.text((360, 350), gender, font=other_font, fill=(0, 0, 0))
+            draw.text((395, 370), gender, font=other_font, fill=(0, 0, 0))
             # 民族
-            draw.text((760, 350), '汉', font=other_font, fill=(0, 0, 0))
+            draw.text((795, 370), '汉', font=other_font, fill=(0, 0, 0))
             # 生日
             birthday_date: datetime.datetime = datetime.datetime.strptime(birthday, "%Y%m%d").date()
-            draw.text((360, 490), str(birthday_date.year), font=birthday_font, fill=(0, 0, 0))
-            draw.text((670, 490), str(birthday_date.month), font=birthday_font, fill=(0, 0, 0))
-            draw.text((850, 490), str(birthday_date.day), font=birthday_font, fill=(0, 0, 0))
+            draw.text((395, 510), str(birthday_date.year), font=birthday_font, fill=(0, 0, 0))
+            draw.text((720, 510), str(birthday_date.month), font=birthday_font, fill=(0, 0, 0))
+            draw.text((900, 510), str(birthday_date.day), font=birthday_font, fill=(0, 0, 0))
 
             # 住址
             address_list = [address[i:i+13] for i in range(0, len(address), 13)]
-            y_posintion = 635
+            y_posintion = 643
             for text in address_list:
-                draw.text((360, y_posintion), text, font=other_font, fill=(0, 0, 0))
-                y_posintion += 70
+                draw.text((395, y_posintion), text, font=other_font, fill=(0, 0, 0))
+                y_posintion += 85
 
             # 号码
-            draw.text((560, 990), id_no, font=id_font, fill=(0, 0, 0))
+            draw.text((685, 1020), id_no, font=id_font, fill=(0, 0, 0))
             # 头像
             if gender == '男':
                 head_portrait = Image.open(path.join(path_src, "male.png")).convert("RGBA")
@@ -985,9 +985,9 @@ class TypeSFZ(IDNOGenerator):
             # 保存前要转换下格式
             resized_image = resized_image.convert("RGB")
             # 保存
-            resized_image.save(image_dest, format='JPEG', optimize=True, quality=20)
+            resized_image.save(image_dest, format='JPEG', optimize=True, quality=30)
             # 显示
-            # watermarked_image.show()
+            # resized_image.show()
             return image_dest
 
         def draw_back_image():
@@ -1006,8 +1006,8 @@ class TypeSFZ(IDNOGenerator):
             formatted_begin_date = begin_date_obj.strftime("%Y.%m.%d")
             end_date_obj = datetime.datetime.strptime(end_date, "%Y%m%d")
             formatted_end_date = end_date_obj.strftime("%Y.%m.%d")
-            draw.text((860, 830), issued_depart, font=back_issued_font, fill=(0, 0, 0))
-            draw.text((860, 980), f"{formatted_begin_date}-{formatted_end_date}", font=back_date_font, fill=(0, 0, 0))
+            draw.text((810, 860), issued_depart, font=back_issued_font, fill=(0, 0, 0))
+            draw.text((810, 1010), f"{formatted_begin_date}-{formatted_end_date}", font=back_date_font, fill=(0, 0, 0))
 
             # 设置新的分辨率（例如，将图像缩小到原来的一半）
             new_width = int(watermarked_image.width / 2)
@@ -1017,6 +1017,9 @@ class TypeSFZ(IDNOGenerator):
             resized_image = watermarked_image.resize((new_width, new_height), Image.Resampling.BILINEAR)
             # 保存前转换下格式
             resized_image = resized_image.convert("RGB")
+            # 显示
+            # resized_image.show()
+            # 保存
             resized_image.save(image_dest, format='JPEG', optimize=True, quality=20)
             return image_dest
 
