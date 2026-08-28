@@ -309,11 +309,14 @@ sheets:
             organrelated_type: 实际控制人
             实际控制人-deveclientinfox_control_person: name_ch
             实际控制人证件号码-deveclientinfox_controller_id_no: "No"
+            控制人证件号码-deveclientinfox_controller_id_no: "No"
             实际控制人证件类别-deveclientinfox_controller_id_kind: id_kind
             控制人证件地址-clientinfox_controller_id_address: address
             控制人现居地址-clientinfox_nonresident_ctrl_addr: address
+            控制人现居地址-deveclientinfox_nonresident_ctrl_addr: address
             控制人出生日期-clientinfox_birthday: birthday
             实际控制人联系电话-clientinfox_control_person_tel: phone_number
+            控制人联系电话-deveclientinfox_controller_tel: phone_number
             实际控制人联系电话-deveclientinfox_control_person_tel: phone_number
             实际控制人证件开始日期-deveclientinfox_controller_id_begindate: begin_date
             实际控制人证件截止日期-deveclientinfox_controller_id_enddate: end_date
@@ -321,4 +324,6 @@ sheets:
             产品控制人证件号码-deveclientinfox_clientinfox_controller_id_no: "No"
             产品控制人证件类型-deveclientinfox_clientinfox_controller_id_kind: id_kind
             产品控制人证件开始日期-deveclientinfox_clientinfox_controller_id_begindate: begin_date
+            控制人起始日期-deveclientinfox_controller_id_begindate: begin_date
             产品控制人证件截止日期-deveclientinfox_clientinfox_controller_id_enddate: end_date
+            控制人截止日期-deveclientinfox_controller_id_enddate: phone_number
