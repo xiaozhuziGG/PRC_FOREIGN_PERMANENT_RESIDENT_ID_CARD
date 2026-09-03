@@ -1065,8 +1065,8 @@ class BusinessLicense(BaseCardFrame):
 
         # 通过描述符仅传入需要更新的参数（name 需要传是因为要改名）
         self.name_ch = WidgetGroup(self, name="企业名称:", bg=LABEL_BG)
-        self.name_en = WidgetGroup(self, name="英文名称:", bg=LABEL_BG)
-        self.birthday = WidgetGroup(self, name="成立日期:", bg=LABEL_BG)
+        self.name_en = WidgetGroup(self, name="英文名称:")
+        self.birthday = WidgetGroup(self, name="成立日期:")
         self.begin_date = WidgetGroup(self, bg=LABEL_BG)
 
         # 子类特有字段（与公共字段共存）

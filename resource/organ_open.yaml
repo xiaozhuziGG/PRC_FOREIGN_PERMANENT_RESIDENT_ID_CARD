@@ -230,6 +230,7 @@ sheets:
             organrelated_type: 实际受益人
             实际受益人-clientinfox_gf_isexist_benefit: name_ch
             受益所有人证件类型-clientinfox_beneficiary_id_kind: id_kind
+            机构受益人证件类型-clientinfox_beneficiary_id_kind: id_kind
             受益人证件号码-clientinfox_beneficiary_id_no: "No"
             机构受益人证件号码-clientinfox_beneficiary_id_no: "No"
             受益人联系电话-clientinfox_benefit_person_tel: phone_number
