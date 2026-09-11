@@ -143,7 +143,9 @@ class BaseCardFrame(tk.Frame, ABC):
         :param start_row_num: 组件起始行号
         """
         r = RowNumIterator(start_row_num)
-        self.__dict__['name_ch'] = WidgetGroup(self, name="中文名:", row_num=next(r))
+        self.__dict__['name_ch'] = WidgetGroup(self, name="中文名:", row_num=next(r),
+                                               bindings=[("<FocusOut>", self.name_ch_to_pinyin),
+                                                         ("<Return>", self.name_ch_to_pinyin)])
         self.__dict__['ID_No'] = WidgetGroup(self, name="证件号码:", row_num=next(r))
         self.__dict__['name_en'] = WidgetGroup(self, name="英文名:", row_num=next(r))
         self.__dict__['birthday'] = WidgetGroup(self, name="生日:", row_num=next(r))
@@ -158,6 +160,26 @@ class BaseCardFrame(tk.Frame, ABC):
         self.__dict__['id_address'] = WidgetGroup(self, name="证件地址:", row_num=next(r))
         self.__dict__['issued_depart'] = WidgetGroup(self, name="签发机关:", row_num=next(r))
         self._next_row = r.current
+
+    def name_ch_to_pinyin(self, event=None):
+        """
+        将中文名转换为拼音并写入英文名组件
+
+        绑定在中文名 Entry 的 ``<FocusOut>`` 与 ``<Return>`` 事件上。
+        中文名为空时不做处理，转换失败时弹出错误提示。
+
+        :param event: (tk.Event, optional) 事件对象，由 tkinter 自动传入
+        """
+        name_ch = self.name_ch.get().strip()
+        if not name_ch:
+            return
+        try:
+            # 与证件生成时保持一致的英文名格式
+            name_en = IdCardGenerator.IDNOGenerator.get_english_name(name_ch)
+        except Exception as e:
+            messagebox.showerror("错误", f"中文名转换为拼音失败：{e}")
+            return
+        self.name_en.set(name_en)
 
     @abstractmethod
     def generate_default(self):
