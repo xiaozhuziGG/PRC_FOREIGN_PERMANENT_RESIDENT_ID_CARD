@@ -14,7 +14,7 @@ import sys
 from typing import List, Dict, Optional
 
 
-def resource_path(relative_path):
+def resource_path(relative_path: str) -> str:
     """
     获取资源的绝对路径。
     该函数用于确定资源文件的绝对路径，特别是在使用PyInstaller等工具将Python脚本打包为可执行文件时。
@@ -22,7 +22,7 @@ def resource_path(relative_path):
 
     :param relative_path: (str)资源文件相对于程序的路径。
 
-    :return: str: 资源文件的绝对路径。
+    :return: (str)资源文件的绝对路径。
     """
     # 是否Bundle Resource
     if getattr(sys, 'frozen', False):
@@ -90,7 +90,8 @@ NAME_HONGKONG_MACAO_TAIWAN = ('香港特别行政区', '澳门特别行政区','
 
 # 国籍信息
 class NationalityInfo:
-    def __init__(self, name_cn="", name_en="", number="", code_2="", code_3="", full_name_cn="", full_name_en=""):
+    def __init__(self, name_cn: str = "", name_en: str = "", number: str = "", code_2: str = "",
+                 code_3: str = "", full_name_cn: str = "", full_name_en: str = ""):
         """
         初始化国籍信息对象。
 
@@ -110,7 +111,12 @@ class NationalityInfo:
         self.full_name_cn = full_name_cn
         self.full_name_en = full_name_en
 
-    def __str__(self):
+    def __str__(self) -> str:
+        """
+        返回国籍信息的字符串表示形式
+
+        :return: (str)国籍编号、中英文简称及中英文全称拼接后的描述文本
+        """
         return f"NationalityInfo:\n中文简称={self.name_cn}, 英文简称={self.name_en}, 国籍编号={self.number}, " \
                f"两位国籍代码={self.code_2}, 三位国籍代码={self.code_3}, 中文全称={self.full_name_cn}, " \
                f"英文全称={self.full_name_en}"
@@ -118,6 +124,13 @@ class NationalityInfo:
 
 # 文件中读取信息
 def get_nationality_info() -> None:
+    """
+    从国籍信息CSV文件中读取国籍数据并填充全局字典
+
+    逐行解析 resource/GBT2659.1-2022.CSV，以国籍编号、两位国籍代码、三位国籍代码为键，
+    分别写入 nationality_dict_by_number、nationality_dict_by_code_2、nationality_dict_by_code_3。
+    文件不存在时抛出 FileNotFoundError。
+    """
     # print("开始解析国籍信息...")
 
     # 此处写从文件读取国籍信息的代码
@@ -167,6 +180,12 @@ def get_nationality_info() -> None:
 
 # 获取省市代码
 def get_province_code() -> None:
+    """
+    从新版和旧版行政区划CSV文件中读取行政区划数据并填充全局字典
+
+    以行政区代码为键、行政区名称为值，分别写入 administration_division（新版行政区划）
+    和 administration_division_old（旧版行政区划）。任一文件不存在时抛出 FileNotFoundError。
+    """
     # print("开始解析行政区划信息...")
     admin_division = r"./resource/administrative_division.csv"
     admin_division = os.path.join(BASE_DIR, admin_division)
@@ -190,7 +209,17 @@ def get_province_code() -> None:
 
 
 # 替换换行符
-def replace_newline(data_info: str):
+def replace_newline(data_info: str) -> str:
+    """
+    清洗文本中的换行符，用于处理CSV单元格内的多行内容
+
+    换行开头时直接删除换行符；换行后紧跟中文字符时删除换行符；
+    换行后紧跟英文字符时替换为空格。
+
+    :param data_info: (str)待清洗的文本
+
+    :return: (str)清洗换行符后的文本，入参不是字符串时原样返回
+    """
     # 判断是否为字符串类型，不是的则直接原样返回
     if not isinstance(data_info, str):
         return data_info
@@ -213,12 +242,11 @@ def replace_newline(data_info: str):
 class ZipInfo:
     """表示行政区划和邮编的一行数据。
 
-    Attributes:
-        province (str): 省份名称。
-        city (str): 城市名称。
-        county (str): 区县名称。
-        post_code (str): 邮政编码。
-        area_code (str): 区号。
+    :ivar province: (str)省份名称。
+    :ivar city: (str)城市名称。
+    :ivar county: (str)区县名称。
+    :ivar post_code: (str)邮政编码。
+    :ivar area_code: (str)区号。
     """
 
     def __init__(self, province: str, city: str, county: str, post_code: str, area_code: str):
@@ -231,7 +259,7 @@ class ZipInfo:
         :param post_code: (str)邮政编码。
         :param area_code: (str)区号。
 
-        :return:
+        :return: None
         """
         self.province = province
         self.city = city
@@ -243,16 +271,17 @@ class ZipInfo:
     def __repr__(self) -> str:
         """返回对象的字符串表示形式。
 
-        :return: str: 对象的字符串表示。
+        :return: (str)对象的字符串表示。
         """
         return (f"ZipInfo(province='{self.province}', city='{self.city}', "
                 f"county='{self.county}', post_code='{self.post_code}', "
                 f"area_code='{self.area_code}')")
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
+        返回对象的字符串表示形式
 
-        :return: str: 对象的字符串表示。
+        :return: (str)对象的字符串表示。
         """
         return (f"ZipInfo(province='{self.province}', city='{self.city}', "
                 f"county='{self.county}', post_code='{self.post_code}', "
@@ -262,10 +291,9 @@ class ZipInfo:
 class ZipCodeStore:
     """用于存储和查询行政区划数据的类。
 
-    Attributes:
-        records (List[ZipInfo]): 所有行政区划记录的列表。
-        province_index (Dict[str, List[ZipInfo]]): 按省份建立的索引。
-        county_index (Dict[str, List[ZipInfo]]): 按区县建立的索引。
+    :ivar records: (List[ZipInfo])所有行政区划记录的列表。
+    :ivar province_index: (Dict[str, List[ZipInfo]])按省份建立的索引。
+    :ivar county_index: (Dict[str, List[ZipInfo]])按区县建立的索引。
     """
 
     def __init__(self):
@@ -276,10 +304,10 @@ class ZipCodeStore:
         self.zipcode_index: Dict[str, List[ZipInfo]] = {}
 
     def add_record(self, record: ZipInfo) -> None:
-        """添加一条记录到数据存储中，并更新索引。
+        """
+        添加一条记录到数据存储中，并更新索引
 
-        Args:
-            record (ZipInfo): 要添加的记录。
+        :param record: (ZipInfo)要添加的记录。
         """
         self.records.append(record)
         # 更新省份索引
@@ -296,40 +324,45 @@ class ZipCodeStore:
         self.zipcode_index[record.post_code].append(record)
 
     def query_by_province(self, province: str) -> List[ZipInfo]:
-        """根据省份名称查询记录。
+        """
+        根据省份名称查询记录
 
-        Args:
-            province (str): 省份名称。
+        :param province: (str)省份名称。
 
-        Returns:
-            List[ZipInfo]: 匹配的记录列表。
+        :return: (List[ZipInfo])匹配的记录列表。
         """
         return self.province_index.get(province, [])
 
     def query_by_county(self, county: str) -> List[ZipInfo]:
-        """根据区县名称查询记录。
+        """
+        根据区县名称查询记录
 
-        Args:
-            county (str): 区县名称。
+        :param county: (str)区县名称。
 
-        Returns:
-            List[ZipInfo]: 匹配的记录列表。
+        :return: (List[ZipInfo])匹配的记录列表。
         """
         return self.county_index.get(county, [])
 
     def query_by_zipcode(self, zipcode: str) -> List[ZipInfo]:
-        """根据邮编查询记录。
+        """
+        根据邮编查询记录
 
-        Args:
-            zipcode (str): 邮编。
+        :param zipcode: (str)邮编。
 
-        Returns:
-            List[ZipInfo]: 匹配的记录列表。
+        :return: (List[ZipInfo])匹配的记录列表。
         """
         return self.zipcode_index.get(zipcode, [])
 
 
 def get_zipcode_info() -> ZipCodeStore:
+    """
+    从邮政编码CSV文件中读取行政区划数据并构建查询存储
+
+    逐行解析 resource/zipcode.csv，为每行构建 ZipInfo 记录并加入 ZipCodeStore，
+    同时建立省份、区县、邮编三个索引。文件不存在时抛出 FileNotFoundError。
+
+    :return: (ZipCodeStore)填充完毕的行政区划数据存储对象
+    """
     zip_code_store = ZipCodeStore()
     # 读取 CSV 文件并填充数据
     zip_code_file = r"./resource/zipcode.csv"
