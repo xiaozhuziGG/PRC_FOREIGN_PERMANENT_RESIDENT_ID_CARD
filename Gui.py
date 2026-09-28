@@ -927,6 +927,7 @@ class GATJzz(BaseCardFrame):
         self.province_code = WidgetGroup(self, name="地区码:", row_num=next(r2))
         self.province_name = WidgetGroup(self, name="地区:", row_num=next(r2))
         self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(r2))
+        self.auxi_id_no = WidgetGroup(self, name="辅证号码:", row_num=next(r2))
         # 按钮
         self.btn_clear_gat = tk.Button(self, text="清除信息", command=self.clear_all_fields)
         create_tooltip(self.btn_clear_gat, text="清除所有输入框中的信息")
@@ -970,6 +971,7 @@ class GATJzz(BaseCardFrame):
         super().show_info()
         self.province_code.set(self.id_info.region_code)
         self.province_name.set(self.id_info.province_name)
+        self.auxi_id_no.set(self.id_info.auxi_id_no)
         self.nationality_code.set(self.id_info.nationality_code)        
 
     def check_num_complete(self, event=None):
@@ -991,6 +993,8 @@ class GATJzz(BaseCardFrame):
             self.birthday.set(id_info.get('birthday', ''))
             self.province_name.set(id_info.get('province_name', ''))
             self.province_code.set(id_info.get('region_code', ''))
+            # 解析态无法反推辅证的随机部分,清空避免显示与当前号码不匹配的陈旧值
+            self.auxi_id_no.set('')
 
         except Exception as e:
             messagebox.showinfo("提示", f"证件号码解析出错,错误信息为:{e}")
@@ -1018,6 +1022,7 @@ class GAtxz(BaseCardFrame):
         self.combobox_id_type.grid(row=next(r), column=1, sticky='w')
         r2 = RowNumIterator(self._next_row)
         self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(r2))
+        self.auxi_id_no = WidgetGroup(self, name="辅证号码:", row_num=next(r2))
         # 按钮
         self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
         self.button_insert_database_sql.grid(row=r2.current, column=0)
@@ -1037,7 +1042,8 @@ class GAtxz(BaseCardFrame):
 
     def show_info(self):
         super().show_info()
-        self.nationality_code.set(self.id_info.nationality_code)        
+        self.nationality_code.set(self.id_info.nationality_code)
+        self.auxi_id_no.set(self.id_info.auxi_id_no)
 
 
 class TWtxz(BaseCardFrame):
@@ -1053,6 +1059,7 @@ class TWtxz(BaseCardFrame):
 
         r2 = RowNumIterator(self._next_row)
         self.nationality_code = WidgetGroup(self, name="国籍代码:", row_num=next(r2))
+        self.auxi_id_no = WidgetGroup(self, name="辅证号码:", row_num=next(r2))
         # 按钮
         self.button_insert_database_sql = tk.Button(self, text="同步福研", command=self.show_id_info_by_sql)
         self.button_insert_database_sql.grid(row=r2.current, column=0)
@@ -1072,6 +1079,7 @@ class TWtxz(BaseCardFrame):
     def show_info(self):
         super().show_info()
         self.nationality_code.set(self.id_info.nationality_code)
+        self.auxi_id_no.set(self.id_info.auxi_id_no)
 
 class BusinessLicense(BaseCardFrame):
     """营业执照的页面"""

@@ -482,8 +482,8 @@ class IDNOGenerator(ABC):
             if ('男' == gender and int(self.sequence_code) % 2 == 0) or \
                     ('女' == gender and int(self.sequence_code) % 2 == 1):
                 if int(self.sequence_code) == 999:
-                    # +3
-                    self.sequence_code = str(int(self.sequence_code) + 3).zfill(3)
+                    # 999+1会进位成1000使顺序码变成4位,对1000取模回绕为000(偶数,与"女"匹配)
+                    self.sequence_code = str((int(self.sequence_code) + 1) % 1000).zfill(3)
                 else:
                     # +1
                     self.sequence_code = str(int(self.sequence_code) + 1).zfill(3)
@@ -551,7 +551,13 @@ class IDNOGenerator(ABC):
 
                 # 三种情况都找不到,那就找市的邮编
                 if len(zipinfo_list) == 0:
-                    zipinfo_list = [random.choice(Nationality.ZipCodeStore.query_by_county(self.city_name))]
+                    city_zipinfo_list = Nationality.ZipCodeStore.query_by_county(self.city_name)
+                    # 市一级也查不到时,依次回退到省级和全部记录,避免随机选取空序列报错
+                    if len(city_zipinfo_list) == 0:
+                        city_zipinfo_list = Nationality.ZipCodeStore.query_by_province(self.province_name)
+                    if len(city_zipinfo_list) == 0:
+                        city_zipinfo_list = Nationality.ZipCodeStore.records
+                    zipinfo_list = [random.choice(city_zipinfo_list)]
 
             zipinfo = zipinfo_list[0]
             self.zipcode = zipinfo.post_code
@@ -565,7 +571,13 @@ class IDNOGenerator(ABC):
 
             # 有的行政区码没有到县一级的情况,用市名当县名重选一个
             else:
-                zipinfo = random.choice(Nationality.ZipCodeStore.query_by_county(self.city_name))
+                city_zipinfo_list = Nationality.ZipCodeStore.query_by_county(self.city_name)
+                # 市一级也查不到时,依次回退到省级和全部记录,避免随机选取空序列报错
+                if len(city_zipinfo_list) == 0:
+                    city_zipinfo_list = Nationality.ZipCodeStore.query_by_province(self.province_name)
+                if len(city_zipinfo_list) == 0:
+                    city_zipinfo_list = Nationality.ZipCodeStore.records
+                zipinfo = random.choice(city_zipinfo_list)
                 self.zipcode = zipinfo.post_code
                 self.area_code = zipinfo.area_code
 
@@ -1421,7 +1433,18 @@ class TypeGATJZZ(IDNOGenerator):
     ID_NO_LENGTH = 18
 
     def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None,
-                 gender: str = None, begin_date: str = None):
+                 gender: str = None, begin_date: str = None, is_generate_auxi: bool = True):
+        """
+        初始化港澳台居民居住证
+
+        :param id_type: (str)证件类型,取值来自 GATPermanentResident 枚举
+        :param name_ch: (str)中文名
+        :param name_en: (str)英文名
+        :param birthday: (str)生日
+        :param gender: (str)性别，男或者女
+        :param begin_date: (str)证件有效期起始日期
+        :param is_generate_auxi: (bool)是否生成辅证号码,生成辅证时传 False 以切断互为辅证的递归
+        """
         super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender, begin_date=begin_date,
                          id_kind=IDKind.GAT_PERMANENT_RESIDENT)
         self.__type = id_type
@@ -1443,6 +1466,8 @@ class TypeGATJZZ(IDNOGenerator):
         self.calculate_check_num()
         # 拼接上校验位
         self.No += self.last_num
+        # 辅证号码,港澳台居民居住证与对应的来往内地(大陆)通行证互为辅证
+        self.auxi_id_no = self.generate_auxi_id_no() if is_generate_auxi else ''
 
     def __str__(self):
         return (
@@ -1453,6 +1478,28 @@ class TypeGATJZZ(IDNOGenerator):
             f"性别：{self.gender}\n"
             f"地区码：{self.region_code}, 地区：{self.province_name}\n"
         )
+
+    def generate_auxi_id_no(self) -> str:
+        """
+        生成辅证号码
+
+        港澳台居民居住证与来往内地(大陆)通行证互为辅证,互为辅证的两者属于同一人,
+        共用生日、性别、国籍和姓名。生成辅证时传 is_generate_auxi=False,避免互相生成。
+
+        :return: (str)辅证号码,香港/澳门居民居住证返回来往内地通行证号码,台湾居民居住证返回来往大陆通行证号码
+        """
+        if self.__type == GATPermanentResident.CTN_PERMANENT_RESIDENT.value:
+            # 台湾居民居住证的辅证为台湾居民来往大陆通行证
+            permit_card = TypeTWTXZ(name_ch=self.name_ch, name_en=self.name_en, birthday=self.birthday,
+                                    gender=self.gender, is_generate_auxi=False)
+        else:
+            # 港澳居民居住证的辅证为对应地区的来往内地通行证
+            permit_type = HkgMacPermit.HKG_PERMIT.value \
+                if self.__type == GATPermanentResident.HKG_PERMANENT_RESIDENT.value \
+                else HkgMacPermit.MAC_PERMIT.value
+            permit_card = TypeGATXZ(permit_type, name_ch=self.name_ch, name_en=self.name_en, birthday=self.birthday,
+                                    gender=self.gender, is_generate_auxi=False)
+        return permit_card.No
 
     @classmethod
     def id_no_parse(cls, id_no):
@@ -1489,8 +1536,20 @@ class TypeGATJZZ(IDNOGenerator):
 
 # 港澳通行证
 class TypeGATXZ(IDNOGenerator):
-    def __init__(self, id_type: str):
-        super().__init__(id_kind=IDKind.HKG_MAC_PERMIT)
+    def __init__(self, id_type: str, name_ch: str = None, name_en: str = None, birthday: str = None,
+                 gender: str = None, is_generate_auxi: bool = True):
+        """
+        初始化港澳居民来往内地通行证
+
+        :param id_type: (str)证件类型,取值来自 HkgMacPermit 枚举
+        :param name_ch: (str)中文名
+        :param name_en: (str)英文名
+        :param birthday: (str)生日
+        :param gender: (str)性别，男或者女
+        :param is_generate_auxi: (bool)是否生成辅证号码,生成辅证时传 False 以切断互为辅证的递归
+        """
+        super().__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender,
+                         id_kind=IDKind.HKG_MAC_PERMIT)
         self.__type = id_type
         if id_type == HkgMacPermit.HKG_PERMIT.value:
             self.PREFIX_CODE = 'H'
@@ -1504,6 +1563,8 @@ class TypeGATXZ(IDNOGenerator):
         self.sequence_code_forepart = str(random.randint(0, 99999)).zfill(5)
         # 证件号码
         self.No = f"{self.PREFIX_CODE}{self.sequence_code_forepart}{self.sequence_code}"
+        # 辅证号码,港澳居民来往内地通行证与对应的港澳台居民居住证互为辅证
+        self.auxi_id_no = self.generate_auxi_id_no() if is_generate_auxi else ''
 
     # 字母加上八位数字
     def __str__(self):
@@ -1515,17 +1576,47 @@ class TypeGATXZ(IDNOGenerator):
             f"性别：{self.gender}\n"
         )
 
+    def generate_auxi_id_no(self) -> str:
+        """
+        生成辅证号码
+
+        港澳居民来往内地通行证与港澳台居民居住证互为辅证,互为辅证的两者属于同一人,
+        共用生日、性别、国籍和姓名。生成辅证时传 is_generate_auxi=False,避免互相生成。
+
+        :return: (str)辅证号码,即对应地区(香港/澳门)的港澳台居民居住证号码
+        """
+        # 香港居民来往内地通行证的辅证为香港居民居住证,澳门同理
+        resident_type = GATPermanentResident.HKG_PERMANENT_RESIDENT.value \
+            if self.__type == HkgMacPermit.HKG_PERMIT.value \
+            else GATPermanentResident.MAC_PERMANENT_RESIDENT.value
+        resident_card = TypeGATJZZ(resident_type, name_ch=self.name_ch, name_en=self.name_en,
+                                   birthday=self.birthday, gender=self.gender, is_generate_auxi=False)
+        return resident_card.No
+
 
 # 台湾通行证
 class TypeTWTXZ(IDNOGenerator):
     # 台湾居民来往内地通行证
-    def __init__(self):
-        super(TypeTWTXZ, self).__init__(id_kind=IDKind.CTN_PERMIT)
+    def __init__(self, name_ch: str = None, name_en: str = None, birthday: str = None,
+                 gender: str = None, is_generate_auxi: bool = True):
+        """
+        初始化台湾居民来往大陆通行证
+
+        :param name_ch: (str)中文名
+        :param name_en: (str)英文名
+        :param birthday: (str)生日
+        :param gender: (str)性别，男或者女
+        :param is_generate_auxi: (bool)是否生成辅证号码,生成辅证时传 False 以切断互为辅证的递归
+        """
+        super(TypeTWTXZ, self).__init__(name_ch=name_ch, name_en=name_en, birthday=birthday, gender=gender,
+                                        id_kind=IDKind.CTN_PERMIT)
         self.nationality_code = 'CTN'
         # 前半段
         self.sequence_code_forepart = str(random.randint(0, 99999)).zfill(5)
         # 证件号码
         self.No = f"{self.sequence_code_forepart}{self.sequence_code}"
+        # 辅证号码,台湾居民来往大陆通行证与台湾居民居住证互为辅证
+        self.auxi_id_no = self.generate_auxi_id_no() if is_generate_auxi else ''
 
     # 八位数字
     def __str__(self):
@@ -1535,6 +1626,20 @@ class TypeTWTXZ(IDNOGenerator):
             f"生日：{self.birthday}\n"
             f"性别：{self.gender}\n"
         )
+
+    def generate_auxi_id_no(self) -> str:
+        """
+        生成辅证号码
+
+        台湾居民来往大陆通行证与台湾居民居住证互为辅证,互为辅证的两者属于同一人,
+        共用生日、性别、国籍和姓名。生成辅证时传 is_generate_auxi=False,避免互相生成。
+
+        :return: (str)辅证号码,即台湾居民居住证号码
+        """
+        resident_card = TypeGATJZZ(GATPermanentResident.CTN_PERMANENT_RESIDENT.value, name_ch=self.name_ch,
+                                   name_en=self.name_en, birthday=self.birthday, gender=self.gender,
+                                   is_generate_auxi=False)
+        return resident_card.No
 
 
 # 营业执照
